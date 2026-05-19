@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A.E.G.I.S.-GRID v3 — El Niño & Grid Sentinel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    :root {
+      --neon-green:  #39ff14;
+      --neon-blue:   #00f0ff;
+      --neon-red:    #ff0055;
+      --neon-yellow: #ffe600;
+      --neon-orange: #ff7700;
+      --bg:          #050508;
+      --card:        #0a0a10;
+      --border:      #1a1a2e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: #c9d1d9;
+      font-family: 'Courier New', monospace;
+      margin: 0; padding: 16px;
+    }
+    .neon-green  { color: var(--neon-green);  text-shadow: 0 0 8px var(--neon-green); }
+    .neon-blue   { color: var(--neon-blue);   text-shadow: 0 0 8px var(--neon-blue); }
+    .neon-red    { color: var(--neon-red);    text-shadow: 0 0 8px var(--neon-red); }
+    .neon-yellow { color: var(--neon-yellow); text-shadow: 0 0 8px var(--neon-yellow); }
+    .neon-orange { color: var(--neon-orange); text-shadow: 0 0 6px var(--neon-orange); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      transition: border-color .3s;
+    }
+    .card-green  { border-color: rgba(57,255,20,.35); }
+    .card-blue   { border-color: rgba(0,240,255,.35); }
+    .card-red    { border-color: rgba(255,0,85,.35); }
+    .card-yellow { border-color: rgba(255,230,0,.35); }
+    .card-orange { border-color: rgba(255,119,0,.35); }
+
+    .label { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #555; }
+    .val   { font-size: 1.6rem; font-weight: 700; }
+    .val-sm{ font-size: 1rem;   font-weight: 700; }
+    .unit  { font-size: .7rem; color: #666; margin-left: 3px; }
+
+    .kpi   { display:flex; flex-direction:column; gap:2px; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+
+    @media(max-width:700px){
+      .grid4 { grid-template-columns:1fr 1fr; }
+      .grid3 { grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:480px){
+      .grid2,.grid3,.grid4 { grid-template-columns:1fr; }
+    }
+
+    .blink { animation: blinker 1.2s linear infinite; }
+    @keyframes blinker { 50% { opacity: 0; } }
+
+    .bar-track { background:#111; border-radius:4px; height:8px; overflow:hidden; margin-top:6px; }
+    .bar-fill  { height:100%; border-radius:4px; transition:width .8s; }
+
+    .section-title {
+      font-size: .75rem; letter-spacing: .15em; text-transform: uppercase;
+      color: #444; margin-bottom: 12px; padding-bottom: 6px;
+      border-bottom: 1px solid #111;
+    }
+
+    canvas { max-height: 180px; }
+
+    .dam-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 6px 0; border-bottom: 1px solid #111;
+      font-size:.8rem;
+    }
+    .dam-row:last-child { border-bottom: none; }
+
+    .tag {
+      display:inline-block; font-size:.6rem; padding:2px 6px; border-radius:3px;
+      font-weight:700; letter-spacing:.05em;
+    }
+    .tag-green  { background:rgba(57,255,20,.15);  color:var(--neon-green); }
+    .tag-red    { background:rgba(255,0,85,.15);   color:var(--neon-red); }
+    .tag-yellow { background:rgba(255,230,0,.15);  color:var(--neon-yellow); }
+    .tag-orange { background:rgba(255,119,0,.15);  color:var(--neon-orange); }
+
+    #toast {
+      position:fixed; bottom:16px; right:16px;
+      background:#0a0a10; border:1px solid var(--neon-green);
+      color:var(--neon-green); padding:8px 14px; border-radius:6px;
+      font-size:.7rem; opacity:0; transition:opacity .3s;
+      pointer-events:none;
+    }
+    #toast.show { opacity:1; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<div style="display:flex;justify-content:space-between;align-items:flex-end;
+            border-bottom:1px solid #111;padding-bottom:12px;margin-bottom:16px;">
+  <div>
+    <div class="neon-green" style="font-size:1.3rem;font-weight:900;letter-spacing:.1em;">
+      🐧🤖 A.E.G.I.S.-GRID <span style="font-size:.7rem;opacity:.5">v3.0</span>
+    </div>
+    <div style="font-size:.65rem;color:#444;margin-top:2px;">
+      El Niño 2026 · Pallatanga · Mazar · Sistema Nacional Interconectado
+    </div>
+  </div>
+  <div style="text-align:right;font-size:.65rem;color:#333;">
+    <div id="clock">--:--:--</div>
+    <div id="sync-status" style="color:#444;">Sincronizando...</div>
+  </div>
+</div>
+
+<!-- ════════���══════════ ROW 1: ALERTS ═══════════════════ -->
+<div class="grid2" style="margin-bottom:12px;">
+
+  <!-- ALERTA DESLAVES -->
+  <div class="card card-blue" id="card-landslide">
+    <div class="section-title">🏔 Pallatanga — Riesgo Deslave</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+      <div>
+        <div class="label">Temp / Humedad</div>
+        <div><span class="val-sm neon-blue" id="w-temp">--</span><span class="unit">°C</span>
+             &nbsp;/&nbsp;<span class="val-sm" id="w-hum">--</span><span class="unit">%</span></div>
+        <div class="label" style="margin-top:8px;">Lluvia Horaria</div>
+        <div><span class="val-sm" id="w-rain-rate">--</span><span class="unit">mm/h</span></div>
+        <div class="label" style="margin-top:8px;">Lluvia Diaria</div>
+        <div><span class="val-sm" id="w-rain-day">--</span><span class="unit">mm</span></div>
+        <div class="label" style="margin-top:8px;">Presión</div>
+        <div><span class="val-sm" id="w-pres">--</span><span class="unit">hPa</span>
+             &nbsp;<span id="w-baro-trend" style="font-size:.65rem;color:#555;"></span></div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div class="label">Índice SSLI</div>
+        <div><span class="val neon-blue" id="w-ssli">--</span><span class="unit">mm</span></div>
+        <div class="label" style="margin-top:8px;">Viento Racha</div>
+        <div><span class="val-sm" id="w-gust">--</span><span class="unit">km/h</span></div>
+        <div class="label" style="margin-top:8px;">UV / Solar</div>
+        <div><span id="w-uv">--</span> / <span id="w-sol">--</span><span class="unit">W/m²</span></div>
+        <div style="margin-top:10px;" id="landslide-tag"></div>
+      </div>
+    </div>
+    <div class="bar-track" style="margin-top:10px;">
+      <div class="bar-fill" id="ssli-bar" style="width:0%;background:var(--neon-blue);"></div>
+    </div>
+    <div style="font-size:.6rem;color:#333;margin-top:3px;">SSLI (0–60 mm)</div>
+  </div>
+
+  <!-- ALERTA APAGÓN -->
+  <div class="card card-red" id="card-grid">
+    <div class="section-title">⚡ Embalse Mazar — Riesgo Apagón</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+      <div>
+        <div class="label">Cota Actual</div>
+        <div><span class="val neon-red" id="maz-cota">--</span><span class="unit">msnm</span></div>
+        <div class="label" style="margin-top:8px;">Caudal Entrada</div>
+        <div><span class="val-sm" id="maz-caud">--</span><span class="unit">m³/s</span></div>
+        <div class="label" style="margin-top:8px;">Turbinas Online</div>
+        <div><span class="val-sm" id="maz-units">--</span></div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div class="label">Días a Parada</div>
+        <div><span class="val neon-red" id="maz-days">--</span></div>
+        <div class="label" style="margin-top:8px;">Último Dato</div>
+        <div id="maz-ts" style="font-size:.65rem;color:#555;">--</div>
+        <div style="margin-top:10px;" id="maz-status-tag"></div>
+      </div>
+    </div>
+    <!-- Barra cota: 2098 a 2153 -->
+    <div class="bar-track" style="margin-top:10px;">
+      <div class="bar-fill" id="mazar-bar" style="width:0%;background:var(--neon-red);"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.6rem;color:#333;margin-top:3px;">
+      <span>2098 m (parada)</span><span>2153 m (lleno)</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ ROW 2: EMBALSES SECUNDARIOS ═══════════════════ -->
+<div class="grid3" style="margin-bottom:12px;">
+
+  <div class="card card-blue">
+    <div class="section-title">💧 Paute Molino</div>
+    <div class="kpi"><div class="label">Cota</div>
+      <div><span class="val-sm neon-blue" id="mol-cota">--</span><span class="unit">msnm</span></div></div>
+    <div class="grid2" style="margin-top:8px;">
+      <div class="kpi"><div class="label">Caudal Río</div>
+        <div><span id="mol-caud-real">--</span><span class="unit">m³/s</span></div></div>
+      <div class="kpi"><div class="label">Cuenca</div>
+        <div><span id="mol-caud-cuenca">--</span><span class="unit">m³/s</span></div></div>
+    </div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="section-title">💧 Sopladora</div>
+    <div class="kpi"><div class="label">Cota</div>
+      <div><span class="val-sm neon-blue" id="sop-cota">--</span><span class="unit">msnm</span></div></div>
+    <div class="grid2" style="margin-top:8px;">
+      <div class="kpi"><div class="label">Caudal</div>
+        <div><span id="sop-caud">--</span><span class="unit">m³/s</span></div></div>
+      <div class="kpi"><div class="label">Turbinas</div>
+        <div><span id="sop-units">--</span></div></div>
+    </div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="section-title">💧 Minas San Francisco</div>
+    <div class="kpi"><div class="label">Cota</div>
+      <div><span class="val-sm neon-blue" id="msf-cota">--</span><span class="unit">msnm</span></div></div>
+    <div class="grid2" style="margin-top:8px;">
+      <div class="kpi"><div class="label">Caudal</div>
+        <div><span id="msf-caud">--</span><span class="unit">m³/s</span></div></div>
+      <div class="kpi"><div class="label">Turbinas</div>
+        <div><span id="msf-units">--</span></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ ROW 3: CENACE COMPOSICIÓN ═══════════════════ -->
+<div class="grid2" style="margin-bottom:12px;">
+
+  <div class="card card-green">
+    <div class="section-title">📊 Composición Matriz Nacional — Hoy (MWh)</div>
+    <div class="grid2">
+      <div class="kpi">
+        <div class="label">Hidroeléctrica</div>
+        <div><span class="val-sm neon-green" id="c-hydro">--</span><span class="unit">MWh</span></div>
+        <div class="bar-track"><div class="bar-fill" id="bar-hydro" style="background:var(--neon-green);width:0%"></div></div>
+      </div>
+      <div class="kpi">
+        <div class="label">Térmica</div>
+        <div><span class="val-sm" id="c-thermal">--</span><span class="unit">MWh</span></div>
+        <div class="bar-track"><div class="bar-fill" id="bar-thermal" style="background:var(--neon-orange);width:0%"></div></div>
+      </div>
+      <div class="kpi" style="margin-top:8px;">
+        <div class="label">Importación</div>
+        <div><span id="c-import">--</span><span class="unit">MWh</span></div>
+      </div>
+      <div class="kpi" style="margin-top:8px;">
+        <div class="label">Renovable</div>
+        <div><span id="c-renew">--</span><span class="unit">MWh</span></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;" class="section-title">⚡ Demanda en Tiempo Real (MW)</div>
+    <div class="grid2">
+      <div class="kpi">
+        <div class="label">Demanda Nacional</div>
+        <div><span class="val neon-green" id="c-demand">--</span><span class="unit">MW</span></div>
+      </div>
+      <div class="kpi">
+        <div class="label">Hidro / Térmica</div>
+        <div><span id="c-hydro-mw">--</span> / <span id="c-therm-mw">--</span><span class="unit">MW</span></div>
+      </div>
+    </div>
+    <div style="font-size:.6rem;color:#333;margin-top:6px;" id="c-last-time">Último dato: --</div>
+  </div>
+
+  <!-- CENTRALES HIDRO RANKING -->
+  <div class="card card-green">
+    <div class="section-title">🏭 Centrales Hidroeléctricas — Acumulado (MWh)</div>
+    <div id="hydro-list">
+      <div class="dam-row"><span style="color:#333">Cargando...</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ ROW 4: ENSO + CURVA HORARIA ═══════════════════ -->
+<div class="grid2" style="margin-bottom:12px;">
+
+  <!-- ENSO NOAA -->
+  <div class="card card-orange">
+    <div class="section-title">🌊 NOAA ENSO — Anomalías SSTA Seminal</div>
+    <div class="grid2">
+      <div class="kpi">
+        <div class="label">Niño 1+2 (Costa Ecuador)</div>
+        <div><span class="val neon-orange" id="e-12">--</span><span class="unit">°C</span>
+             &nbsp;<span id="e-12-trend" style="font-size:.7rem;"></span></div>
+      </div>
+      <div class="kpi">
+        <div class="label">Niño 3.4 (Pacífico Central)</div>
+        <div><span class="val-sm" id="e-34">--</span><span class="unit">°C</span>
+             &nbsp;<span id="e-34-trend" style="font-size:.7rem;"></span></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:10px;background:#0d0d15;border-radius:6px;">
+      <div id="e-alert" style="font-size:.85rem;font-weight:700;">--</div>
+    </div>
+    <div style="margin-top:10px;" class="grid2">
+      <div>
+        <div class="label" style="margin-bottom:4px;">Riesgo Local (Deslaves Pallatanga)</div>
+        <div id="e-local-risk" style="font-size:.75rem;"></div>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:4px;">Riesgo Red (Embalses Oriente)</div>
+        <div id="e-grid-risk" style="font-size:.75rem;"></div>
+      </div>
+    </div>
+    <div style="font-size:.6rem;color:#333;margin-top:8px;">Reporte NOAA: <span id="e-date">--</span></div>
+  </div>
+
+  <!-- CURVA HORARIA GENERACIÓN -->
+  <div class="card card-green">
+    <div class="section-title">📈 Generación Nacional Hoy — Curva Horaria (MW)</div>
+    <canvas id="hourlyChart"></canvas>
+    <div style="font-size:.6rem;color:#333;margin-top:6px;">Datos: CENACE InfoOperativa.htm</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ ROW 5: CLIMATE MONTLY RAIN ═══════════════════ -->
+<div class="card" style="margin-bottom:12px;border-color:#1a1a2e;">
+  <div class="section-title">☔ Precipitación Acumulada — Estación Pallatanga</div>
+  <div class="grid4">
+    <div class="kpi">
+      <div class="label">Mensual</div>
+      <div><span class="val-sm" id="w-rain-mo">--</span><span class="unit">mm</span></div>
+    </div>
+    <div class="kpi">
+      <div class="label">Anual</div>
+      <div><span class="val-sm" id="w-rain-yr">--</span><span class="unit">mm</span></div>
+    </div>
+    <div class="kpi">
+      <div class="label">Radiación Solar</div>
+      <div><span id="w-sol2">--</span><span class="unit">W/m²</span></div>
+    </div>
+    <div class="kpi">
+      <div class="label">Dirección Viento</div>
+      <div><span id="w-wdir">--</span><span class="unit">°</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast">✔ Datos actualizados</div>
+
+<script>
+const API = '';
+let hourlyChart = null;
+
+// ─── HELPERS ───────────────────────────────────────────────────────────────��──
+const $  = id => document.getElementById(id);
+const set = (id, v, fallback = '--') => { const el = $(id); if(el) el.textContent = v ?? fallback; };
+
+function setTag(id, text, cls) {
+  const el = $(id);
+  if (!el) return;
+  el.innerHTML = `<span class="tag tag-${cls}">${text}</span>`;
+}
+
+function riskClass(text='') {
+  if (/CRÍTICO|EMERGENCIA|SUPER|ALTO/.test(text)) return 'red';
+  if (/MODERADO|MONITOREO|ALERTA|EL NIÑO/.test(text)) return 'orange';
+  if (/VIGILAN|CALENTAM/.test(text)) return 'yellow';
+  return 'green';
+}
+
+function trendArrow(v) {
+  const n = parseFloat(v);
+  if (isNaN(n) || Math.abs(n) < 0.01) return '<span style="color:#555">→</span>';
+  return n > 0
+    ? `<span style="color:var(--neon-red)">▲ +${n}</span>`
+    : `<span style="color:var(--neon-blue)">▼ ${n}</span>`;
+}
+
+function pct(val, min, max) {
+  return Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
+}
+
+function fmtTs(iso) {
+  if (!iso) return '--';
+  const d = new Date(iso);
+  return d.toLocaleString('es-EC', { timeZone: 'America/Guayaquil',
+    month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+// ─── CHART ──────────────────────────���─────────────────────────────────────────
+function renderHourlyChart(hourly) {
+  if (!hourly) return;
+  const keys   = ['Hidráulica', 'Térmica', 'Renovable', 'Importación'];
+  const colors = ['#00f0ff','#ff7700','#39ff14','#ffe600'];
+  const labels = Object.values(hourly)[0] ? [] : [];
+  // Reconstruct labels 00:00..23:30 (48 slots)
+  const hrs = [];
+  for (let h=0;h<24;h++) for(let m of[0,30]) hrs.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+
+  // Use only last 24 points for readability
+  const n = 24;
+  const slicedLabels = hrs.slice(hrs.length - n);
+
+  const datasets = keys.map((k, i) => {
+    const v = hourly[k];
+    const y = v ? [v.lastMW] : [0]; // single point; ideally we'd have all 48 pts
+    return { label: k, data: Array(n-1).fill(null).concat([v?.lastMW ?? null]),
+             borderColor: colors[i], backgroundColor: colors[i]+'22',
+             fill: true, tension: 0.4, pointRadius: 3, borderWidth: 1.5 };
+  });
+
+  const ctx = $('hourlyChart').getContext('2d');
+  if (hourlyChart) hourlyChart.destroy();
+  hourlyChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: slicedLabels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#555', font:{ size:10 }, boxWidth:12 } } },
+      scales: {
+        x: { ticks:{ color:'#333', maxTicksLimit:8, font:{size:9} }, grid:{ color:'#111' } },
+        y: { ticks:{ color:'#333', font:{size:9} }, grid:{ color:'#111' },
+             title:{ display:true, text:'MW', color:'#444', font:{size:9} } }
+      }
+    }
+  });
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render(s) {
+  const w = s.weather;
+  const d = s.dams;
+  const c = s.cenace;
+  const e = s.enso;
+
+  // ── WEATHER ──
+  if (w) {
+    set('w-temp',       w.tempC);
+    set('w-hum',        w.humidity);
+    set('w-rain-rate',  w.rainRateMmHr);
+    set('w-rain-day',   w.rainDailyMm);
+    set('w-pres',       w.pressureHpa);
+    set('w-baro-trend', w.baroTrend !== 'Estable' ? `(${w.baroTrend})` : '');
+    set('w-gust',       w.windGustKmh);
+    set('w-uv',         w.uvIndex ?? '--');
+    set('w-sol',        w.solarRadiation);
+    set('w-sol2',       w.solarRadiation);
+    set('w-wdir',       w.windDirDeg);
+    set('w-ssli',       w.ssliIndex);
+    set('w-rain-mo',    w.rainMonthlyMm);
+    set('w-rain-yr',    w.rainYearlyMm);
+
+    const ssliPct = pct(w.ssliIndex, 0, 60);
+    $('ssli-bar').style.width = ssliPct + '%';
+
+    const risk = w.landslideRisk;
+    const rc   = riskClass(risk);
+    setTag('landslide-tag', risk, rc);
+    const lc   = $('card-landslide');
+    lc.className = 'card card-' + rc;
+  }
+
+  // ── DAMS: MAZAR ──
+  if (d?.mazar) {
+    const maz   = d.mazar;
+    set('maz-cota',  maz.cotaMsnm ?? '--');
+    set('maz-caud',  maz.caudalEntradaM3s ?? '--');
+    set('maz-units', maz.unidadesLinea !== null ? `${maz.unidadesLinea} turbina(s)` : '--');
+    set('maz-days',  maz.daysToShutdown !== null ? maz.daysToShutdown : '--');
+    set('maz-ts',    fmtTs(maz.timestamp));
+
+    const cota = parseFloat(maz.cotaMsnm);
+    if (!isNaN(cota)) {
+      $('mazar-bar').style.width = pct(cota, 2098, 2153) + '%';
+      const barColor = cota < 2110 ? 'var(--neon-red)' : cota < 2115 ? 'var(--neon-orange)' : 'var(--neon-green)';
+      $('mazar-bar').style.background = barColor;
+    }
+
+    const st = maz.status;
+    const sc = riskClass(st);
+    setTag('maz-status-tag', st, sc);
+    $('card-grid').className = 'card card-' + sc;
+  }
+
+  // ── DAMS: SECUNDARIOS ──
+  if (d?.molino) {
+    set('mol-cota',        d.molino.cotaMsnm ?? '--');
+    set('mol-caud-real',   d.molino.caudalRealM3s ?? '--');
+    set('mol-caud-cuenca', d.molino.caudalCuencaM3s ?? '--');
+  }
+  if (d?.sopladora) {
+    set('sop-cota',  d.sopladora.cotaMsnm ?? '--');
+    set('sop-caud',  d.sopladora.caudalM3s ?? '--');
+    set('sop-units', d.sopladora.unidadesLinea !== null ? `${d.sopladora.unidadesLinea} turbina(s)` : '--');
+  }
+  if (d?.minasSF) {
+    set('msf-cota',  d.minasSF.cotaMsnm ?? '--');
+    set('msf-caud',  d.minasSF.caudalM3s ?? '--');
+    set('msf-units', d.minasSF.unidadesLinea !== null ? `${d.minasSF.unidadesLinea} turbina(s)` : '--');
+  }
+
+  // ── CENACE COMPOSICIÓN ──
+  if (c?.composition) {
+    const comp  = c.composition;
+    const total = Object.values(comp).reduce((a,b) => a+b, 0) || 1;
+    set('c-hydro',   (comp['hidroeléctrica'] ?? 0).toLocaleString());
+    set('c-thermal', (comp['térmica']        ?? 0).toLocaleString());
+    set('c-import',  (comp['importación']    ?? 0).toLocaleString());
+    set('c-renew',   (comp['renovable']      ?? 0).toLocaleString());
+    $('bar-hydro').style.width   = pct(comp['hidroeléctrica'] ?? 0, 0, total) + '%';
+    $('bar-thermal').style.width = pct(comp['térmica']        ?? 0, 0, total*0.4) + '%';
+  }
+
+  // ── CENACE HORARIA ──
+  if (c?.hourlyCurrentMW) {
+    const h = c.hourlyCurrentMW;
+    set('c-demand',   h['DEMANDA NACIONAL']?.lastMW?.toLocaleString() ?? '--');
+    set('c-hydro-mw', h['Hidráulica']?.lastMW ?? '--');
+    set('c-therm-mw', h['Térmica']?.lastMW    ?? '--');
+    const lastTime = h['DEMANDA NACIONAL']?.lastTime;
+    set('c-last-time', lastTime ? `Último dato: ${lastTime} (hora CENACE)` : '');
+    renderHourlyChart(h);
+  }
+
+  // ── CENACE CENTRALES ──
+  if (c?.hydroGenerators?.length) {
+    const total = c.hydroGenerators.reduce((a,g) => a + g.generationMWh, 0) || 1;
+    const sorted = [...c.hydroGenerators].sort((a,b) => b.generationMWh - a.generationMWh);
+    $('hydro-list').innerHTML = sorted.map(g => {
+      const barW = pct(g.generationMWh, 0, total * 0.6);
+      return `
+        <div class="dam-row">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:.75rem;">${g.central}</div>
+            <div class="bar-track" style="margin-top:3px;">
+              <div class="bar-fill" style="width:${barW}%;background:var(--neon-green);opacity:.6;"></div>
+            </div>
+          </div>
+          <div style="font-size:.8rem;font-weight:700;margin-left:12px;flex-shrink:0;color:var(--neon-green);">
+            ${g.generationMWh.toLocaleString()} MWh
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── ENSO ──
+  if (e) {
+    set('e-12',   e.nino12SSTA?.toFixed(1));
+    set('e-34',   e.nino34SSTA?.toFixed(1));
+    set('e-date', e.dateReported);
+    $('e-12-trend').innerHTML = trendArrow(e.trend?.nino12);
+    $('e-34-trend').innerHTML = trendArrow(e.trend?.nino34);
+
+    const alertEl = $('e-alert');
+    alertEl.textContent = e.alertLevel;
+    const ac = riskClass(e.alertLevel);
+    alertEl.className = ac === 'red'    ? 'neon-red blink'    :
+                        ac === 'orange' ? 'neon-orange'        :
+                        ac === 'yellow' ? 'neon-yellow'        : 'neon-green';
+
+    const lr = e.localRisk || '';
+    const gr = e.gridRisk  || '';
+    $('e-local-risk').innerHTML = `<span class="${riskClass(lr) === 'red' ? 'neon-red' : riskClass(lr) === 'orange' ? 'neon-orange' : 'neon-yellow'}">${lr}</span>`;
+    $('e-grid-risk').innerHTML  = `<span class="${riskClass(gr) === 'red' ? 'neon-red' : riskClass(gr) === 'orange' ? 'neon-orange' : 'neon-yellow'}">${gr}</span>`;
+  }
+}
+
+// ─── SYNC LOOP ────────────────────────────────────────────────────────────────
+async function sync() {
+  try {
+    const res  = await fetch(`${API}/api/status`);
+    const data = await res.json();
+    render(data);
+    $('sync-status').textContent = `Sync ${new Date().toLocaleTimeString('es-EC')}`;
+    const t = $('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  } catch(err) {
+    $('sync-status').textContent = `Error: ${err.message}`;
+  }
+}
+
+// Clock
+setInterval(() => {
+  $('clock').textContent = new Date().toLocaleTimeString('es-EC', { timeZone:'America/Guayaquil' });
+}, 1000);
+
+// Initial + periodic sync
+sync();
+setInterval(sync, 5 * 60 * 1000); // cada 5 min (backend tiene sus propios TTLs)
+</script>
+</body>
+</html>
