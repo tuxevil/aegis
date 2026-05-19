@@ -6,11 +6,13 @@ const path    = require('path');
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 const CORS = {
-  'Access-Control-Allow-Origin':  '*',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET',
   'Access-Control-Allow-Headers': 'Content-Type'
 };
+const PORT = process.env.PORT || 3010;
 
+// ─── IN-MEMORY CACHE (TTL) ───────────────────────────────────────────────────
 // ─── SSLI STATE (Soil Saturation Landslide Index) ────────────────────────────
 // Persiste entre llamadas; se resetea al cambiar de día UTC
 let ssliState = { date: null, yesterday: 0, lastDailyMm: 0 };
@@ -387,10 +389,10 @@ fastify.get('/api/enso', async (req, reply) => {
 // Un solo fetch para el frontend — agrega los 4 endpoints con sus caches
 fastify.get('/api/status', async (req, reply) => {
   const [weather, dams, cenace, enso] = await Promise.allSettled([
-    fetch('http://127.0.0.1:3010/api/weather').then(r => r.json()),
-    fetch('http://127.0.0.1:3010/api/dams').then(r => r.json()),
-    fetch('http://127.0.0.1:3010/api/cenace').then(r => r.json()),
-    fetch('http://127.0.0.1:3010/api/enso').then(r => r.json()),
+    fetch(`http://127.0.0.1:${PORT}/api/weather`).then(r => r.json()),
+    fetch(`http://127.0.0.1:${PORT}/api/dams`).then(r => r.json()),
+    fetch(`http://127.0.0.1:${PORT}/api/cenace`).then(r => r.json()),
+    fetch(`http://127.0.0.1:${PORT}/api/enso`).then(r => r.json()),
   ]);
 
   return reply.headers(CORS).send({
@@ -423,8 +425,7 @@ fastify.get('/', async (req, reply) =>
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 const boot = async () => {
-    const port = process.env.PORT || 3010;
-    await fastify.listen({ port: port, host: '0.0.0.0' });
-    console.log(`AEGIS Grid running on port ${port}`);
+    await fastify.listen({ port: PORT, host: '0.0.0.0' });
+    console.log(`AEGIS Grid running on port ${PORT}`);
 };
 boot();
