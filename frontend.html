@@ -1,361 +1,486 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="system">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A.E.G.I.S.-GRID v3 — El Niño & Grid Sentinel</title>
+  <meta name="color-scheme" content="light dark">
+  <title>A.E.G.I.S.-GRID — El Niño & Grid Sentinel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script>
+    // Aplica tema persistido antes del primer paint (evita FOUC)
+    try {
+      const t = localStorage.getItem('aegis-theme') || 'system';
+      document.documentElement.dataset.theme = t;
+    } catch {}
+  </script>
   <style>
     :root {
-      --neon-green:  #39ff14;
-      --neon-blue:   #00f0ff;
-      --neon-red:    #ff0055;
-      --neon-yellow: #ffe600;
-      --neon-orange: #ff7700;
-      --bg:          #050508;
-      --card:        #0a0a10;
-      --border:      #1a1a2e;
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     }
+    /* ── DARK (default profesional) ── */
+    [data-theme="dark"], [data-theme="system"] {
+      --bg: #0b0e13;
+      --bg-soft: #10141b;
+      --card: #131922;
+      --card-2: #171e29;
+      --border: #232c3a;
+      --border-soft: #1a2230;
+      --text: #e6ebf2;
+      --muted: #8b96a8;
+      --faint: #5b6678;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59,130,246,.12);
+      --success: #22c55e;
+      --success-soft: rgba(34,197,94,.12);
+      --warning: #f59e0b;
+      --warning-soft: rgba(245,158,11,.13);
+      --danger: #ef4444;
+      --danger-soft: rgba(239,68,68,.12);
+      --info: #06b6d4;
+      --info-soft: rgba(6,182,212,.12);
+      --track: #1e2632;
+      --shadow: 0 8px 28px rgba(0,0,0,.35);
+      --header-bg: rgba(11,14,19,.82);
+      --chart-grid: #1e2632;
+      --chart-tick: #7b879c;
+    }
+    /* ── LIGHT ── */
+    [data-theme="light"] {
+      --bg: #f4f6f9;
+      --bg-soft: #eef1f6;
+      --card: #ffffff;
+      --card-2: #f8fafc;
+      --border: #e2e8f0;
+      --border-soft: #edf1f7;
+      --text: #0f172a;
+      --muted: #5b6b82;
+      --faint: #94a3b8;
+      --accent: #2563eb;
+      --accent-soft: rgba(37,99,235,.09);
+      --success: #15803d;
+      --success-soft: rgba(21,128,61,.1);
+      --warning: #b45309;
+      --warning-soft: rgba(180,83,9,.1);
+      --danger: #dc2626;
+      --danger-soft: rgba(220,38,38,.08);
+      --info: #0e7490;
+      --info-soft: rgba(14,116,144,.09);
+      --track: #e8edf3;
+      --shadow: 0 6px 22px rgba(15,23,42,.08);
+      --header-bg: rgba(255,255,255,.85);
+      --chart-grid: #e8edf3;
+      --chart-tick: #64748b;
+    }
+    /* System: respeta SO cuando data-theme=system */
+    @media (prefers-color-scheme: light) {
+      [data-theme="system"] {
+        --bg: #f4f6f9; --bg-soft: #eef1f6; --card: #ffffff; --card-2: #f8fafc;
+        --border: #e2e8f0; --border-soft: #edf1f7; --text: #0f172a;
+        --muted: #5b6b82; --faint: #94a3b8; --accent: #2563eb;
+        --accent-soft: rgba(37,99,235,.09); --success: #15803d;
+        --success-soft: rgba(21,128,61,.1); --warning: #b45309;
+        --warning-soft: rgba(180,83,9,.1); --danger: #dc2626;
+        --danger-soft: rgba(220,38,38,.08); --info: #0e7490;
+        --info-soft: rgba(14,116,144,.09); --track: #e8edf3;
+        --shadow: 0 6px 22px rgba(15,23,42,.08);
+        --header-bg: rgba(255,255,255,.85);
+        --chart-grid: #e8edf3; --chart-tick: #64748b;
+      }
+    }
+
     * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
     body {
       background: var(--bg);
-      color: #c9d1d9;
-      font-family: 'Courier New', monospace;
-      margin: 0; padding: 16px;
+      color: var(--text);
+      font-family: var(--font);
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
     }
-    .neon-green  { color: var(--neon-green);  text-shadow: 0 0 8px var(--neon-green); }
-    .neon-blue   { color: var(--neon-blue);   text-shadow: 0 0 8px var(--neon-blue); }
-    .neon-red    { color: var(--neon-red);    text-shadow: 0 0 8px var(--neon-red); }
-    .neon-yellow { color: var(--neon-yellow); text-shadow: 0 0 8px var(--neon-yellow); }
-    .neon-orange { color: var(--neon-orange); text-shadow: 0 0 6px var(--neon-orange); }
+    .app { max-width: 1380px; margin: 0 auto; padding: 0 18px 28px; }
+
+    /* Header */
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: var(--header-bg);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width: 1380px; margin: 0 auto; padding: 12px 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      display: grid; place-items: center; font-size: 1.2rem;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: #fff; box-shadow: var(--shadow);
+    }
+    .brand h1 { font-size: 1.02rem; margin: 0; letter-spacing: .02em; font-weight: 750; }
+    .brand h1 small { font-weight: 500; color: var(--muted); font-size: .72rem; margin-left: 6px; }
+    .brand p { margin: 2px 0 0; font-size: .74rem; color: var(--muted); }
+
+    .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .clock { font-family: var(--mono); font-size: .8rem; color: var(--muted); text-align: right; line-height: 1.35; }
+    .sync-dot { display:inline-block; width:7px; height:7px; border-radius:99px; background: var(--success); margin-right:6px; vertical-align:1px; }
+    .sync-dot.err { background: var(--danger); }
+
+    /* Segmented theme control */
+    .theme-seg {
+      display: flex; background: var(--card-2); border: 1px solid var(--border);
+      border-radius: 99px; padding: 3px; gap: 2px;
+    }
+    .theme-seg button {
+      border: 0; background: transparent; color: var(--muted);
+      font-size: .72rem; font-weight: 600; padding: 6px 11px; border-radius: 99px; cursor: pointer;
+    }
+    .theme-seg button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: var(--shadow); border: 1px solid var(--border); }
+    .theme-seg button:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn {
+      border: 1px solid var(--border); background: var(--card); color: var(--text);
+      border-radius: 99px; padding: 7px 13px; font-size: .74rem; font-weight: 650; cursor: pointer;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Layout */
+    .status-strip {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+      margin: 16px 0 14px; font-size: .76rem; color: var(--muted);
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--card); border: 1px solid var(--border);
+      padding: 6px 11px; border-radius: 99px; font-weight: 600; color: var(--text);
+    }
+    .pill .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--success); }
+    .pill.warn .dot { background: var(--warning); }
+    .pill.danger .dot { background: var(--danger); }
+
+    .grid { display: grid; gap: 14px; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 1020px) { .grid-3 { grid-template-columns: 1fr 1fr; } .grid-2 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } .app { padding: 0 12px 22px; } }
 
     .card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: var(--radius);
       padding: 16px;
-      transition: border-color .3s;
+      box-shadow: var(--shadow);
+      min-width: 0;
+      position: relative;
     }
-    .card-green  { border-color: rgba(57,255,20,.35); }
-    .card-blue   { border-color: rgba(0,240,255,.35); }
-    .card-red    { border-color: rgba(255,0,85,.35); }
-    .card-yellow { border-color: rgba(255,230,0,.35); }
-    .card-orange { border-color: rgba(255,119,0,.35); }
+    .card.accent-green { border-top: 3px solid var(--success); }
+    .card.accent-blue { border-top: 3px solid var(--accent); }
+    .card.accent-red { border-top: 3px solid var(--danger); }
+    .card.accent-amber { border-top: 3px solid var(--warning); }
+    .card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .card-title { font-size: .74rem; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0; }
+    .card-subtitle { font-size: .72rem; color: var(--faint); margin-top: 4px; }
 
-    .label { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #555; }
-    .val   { font-size: 1.6rem; font-weight: 700; }
-    .val-sm{ font-size: 1rem;   font-weight: 700; }
-    .unit  { font-size: .7rem; color: #666; margin-left: 3px; }
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+    @media (max-width: 480px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+    .label { font-size: .66rem; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); font-weight: 700; }
+    .val { font-size: 1.55rem; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .val-sm { font-size: 1.08rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+    .unit { font-size: .7rem; color: var(--faint); margin-left: 4px; font-weight: 500; }
+    .muted { color: var(--muted); } .small { font-size: .76rem; }
+    .mono { font-family: var(--mono); }
 
-    .kpi   { display:flex; flex-direction:column; gap:2px; }
-    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
-    .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .split { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+    @media (max-width: 480px) { .split { flex-direction: column; } .split > div:last-child { text-align: left !important; } }
 
-    @media(max-width:700px){
-      .grid4 { grid-template-columns:1fr 1fr; }
-      .grid3 { grid-template-columns:1fr 1fr; }
+    .bar-track { background: var(--track); border-radius: 99px; height: 8px; overflow: hidden; margin-top: 7px; }
+    .bar-fill { height: 100%; border-radius: 99px; transition: width .7s ease; background: var(--accent); }
+    .bar-caption { display: flex; justify-content: space-between; font-size: .66rem; color: var(--faint); margin-top: 5px; }
+
+    /* Badges — profesionales, sin glow */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .68rem; font-weight: 750; letter-spacing: .02em;
+      padding: 5px 10px; border-radius: 99px; border: 1px solid transparent;
+      max-width: 100%;
     }
-    @media(max-width:480px){
-      .grid2,.grid3,.grid4 { grid-template-columns:1fr; }
-    }
+    .badge::before { content: ''; width: 7px; height: 7px; border-radius: 99px; background: currentColor; flex-shrink: 0; }
+    .badge-green { background: var(--success-soft); color: var(--success); border-color: currentColor; }
+    .badge-red { background: var(--danger-soft); color: var(--danger); border-color: currentColor; }
+    .badge-yellow, .badge-orange { background: var(--warning-soft); color: var(--warning); border-color: currentColor; }
+    .badge-blue { background: var(--accent-soft); color: var(--accent); border-color: currentColor; }
+    .badge.blink { animation: pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 50% { opacity: .55; } }
+    @media (prefers-reduced-motion: reduce) { .badge.blink { animation: none; } .bar-fill { transition: none; } }
 
-    .blink { animation: blinker 1.2s linear infinite; }
-    @keyframes blinker { 50% { opacity: 0; } }
-
-    .bar-track { background:#111; border-radius:4px; height:8px; overflow:hidden; margin-top:6px; }
-    .bar-fill  { height:100%; border-radius:4px; transition:width .8s; }
-
-    .section-title {
-      font-size: .75rem; letter-spacing: .15em; text-transform: uppercase;
-      color: #444; margin-bottom: 12px; padding-bottom: 6px;
-      border-bottom: 1px solid #111;
-    }
-
-    canvas { max-height: 180px; }
-
+    /* Listas internas con scroll propio (evita scroll global excesivo) */
+    .scroll-list { max-height: 268px; overflow: auto; scrollbar-width: thin; padding-right: 2px; }
+    .scroll-list::-webkit-scrollbar { width: 6px; } .scroll-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
     .dam-row {
-      display:flex; justify-content:space-between; align-items:center;
-      padding: 6px 0; border-bottom: 1px solid #111;
-      font-size:.8rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      padding: 9px 0; border-bottom: 1px solid var(--border-soft); font-size: .8rem;
     }
-    .dam-row:last-child { border-bottom: none; }
+    .dam-row:last-child { border-bottom: 0; }
+    .dam-name { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dam-val { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-    .tag {
-      display:inline-block; font-size:.6rem; padding:2px 6px; border-radius:3px;
-      font-weight:700; letter-spacing:.05em;
-    }
-    .tag-green  { background:rgba(57,255,20,.15);  color:var(--neon-green); }
-    .tag-red    { background:rgba(255,0,85,.15);   color:var(--neon-red); }
-    .tag-yellow { background:rgba(255,230,0,.15);  color:var(--neon-yellow); }
-    .tag-orange { background:rgba(255,119,0,.15);  color:var(--neon-orange); }
+    canvas { max-height: 220px; width: 100% !important; }
+    .chart-wrap { position: relative; height: 220px; }
+
+    .alert-box { background: var(--card-2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; }
+    #e-alert { font-size: .88rem; font-weight: 800; letter-spacing: -.01em; }
+    .risk-text { font-size: .78rem; line-height: 1.45; }
+
+    .footer { margin-top: 16px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: .7rem; color: var(--faint); }
 
     #toast {
-      position:fixed; bottom:16px; right:16px;
-      background:#0a0a10; border:1px solid var(--neon-green);
-      color:var(--neon-green); padding:8px 14px; border-radius:6px;
-      font-size:.7rem; opacity:0; transition:opacity .3s;
-      pointer-events:none;
+      position: fixed; bottom: 18px; right: 18px; z-index: 50;
+      background: var(--card); border: 1px solid var(--border); color: var(--text);
+      padding: 10px 14px; border-radius: 10px; font-size: .76rem; font-weight: 600;
+      box-shadow: var(--shadow); opacity: 0; transform: translateY(6px);
+      transition: opacity .25s, transform .25s; pointer-events: none;
+      display: flex; align-items: center; gap: 8px;
     }
-    #toast.show { opacity:1; }
+    #toast.show { opacity: 1; transform: none; }
+    #toast .ok { width: 8px; height: 8px; border-radius: 99px; background: var(--success); }
+
+    .skeleton { color: transparent !important; background: var(--track); border-radius: 6px; }
   </style>
 </head>
 <body>
-
-<!-- ═══════════════════ HEADER ═══════════════════ -->
-<div style="display:flex;justify-content:space-between;align-items:flex-end;
-            border-bottom:1px solid #111;padding-bottom:12px;margin-bottom:16px;">
-  <div>
-    <div class="neon-green" style="font-size:1.3rem;font-weight:900;letter-spacing:.1em;">
-      🐧🤖 A.E.G.I.S.-GRID <span style="font-size:.7rem;opacity:.5">v3.0</span>
-    </div>
-    <div style="font-size:.65rem;color:#444;margin-top:2px;">
-      El Niño 2026 · Pallatanga · Mazar · Sistema Nacional Interconectado
-    </div>
-  </div>
-  <div style="text-align:right;font-size:.65rem;color:#333;">
-    <div id="clock">--:--:--</div>
-    <div id="sync-status" style="color:#444;">Sincronizando...</div>
-  </div>
-</div>
-
-<!-- ════════���══════════ ROW 1: ALERTS ═══════════════════ -->
-<div class="grid2" style="margin-bottom:12px;">
-
-  <!-- ALERTA DESLAVES -->
-  <div class="card card-blue" id="card-landslide">
-    <div class="section-title">🏔 Pallatanga — Riesgo Deslave</div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">◈</div>
       <div>
-        <div class="label">Temp / Humedad</div>
-        <div><span class="val-sm neon-blue" id="w-temp">--</span><span class="unit">°C</span>
-             &nbsp;/&nbsp;<span class="val-sm" id="w-hum">--</span><span class="unit">%</span></div>
-        <div class="label" style="margin-top:8px;">Lluvia Horaria</div>
-        <div><span class="val-sm" id="w-rain-rate">--</span><span class="unit">mm/h</span></div>
-        <div class="label" style="margin-top:8px;">Lluvia Diaria</div>
-        <div><span class="val-sm" id="w-rain-day">--</span><span class="unit">mm</span></div>
-        <div class="label" style="margin-top:8px;">Presión</div>
-        <div><span class="val-sm" id="w-pres">--</span><span class="unit">hPa</span>
-             &nbsp;<span id="w-baro-trend" style="font-size:.65rem;color:#555;"></span></div>
-      </div>
-      <div style="text-align:right;flex-shrink:0;">
-        <div class="label">Índice SSLI</div>
-        <div><span class="val neon-blue" id="w-ssli">--</span><span class="unit">mm</span></div>
-        <div class="label" style="margin-top:8px;">Viento Racha</div>
-        <div><span class="val-sm" id="w-gust">--</span><span class="unit">km/h</span></div>
-        <div class="label" style="margin-top:8px;">UV / Solar</div>
-        <div><span id="w-uv">--</span> / <span id="w-sol">--</span><span class="unit">W/m²</span></div>
-        <div style="margin-top:10px;" id="landslide-tag"></div>
+        <h1>A.E.G.I.S.-GRID <small>v3.0 · Operativo</small></h1>
+        <p>El Niño 2026 · Pallatanga · Mazar · Sistema Nacional Interconectado</p>
       </div>
     </div>
-    <div class="bar-track" style="margin-top:10px;">
-      <div class="bar-fill" id="ssli-bar" style="width:0%;background:var(--neon-blue);"></div>
-    </div>
-    <div style="font-size:.6rem;color:#333;margin-top:3px;">SSLI (0–60 mm)</div>
-  </div>
-
-  <!-- ALERTA APAGÓN -->
-  <div class="card card-red" id="card-grid">
-    <div class="section-title">⚡ Embalse Mazar — Riesgo Apagón</div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
-      <div>
-        <div class="label">Cota Actual</div>
-        <div><span class="val neon-red" id="maz-cota">--</span><span class="unit">msnm</span></div>
-        <div class="label" style="margin-top:8px;">Caudal Entrada</div>
-        <div><span class="val-sm" id="maz-caud">--</span><span class="unit">m³/s</span></div>
-        <div class="label" style="margin-top:8px;">Turbinas Online</div>
-        <div><span class="val-sm" id="maz-units">--</span></div>
+    <div class="top-actions">
+      <div class="clock" aria-live="polite">
+        <div id="clock" class="mono">--:--:--</div>
+        <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Sincronizando…</span></div>
       </div>
-      <div style="text-align:right;flex-shrink:0;">
-        <div class="label">Días a Parada</div>
-        <div><span class="val neon-red" id="maz-days">--</span></div>
-        <div class="label" style="margin-top:8px;">Último Dato</div>
-        <div id="maz-ts" style="font-size:.65rem;color:#555;">--</div>
-        <div style="margin-top:10px;" id="maz-status-tag"></div>
+      <div class="theme-seg" role="group" aria-label="Tema de interfaz">
+        <button type="button" data-set-theme="light" aria-pressed="false">Claro</button>
+        <button type="button" data-set-theme="dark" aria-pressed="false">Oscuro</button>
+        <button type="button" data-set-theme="system" aria-pressed="false">Auto</button>
       </div>
-    </div>
-    <!-- Barra cota: 2098 a 2153 -->
-    <div class="bar-track" style="margin-top:10px;">
-      <div class="bar-fill" id="mazar-bar" style="width:0%;background:var(--neon-red);"></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:.6rem;color:#333;margin-top:3px;">
-      <span>2098 m (parada)</span><span>2153 m (lleno)</span>
+      <button class="btn btn-primary" id="btn-refresh" type="button">Actualizar</button>
     </div>
   </div>
+</header>
 
-</div>
-
-<!-- ═══════════════════ ROW 2: EMBALSES SECUNDARIOS ═══════════════════ -->
-<div class="grid3" style="margin-bottom:12px;">
-
-  <div class="card card-blue">
-    <div class="section-title">💧 Paute Molino</div>
-    <div class="kpi"><div class="label">Cota</div>
-      <div><span class="val-sm neon-blue" id="mol-cota">--</span><span class="unit">msnm</span></div></div>
-    <div class="grid2" style="margin-top:8px;">
-      <div class="kpi"><div class="label">Caudal Río</div>
-        <div><span id="mol-caud-real">--</span><span class="unit">m³/s</span></div></div>
-      <div class="kpi"><div class="label">Cuenca</div>
-        <div><span id="mol-caud-cuenca">--</span><span class="unit">m³/s</span></div></div>
-    </div>
+<main class="app" aria-label="Panel táctico AEGIS-GRID">
+  <div class="status-strip" aria-live="polite">
+    <span class="pill" id="pill-landslide"><span class="dot"></span><span id="pill-landslide-text">Deslave: —</span></span>
+    <span class="pill" id="pill-grid"><span class="dot"></span><span id="pill-grid-text">Mazar: —</span></span>
+    <span class="pill" id="pill-enso"><span class="dot"></span><span id="pill-enso-text">ENSO: —</span></span>
+    <span class="muted small" id="c-last-time-top"></span>
   </div>
 
-  <div class="card card-blue">
-    <div class="section-title">💧 Sopladora</div>
-    <div class="kpi"><div class="label">Cota</div>
-      <div><span class="val-sm neon-blue" id="sop-cota">--</span><span class="unit">msnm</span></div></div>
-    <div class="grid2" style="margin-top:8px;">
-      <div class="kpi"><div class="label">Caudal</div>
-        <div><span id="sop-caud">--</span><span class="unit">m³/s</span></div></div>
-      <div class="kpi"><div class="label">Turbinas</div>
-        <div><span id="sop-units">--</span></div></div>
-    </div>
+  <!-- ROW 1: ALERTAS -->
+  <div class="grid grid-2" style="margin-bottom:14px;">
+    <section class="card accent-blue" id="card-landslide" aria-labelledby="t-landslide">
+      <div class="card-header">
+        <h2 class="card-title" id="t-landslide">Pallatanga — Riesgo de deslave</h2>
+        <span id="landslide-tag"></span>
+      </div>
+      <div class="split">
+        <div style="flex:1;min-width:0;">
+          <div class="label">Temp / Humedad</div>
+          <div><span class="val-sm" id="w-temp">--</span><span class="unit">°C</span>
+               &nbsp;/&nbsp;<span class="val-sm" id="w-hum">--</span><span class="unit">%</span></div>
+          <div class="kpi-grid" style="margin-top:12px;">
+            <div><div class="label">Lluvia horaria</div><div><span class="val-sm" id="w-rain-rate">--</span><span class="unit">mm/h</span></div></div>
+            <div><div class="label">Lluvia diaria</div><div><span class="val-sm" id="w-rain-day">--</span><span class="unit">mm</span></div></div>
+            <div><div class="label">Presión</div><div><span class="val-sm" id="w-pres">--</span><span class="unit">hPa</span> <span id="w-baro-trend" class="small muted"></span></div></div>
+            <div><div class="label">Viento racha</div><div><span class="val-sm" id="w-gust">--</span><span class="unit">km/h</span></div></div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;min-width:132px;">
+          <div class="label">Índice SSLI</div>
+          <div><span class="val" id="w-ssli">--</span><span class="unit">mm</span></div>
+          <div class="label" style="margin-top:10px;">UV / Solar</div>
+          <div class="small"><span id="w-uv">--</span> / <span id="w-sol">--</span><span class="unit">W/m²</span></div>
+        </div>
+      </div>
+      <div class="bar-track" role="progressbar" aria-label="Índice SSLI"><div class="bar-fill" id="ssli-bar" style="width:0%"></div></div>
+      <div class="bar-caption"><span>SSLI 0–60 mm</span><span id="ssli-pct"></span></div>
+    </section>
+
+    <section class="card accent-red" id="card-grid" aria-labelledby="t-grid">
+      <div class="card-header">
+        <h2 class="card-title" id="t-grid">Embalse Mazar — Riesgo de apagón</h2>
+        <span id="maz-status-tag"></span>
+      </div>
+      <div class="split">
+        <div>
+          <div class="label">Cota actual</div>
+          <div><span class="val" id="maz-cota">--</span><span class="unit">msnm</span></div>
+          <div class="kpi-grid" style="margin-top:12px;">
+            <div><div class="label">Caudal entrada</div><div><span class="val-sm" id="maz-caud">--</span><span class="unit">m³/s</span></div></div>
+            <div><div class="label">Turbinas en línea</div><div class="small" style="font-weight:700;margin-top:4px;" id="maz-units">--</div></div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="label">Días a parada</div>
+          <div><span class="val" id="maz-days">--</span></div>
+          <div class="label" style="margin-top:10px;">Último dato</div>
+          <div id="maz-ts" class="small muted">--</div>
+        </div>
+      </div>
+      <div class="bar-track" role="progressbar" aria-label="Nivel embalse Mazar"><div class="bar-fill" id="mazar-bar" style="width:0%;background:var(--danger)"></div></div>
+      <div class="bar-caption"><span>2098 m (parada)</span><span>2153 m (lleno)</span></div>
+    </section>
   </div>
 
-  <div class="card card-blue">
-    <div class="section-title">💧 Minas San Francisco</div>
-    <div class="kpi"><div class="label">Cota</div>
-      <div><span class="val-sm neon-blue" id="msf-cota">--</span><span class="unit">msnm</span></div></div>
-    <div class="grid2" style="margin-top:8px;">
-      <div class="kpi"><div class="label">Caudal</div>
-        <div><span id="msf-caud">--</span><span class="unit">m³/s</span></div></div>
-      <div class="kpi"><div class="label">Turbinas</div>
-        <div><span id="msf-units">--</span></div></div>
-    </div>
+  <!-- ROW 2: EMBALSES SECUNDARIOS -->
+  <div class="grid grid-3" style="margin-bottom:14px;">
+    <section class="card" aria-label="Paute Molino">
+      <h2 class="card-title">Paute Molino</h2>
+      <p class="card-subtitle">Cuenca oriental · cota y caudales</p>
+      <div style="margin-top:10px;"><div class="label">Cota</div>
+        <div><span class="val-sm" id="mol-cota">--</span><span class="unit">msnm</span></div></div>
+      <div class="kpi-grid" style="margin-top:10px;">
+        <div><div class="label">Caudal río</div><div class="small" style="font-weight:700;"><span id="mol-caud-real">--</span><span class="unit">m³/s</span></div></div>
+        <div><div class="label">Cuenca</div><div class="small" style="font-weight:700;"><span id="mol-caud-cuenca">--</span><span class="unit">m³/s</span></div></div>
+      </div>
+    </section>
+    <section class="card" aria-label="Sopladora">
+      <h2 class="card-title">Sopladora</h2>
+      <p class="card-subtitle">Caudal y turbinas</p>
+      <div style="margin-top:10px;"><div class="label">Cota</div>
+        <div><span class="val-sm" id="sop-cota">--</span><span class="unit">msnm</span></div></div>
+      <div class="kpi-grid" style="margin-top:10px;">
+        <div><div class="label">Caudal</div><div class="small" style="font-weight:700;"><span id="sop-caud">--</span><span class="unit">m³/s</span></div></div>
+        <div><div class="label">Turbinas</div><div class="small" style="font-weight:700;" id="sop-units">--</div></div>
+      </div>
+    </section>
+    <section class="card" aria-label="Minas San Francisco">
+      <h2 class="card-title">Minas San Francisco</h2>
+      <p class="card-subtitle">Caudal y turbinas</p>
+      <div style="margin-top:10px;"><div class="label">Cota</div>
+        <div><span class="val-sm" id="msf-cota">--</span><span class="unit">msnm</span></div></div>
+      <div class="kpi-grid" style="margin-top:10px;">
+        <div><div class="label">Caudal</div><div class="small" style="font-weight:700;"><span id="msf-caud">--</span><span class="unit">m³/s</span></div></div>
+        <div><div class="label">Turbinas</div><div class="small" style="font-weight:700;" id="msf-units">--</div></div>
+      </div>
+    </section>
   </div>
 
-</div>
+  <!-- ROW 3: CENACE -->
+  <div class="grid grid-2" style="margin-bottom:14px;">
+    <section class="card accent-green" aria-labelledby="t-mix">
+      <div class="card-header"><h2 class="card-title" id="t-mix">Matriz nacional — Hoy (MWh)</h2></div>
+      <div class="kpi-grid">
+        <div><div class="label">Hidroeléctrica</div>
+          <div><span class="val-sm" id="c-hydro">--</span><span class="unit">MWh</span></div>
+          <div class="bar-track"><div class="bar-fill" id="bar-hydro" style="background:var(--success);width:0%"></div></div></div>
+        <div><div class="label">Térmica</div>
+          <div><span class="val-sm" id="c-thermal">--</span><span class="unit">MWh</span></div>
+          <div class="bar-track"><div class="bar-fill" id="bar-thermal" style="background:var(--warning);width:0%"></div></div></div>
+        <div><div class="label">Importación</div><div class="small" style="font-weight:700;"><span id="c-import">--</span><span class="unit">MWh</span></div></div>
+        <div><div class="label">Renovable</div><div class="small" style="font-weight:700;"><span id="c-renew">--</span><span class="unit">MWh</span></div></div>
+      </div>
+      <div class="card-header" style="margin-top:16px;"><h2 class="card-title">Demanda en tiempo real (MW)</h2></div>
+      <div class="kpi-grid">
+        <div><div class="label">Demanda nacional</div><div><span class="val" id="c-demand">--</span><span class="unit">MW</span></div></div>
+        <div><div class="label">Hidro / Térmica</div><div class="small" style="font-weight:700;margin-top:8px;"><span id="c-hydro-mw">--</span> / <span id="c-therm-mw">--</span><span class="unit">MW</span></div></div>
+      </div>
+      <div class="small muted" style="margin-top:8px;" id="c-last-time">Último dato: --</div>
+    </section>
 
-<!-- ═══════════════════ ROW 3: CENACE COMPOSICIÓN ═══════════════════ -->
-<div class="grid2" style="margin-bottom:12px;">
-
-  <div class="card card-green">
-    <div class="section-title">📊 Composición Matriz Nacional — Hoy (MWh)</div>
-    <div class="grid2">
-      <div class="kpi">
-        <div class="label">Hidroeléctrica</div>
-        <div><span class="val-sm neon-green" id="c-hydro">--</span><span class="unit">MWh</span></div>
-        <div class="bar-track"><div class="bar-fill" id="bar-hydro" style="background:var(--neon-green);width:0%"></div></div>
+    <section class="card accent-green" aria-labelledby="t-hydro">
+      <div class="card-header"><h2 class="card-title" id="t-hydro">Centrales hidroeléctricas — Acumulado</h2></div>
+      <div id="hydro-list" class="scroll-list" aria-live="polite">
+        <div class="dam-row"><span class="muted small">Cargando…</span></div>
       </div>
-      <div class="kpi">
-        <div class="label">Térmica</div>
-        <div><span class="val-sm" id="c-thermal">--</span><span class="unit">MWh</span></div>
-        <div class="bar-track"><div class="bar-fill" id="bar-thermal" style="background:var(--neon-orange);width:0%"></div></div>
-      </div>
-      <div class="kpi" style="margin-top:8px;">
-        <div class="label">Importación</div>
-        <div><span id="c-import">--</span><span class="unit">MWh</span></div>
-      </div>
-      <div class="kpi" style="margin-top:8px;">
-        <div class="label">Renovable</div>
-        <div><span id="c-renew">--</span><span class="unit">MWh</span></div>
-      </div>
-    </div>
-    <div style="margin-top:12px;" class="section-title">⚡ Demanda en Tiempo Real (MW)</div>
-    <div class="grid2">
-      <div class="kpi">
-        <div class="label">Demanda Nacional</div>
-        <div><span class="val neon-green" id="c-demand">--</span><span class="unit">MW</span></div>
-      </div>
-      <div class="kpi">
-        <div class="label">Hidro / Térmica</div>
-        <div><span id="c-hydro-mw">--</span> / <span id="c-therm-mw">--</span><span class="unit">MW</span></div>
-      </div>
-    </div>
-    <div style="font-size:.6rem;color:#333;margin-top:6px;" id="c-last-time">Último dato: --</div>
+    </section>
   </div>
 
-  <!-- CENTRALES HIDRO RANKING -->
-  <div class="card card-green">
-    <div class="section-title">🏭 Centrales Hidroeléctricas — Acumulado (MWh)</div>
-    <div id="hydro-list">
-      <div class="dam-row"><span style="color:#333">Cargando...</span></div>
-    </div>
+  <!-- ROW 4: ENSO + CURVA -->
+  <div class="grid grid-2" style="margin-bottom:14px;">
+    <section class="card accent-amber" aria-labelledby="t-enso">
+      <div class="card-header"><h2 class="card-title" id="t-enso">NOAA ENSO — Anomalías semanales</h2></div>
+      <div class="kpi-grid">
+        <div><div class="label">Niño 1+2 (costa EC)</div>
+          <div><span class="val" id="e-12">--</span><span class="unit">°C</span> <span id="e-12-trend" class="small"></span></div></div>
+        <div><div class="label">Niño 3.4 (Pacífico)</div>
+          <div><span class="val-sm" id="e-34">--</span><span class="unit">°C</span> <span id="e-34-trend" class="small"></span></div></div>
+      </div>
+      <div class="alert-box" style="margin-top:12px;"><div id="e-alert">--</div></div>
+      <div class="kpi-grid" style="margin-top:12px;">
+        <div><div class="label" style="margin-bottom:4px;">Riesgo local (Pallatanga)</div><div id="e-local-risk" class="risk-text"></div></div>
+        <div><div class="label" style="margin-bottom:4px;">Riesgo red (oriente)</div><div id="e-grid-risk" class="risk-text"></div></div>
+      </div>
+      <div class="small muted" style="margin-top:8px;">Reporte NOAA: <span id="e-date">--</span></div>
+    </section>
+
+    <section class="card accent-green" aria-labelledby="t-curve">
+      <div class="card-header"><div><h2 class="card-title" id="t-curve">Generación nacional — Curva horaria (MW)</h2>
+        <div class="card-subtitle">Datos: CENACE InfoOperativa</div></div></div>
+      <div class="chart-wrap"><canvas id="hourlyChart" aria-label="Curva horaria de generación"></canvas></div>
+    </section>
   </div>
 
-</div>
+  <!-- ROW 5: CLIMA -->
+  <section class="card" aria-label="Precipitación Pallatanga">
+    <div class="card-header"><h2 class="card-title">Precipitación — Estación Pallatanga</h2></div>
+    <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:12px;" id="rain-grid">
+      <div><div class="label">Mensual</div><div><span class="val-sm" id="w-rain-mo">--</span><span class="unit">mm</span></div></div>
+      <div><div class="label">Anual</div><div><span class="val-sm" id="w-rain-yr">--</span><span class="unit">mm</span></div></div>
+      <div><div class="label">Radiación solar</div><div class="small" style="font-weight:700;"><span id="w-sol2">--</span><span class="unit">W/m²</span></div></div>
+      <div><div class="label">Dirección viento</div><div class="small" style="font-weight:700;"><span id="w-wdir">--</span><span class="unit">°</span></div></div>
+    </div>
+  </section>
 
-<!-- ═══════════════════ ROW 4: ENSO + CURVA HORARIA ═══════════════════ -->
-<div class="grid2" style="margin-bottom:12px;">
-
-  <!-- ENSO NOAA -->
-  <div class="card card-orange">
-    <div class="section-title">🌊 NOAA ENSO — Anomalías SSTA Seminal</div>
-    <div class="grid2">
-      <div class="kpi">
-        <div class="label">Niño 1+2 (Costa Ecuador)</div>
-        <div><span class="val neon-orange" id="e-12">--</span><span class="unit">°C</span>
-             &nbsp;<span id="e-12-trend" style="font-size:.7rem;"></span></div>
-      </div>
-      <div class="kpi">
-        <div class="label">Niño 3.4 (Pacífico Central)</div>
-        <div><span class="val-sm" id="e-34">--</span><span class="unit">°C</span>
-             &nbsp;<span id="e-34-trend" style="font-size:.7rem;"></span></div>
-      </div>
-    </div>
-    <div style="margin-top:12px;padding:10px;background:#0d0d15;border-radius:6px;">
-      <div id="e-alert" style="font-size:.85rem;font-weight:700;">--</div>
-    </div>
-    <div style="margin-top:10px;" class="grid2">
-      <div>
-        <div class="label" style="margin-bottom:4px;">Riesgo Local (Deslaves Pallatanga)</div>
-        <div id="e-local-risk" style="font-size:.75rem;"></div>
-      </div>
-      <div>
-        <div class="label" style="margin-bottom:4px;">Riesgo Red (Embalses Oriente)</div>
-        <div id="e-grid-risk" style="font-size:.75rem;"></div>
-      </div>
-    </div>
-    <div style="font-size:.6rem;color:#333;margin-top:8px;">Reporte NOAA: <span id="e-date">--</span></div>
+  <div class="footer">
+    <span>A.E.G.I.S.-GRID v3 · Pallatanga — Mazar — SNI · CENACE · CELEC · NOAA · Ambient Weather</span>
+    <span id="foot-ts" class="mono"></span>
   </div>
+</main>
 
-  <!-- CURVA HORARIA GENERACIÓN -->
-  <div class="card card-green">
-    <div class="section-title">📈 Generación Nacional Hoy — Curva Horaria (MW)</div>
-    <canvas id="hourlyChart"></canvas>
-    <div style="font-size:.6rem;color:#333;margin-top:6px;">Datos: CENACE InfoOperativa.htm</div>
-  </div>
-
-</div>
-
-<!-- ═══════════════════ ROW 5: CLIMATE MONTLY RAIN ═══════════════════ -->
-<div class="card" style="margin-bottom:12px;border-color:#1a1a2e;">
-  <div class="section-title">☔ Precipitación Acumulada — Estación Pallatanga</div>
-  <div class="grid4">
-    <div class="kpi">
-      <div class="label">Mensual</div>
-      <div><span class="val-sm" id="w-rain-mo">--</span><span class="unit">mm</span></div>
-    </div>
-    <div class="kpi">
-      <div class="label">Anual</div>
-      <div><span class="val-sm" id="w-rain-yr">--</span><span class="unit">mm</span></div>
-    </div>
-    <div class="kpi">
-      <div class="label">Radiación Solar</div>
-      <div><span id="w-sol2">--</span><span class="unit">W/m²</span></div>
-    </div>
-    <div class="kpi">
-      <div class="label">Dirección Viento</div>
-      <div><span id="w-wdir">--</span><span class="unit">°</span></div>
-    </div>
-  </div>
-</div>
-
-<div id="toast">✔ Datos actualizados</div>
+<div id="toast" role="status"><span class="ok"></span><span>Datos actualizados</span></div>
 
 <script>
 const API = '';
 let hourlyChart = null;
 
-// ─── HELPERS ───────────────────────────────────────────────────────────────��──
+// ─── TEMA Light / Dark / System con persistencia ───
+const themeBtns = [...document.querySelectorAll('[data-set-theme]')];
+function currentTheme() { return document.documentElement.dataset.theme || 'system'; }
+function paintThemeButtons() {
+  const t = currentTheme();
+  themeBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.setTheme === t)));
+}
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('aegis-theme', t); } catch {}
+  paintThemeButtons();
+  renderHourlyChart(window.__lastHourly || null, true);
+}
+themeBtns.forEach(b => b.addEventListener('click', () => setTheme(b.dataset.setTheme)));
+paintThemeButtons();
+try {
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+    if (currentTheme() === 'system') renderHourlyChart(window.__lastHourly || null, true);
+  });
+} catch {}
+
+// ─── HELPERS ───
 const $  = id => document.getElementById(id);
 const set = (id, v, fallback = '--') => { const el = $(id); if(el) el.textContent = v ?? fallback; };
 
 function setTag(id, text, cls) {
   const el = $(id);
   if (!el) return;
-  el.innerHTML = `<span class="tag tag-${cls}">${text}</span>`;
+  const map = { green:'green', red:'red', yellow:'yellow', orange:'orange', blue:'blue' };
+  el.innerHTML = `<span class="badge badge-${map[cls]||'blue'}">${text}</span>`;
 }
 
 function riskClass(text='') {
@@ -365,12 +490,14 @@ function riskClass(text='') {
   return 'green';
 }
 
+function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
 function trendArrow(v) {
   const n = parseFloat(v);
-  if (isNaN(n) || Math.abs(n) < 0.01) return '<span style="color:#555">→</span>';
+  if (isNaN(n) || Math.abs(n) < 0.01) return '<span class="muted">→</span>';
   return n > 0
-    ? `<span style="color:var(--neon-red)">▲ +${n}</span>`
-    : `<span style="color:var(--neon-blue)">▼ ${n}</span>`;
+    ? `<span style="color:var(--danger)">▲ +${n}</span>`
+    : `<span style="color:var(--info)">▼ ${n}</span>`;
 }
 
 function pct(val, min, max) {
@@ -384,28 +511,34 @@ function fmtTs(iso) {
     month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 
-// ─── CHART ──────────────────────────���─────────────────────────────────────────
-function renderHourlyChart(hourly) {
+function setPill(id, text, level) {
+  const pill = $(id);
+  if (!pill) return;
+  pill.classList.remove('warn','danger');
+  if (level === 'red') pill.classList.add('danger');
+  else if (level === 'orange' || level === 'yellow') pill.classList.add('warn');
+  const label = pill.querySelector('span:last-child');
+  if (label) label.textContent = text;
+}
+
+// ─── CHART ───
+function renderHourlyChart(hourly, force) {
+  if (!hourly && !force) return;
+  if (!hourly) hourly = window.__lastHourly;
   if (!hourly) return;
+  window.__lastHourly = hourly;
   const keys   = ['Hidráulica', 'Térmica', 'Renovable', 'Importación'];
-  const colors = ['#00f0ff','#ff7700','#39ff14','#ffe600'];
-  const labels = Object.values(hourly)[0] ? [] : [];
-  // Reconstruct labels 00:00..23:30 (48 slots)
+  const colors = [cssVar('--accent')||'#3b82f6', '#ea580c', cssVar('--success')||'#22c55e', '#ca8a04'];
   const hrs = [];
   for (let h=0;h<24;h++) for(let m of[0,30]) hrs.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
-
-  // Use only last 24 points for readability
   const n = 24;
   const slicedLabels = hrs.slice(hrs.length - n);
-
   const datasets = keys.map((k, i) => {
     const v = hourly[k];
-    const y = v ? [v.lastMW] : [0]; // single point; ideally we'd have all 48 pts
     return { label: k, data: Array(n-1).fill(null).concat([v?.lastMW ?? null]),
-             borderColor: colors[i], backgroundColor: colors[i]+'22',
-             fill: true, tension: 0.4, pointRadius: 3, borderWidth: 1.5 };
+             borderColor: colors[i], backgroundColor: colors[i]+'26',
+             fill: true, tension: 0.4, pointRadius: 3, borderWidth: 1.8 };
   });
-
   const ctx = $('hourlyChart').getContext('2d');
   if (hourlyChart) hourlyChart.destroy();
   hourlyChart = new Chart(ctx, {
@@ -413,24 +546,23 @@ function renderHourlyChart(hourly) {
     data: { labels: slicedLabels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#555', font:{ size:10 }, boxWidth:12 } } },
+      plugins: { legend: { labels: { color: cssVar('--chart-tick'), font:{ size:10 }, boxWidth:12 } } },
       scales: {
-        x: { ticks:{ color:'#333', maxTicksLimit:8, font:{size:9} }, grid:{ color:'#111' } },
-        y: { ticks:{ color:'#333', font:{size:9} }, grid:{ color:'#111' },
-             title:{ display:true, text:'MW', color:'#444', font:{size:9} } }
+        x: { ticks:{ color: cssVar('--chart-tick'), maxTicksLimit:8, font:{size:9} }, grid:{ color: cssVar('--chart-grid') } },
+        y: { ticks:{ color: cssVar('--chart-tick'), font:{size:9} }, grid:{ color: cssVar('--chart-grid') },
+             title:{ display:true, text:'MW', color: cssVar('--chart-tick'), font:{size:9} } }
       }
     }
   });
 }
 
-// ─── RENDER ───────────────────────────────────────────────────────────────────
+// ─── RENDER ───
 function render(s) {
   const w = s.weather;
   const d = s.dams;
   const c = s.cenace;
   const e = s.enso;
 
-  // ── WEATHER ──
   if (w) {
     set('w-temp',       w.tempC);
     set('w-hum',        w.humidity);
@@ -449,37 +581,41 @@ function render(s) {
 
     const ssliPct = pct(w.ssliIndex, 0, 60);
     $('ssli-bar').style.width = ssliPct + '%';
+    $('ssli-bar').style.background = ssliPct > 58 ? 'var(--danger)' : ssliPct > 33 ? 'var(--warning)' : 'var(--accent)';
+    set('ssli-pct', Math.round(ssliPct) + '%');
 
-    const risk = w.landslideRisk;
+    const risk = w.landslideRisk || '—';
     const rc   = riskClass(risk);
-    setTag('landslide-tag', risk, rc);
-    const lc   = $('card-landslide');
-    lc.className = 'card card-' + rc;
+    setTag('landslide-tag', risk, rc === 'red' ? 'red' : rc === 'orange' ? 'orange' : rc === 'yellow' ? 'yellow' : rc === 'green' ? 'green' : 'blue');
+    const lc = $('card-landslide');
+    lc.classList.remove('accent-blue','accent-red','accent-amber','accent-green');
+    lc.classList.add(rc === 'red' ? 'accent-red' : rc === 'orange' || rc === 'yellow' ? 'accent-amber' : rc === 'green' ? 'accent-green' : 'accent-blue');
+    setPill('pill-landslide', 'Deslave: ' + risk, rc);
   }
 
-  // ── DAMS: MAZAR ──
   if (d?.mazar) {
     const maz   = d.mazar;
     set('maz-cota',  maz.cotaMsnm ?? '--');
     set('maz-caud',  maz.caudalEntradaM3s ?? '--');
-    set('maz-units', maz.unidadesLinea !== null ? `${maz.unidadesLinea} turbina(s)` : '--');
-    set('maz-days',  maz.daysToShutdown !== null ? maz.daysToShutdown : '--');
+    set('maz-units', maz.unidadesLinea !== null && maz.unidadesLinea !== undefined ? `${maz.unidadesLinea} turbina(s)` : '--');
+    set('maz-days',  maz.daysToShutdown !== null && maz.daysToShutdown !== undefined ? maz.daysToShutdown : '--');
     set('maz-ts',    fmtTs(maz.timestamp));
 
     const cota = parseFloat(maz.cotaMsnm);
     if (!isNaN(cota)) {
       $('mazar-bar').style.width = pct(cota, 2098, 2153) + '%';
-      const barColor = cota < 2110 ? 'var(--neon-red)' : cota < 2115 ? 'var(--neon-orange)' : 'var(--neon-green)';
-      $('mazar-bar').style.background = barColor;
+      $('mazar-bar').style.background = cota < 2110 ? 'var(--danger)' : cota < 2115 ? 'var(--warning)' : 'var(--success)';
     }
 
-    const st = maz.status;
+    const st = maz.status || '—';
     const sc = riskClass(st);
     setTag('maz-status-tag', st, sc);
-    $('card-grid').className = 'card card-' + sc;
+    const gc = $('card-grid');
+    gc.classList.remove('accent-blue','accent-red','accent-amber','accent-green');
+    gc.classList.add(sc === 'red' ? 'accent-red' : sc === 'orange' || sc === 'yellow' ? 'accent-amber' : sc === 'green' ? 'accent-green' : 'accent-blue');
+    setPill('pill-grid', 'Mazar: ' + st, sc);
   }
 
-  // ── DAMS: SECUNDARIOS ──
   if (d?.molino) {
     set('mol-cota',        d.molino.cotaMsnm ?? '--');
     set('mol-caud-real',   d.molino.caudalRealM3s ?? '--');
@@ -488,15 +624,14 @@ function render(s) {
   if (d?.sopladora) {
     set('sop-cota',  d.sopladora.cotaMsnm ?? '--');
     set('sop-caud',  d.sopladora.caudalM3s ?? '--');
-    set('sop-units', d.sopladora.unidadesLinea !== null ? `${d.sopladora.unidadesLinea} turbina(s)` : '--');
+    set('sop-units', d.sopladora.unidadesLinea !== null && d.sopladora.unidadesLinea !== undefined ? `${d.sopladora.unidadesLinea} turbina(s)` : '--');
   }
   if (d?.minasSF) {
     set('msf-cota',  d.minasSF.cotaMsnm ?? '--');
     set('msf-caud',  d.minasSF.caudalM3s ?? '--');
-    set('msf-units', d.minasSF.unidadesLinea !== null ? `${d.minasSF.unidadesLinea} turbina(s)` : '--');
+    set('msf-units', d.minasSF.unidadesLinea !== null && d.minasSF.unidadesLinea !== undefined ? `${d.minasSF.unidadesLinea} turbina(s)` : '--');
   }
 
-  // ── CENACE COMPOSICIÓN ──
   if (c?.composition) {
     const comp  = c.composition;
     const total = Object.values(comp).reduce((a,b) => a+b, 0) || 1;
@@ -508,7 +643,6 @@ function render(s) {
     $('bar-thermal').style.width = pct(comp['térmica']        ?? 0, 0, total*0.4) + '%';
   }
 
-  // ── CENACE HORARIA ──
   if (c?.hourlyCurrentMW) {
     const h = c.hourlyCurrentMW;
     set('c-demand',   h['DEMANDA NACIONAL']?.lastMW?.toLocaleString() ?? '--');
@@ -516,10 +650,10 @@ function render(s) {
     set('c-therm-mw', h['Térmica']?.lastMW    ?? '--');
     const lastTime = h['DEMANDA NACIONAL']?.lastTime;
     set('c-last-time', lastTime ? `Último dato: ${lastTime} (hora CENACE)` : '');
+    set('c-last-time-top', lastTime ? `CENACE ${lastTime}` : '');
     renderHourlyChart(h);
   }
 
-  // ── CENACE CENTRALES ──
   if (c?.hydroGenerators?.length) {
     const total = c.hydroGenerators.reduce((a,g) => a + g.generationMWh, 0) || 1;
     const sorted = [...c.hydroGenerators].sort((a,b) => b.generationMWh - a.generationMWh);
@@ -528,19 +662,16 @@ function render(s) {
       return `
         <div class="dam-row">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:.75rem;">${g.central}</div>
-            <div class="bar-track" style="margin-top:3px;">
-              <div class="bar-fill" style="width:${barW}%;background:var(--neon-green);opacity:.6;"></div>
+            <div class="dam-name">${g.central}</div>
+            <div class="bar-track" style="margin-top:5px;">
+              <div class="bar-fill" style="width:${barW}%;background:var(--success);opacity:.75;"></div>
             </div>
           </div>
-          <div style="font-size:.8rem;font-weight:700;margin-left:12px;flex-shrink:0;color:var(--neon-green);">
-            ${g.generationMWh.toLocaleString()} MWh
-          </div>
+          <div class="dam-val">${g.generationMWh.toLocaleString()} <span class="unit">MWh</span></div>
         </div>`;
     }).join('');
   }
 
-  // ── ENSO ──
   if (e) {
     set('e-12',   e.nino12SSTA?.toFixed(1));
     set('e-34',   e.nino34SSTA?.toFixed(1));
@@ -551,40 +682,64 @@ function render(s) {
     const alertEl = $('e-alert');
     alertEl.textContent = e.alertLevel;
     const ac = riskClass(e.alertLevel);
-    alertEl.className = ac === 'red'    ? 'neon-red blink'    :
-                        ac === 'orange' ? 'neon-orange'        :
-                        ac === 'yellow' ? 'neon-yellow'        : 'neon-green';
+    alertEl.style.color = ac === 'red' ? 'var(--danger)' : ac === 'orange' ? 'var(--warning)' : ac === 'yellow' ? 'var(--warning)' : 'var(--success)';
+    alertEl.classList.toggle('blink', ac === 'red');
 
     const lr = e.localRisk || '';
     const gr = e.gridRisk  || '';
-    $('e-local-risk').innerHTML = `<span class="${riskClass(lr) === 'red' ? 'neon-red' : riskClass(lr) === 'orange' ? 'neon-orange' : 'neon-yellow'}">${lr}</span>`;
-    $('e-grid-risk').innerHTML  = `<span class="${riskClass(gr) === 'red' ? 'neon-red' : riskClass(gr) === 'orange' ? 'neon-orange' : 'neon-yellow'}">${gr}</span>`;
+    const col = t => riskClass(t) === 'red' ? 'var(--danger)' : riskClass(t) === 'orange' || riskClass(t) === 'yellow' ? 'var(--warning)' : 'var(--success)';
+    $('e-local-risk').innerHTML = `<span style="color:${col(lr)};font-weight:700;">${lr}</span>`;
+    $('e-grid-risk').innerHTML  = `<span style="color:${col(gr)};font-weight:700;">${gr}</span>`;
+    setPill('pill-enso', 'ENSO: ' + (e.alertLevel || '—'), ac);
+  }
+
+  set('foot-ts', 'sync ' + new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }));
+}
+
+// ─── SYNC LOOP ───
+let syncTimer = null;
+async function sync(manual) {
+  const dot = $('sync-dot'), txt = $('sync-text');
+  try {
+    if (manual) txt.textContent = 'Actualizando…';
+    const res  = await fetch(`${API}/api/status`);
+    if (res.status === 403) throw new Error('API restringida: abre el dashboard desde el mismo host (403)');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    render(data);
+    const now = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' });
+    txt.textContent = `Sync ${now}`;
+    if (dot) dot.classList.remove('err');
+    const t = $('toast');
+    t.classList.add('show');
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => t.classList.remove('show'), 2000);
+  } catch(err) {
+    txt.textContent = `Error: ${err.message}`;
+    if (dot) dot.classList.add('err');
   }
 }
 
-// ─── SYNC LOOP ────────────────────────────────────────────────────────────────
-async function sync() {
-  try {
-    const res  = await fetch(`${API}/api/status`);
-    const data = await res.json();
-    render(data);
-    $('sync-status').textContent = `Sync ${new Date().toLocaleTimeString('es-EC')}`;
-    const t = $('toast');
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2000);
-  } catch(err) {
-    $('sync-status').textContent = `Error: ${err.message}`;
-  }
-}
+$('btn-refresh').addEventListener('click', () => sync(true));
 
 // Clock
 setInterval(() => {
   $('clock').textContent = new Date().toLocaleTimeString('es-EC', { timeZone:'America/Guayaquil' });
 }, 1000);
+$('clock').textContent = new Date().toLocaleTimeString('es-EC', { timeZone:'America/Guayaquil' });
+
+// Responsive rain grid: 4 cols desktop, 2 cols móvil
+function fitRainGrid() {
+  const g = $('rain-grid');
+  if (!g) return;
+  g.style.gridTemplateColumns = window.innerWidth < 640 ? '1fr 1fr' : 'repeat(4,1fr)';
+}
+window.addEventListener('resize', fitRainGrid);
+fitRainGrid();
 
 // Initial + periodic sync
-sync();
-setInterval(sync, 5 * 60 * 1000); // cada 5 min (backend tiene sus propios TTLs)
+sync(false);
+setInterval(() => sync(false), 5 * 60 * 1000);
 </script>
 </body>
 </html>

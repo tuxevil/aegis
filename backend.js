@@ -385,6 +385,37 @@ fastify.get('/api/enso', async (req, reply) => {
   }
 });
 
+// ─── ACCESO: /api PROTEGIDA, UI SÍ LEE DATOS ───────────────────────────────────
+// - localhost: acceso total (el propio backend agrega vía 127.0.0.1).
+// - /api/status: además se permite si el fetch lo inicia el propio dashboard
+//   (Referer/Origin del mismo host). Así la UI remota muestra datos, pero el
+//   acceso directo (curl, navegador, otro sitio) sigue devolviendo 403.
+//   Nota: el Referer es falsificable; esto oculta de escáneres, no es auth real.
+// - resto de /api/*: solo localhost.
+function isLocalIp(ip) {
+  if (!ip) return false;
+  return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+}
+function hostOf(v) {
+  if (!v) return null;
+  try {
+    const u = new URL(v.includes('://') ? v : `http://${v}`);
+    return u.hostname || null;
+  } catch { return null; }
+}
+fastify.addHook('onRequest', async (req, reply) => {
+  if (!req.url.startsWith('/api')) return;
+  const ip = req.ip || req.socket?.remoteAddress;
+  if (isLocalIp(ip)) return; // local: todo permitido
+  if (req.url.startsWith('/api/status')) {
+    const srv = hostOf(req.headers.host);
+    const org = hostOf(req.headers.origin);
+    const ref = hostOf(req.headers.referer);
+    if (srv && (org === srv || ref === srv)) return; // fetch iniciado por el dashboard
+  }
+  return reply.headers(CORS).code(403).send({ error: 'API restringida: acceso directo no permitido' });
+});
+
 // ─── ENDPOINT 5: RESUMEN TÁCTICO UNIFICADO ───────────────────────────────────
 // Un solo fetch para el frontend — agrega los 4 endpoints con sus caches
 fastify.get('/api/status', async (req, reply) => {
@@ -405,23 +436,13 @@ fastify.get('/api/status', async (req, reply) => {
 });
 
 // ─── STATIC UI ───────────────────────────────────────────────────────────────
-fastify.get('/ui', async (req, reply) =>
-  reply.type('text/html').send(fs.readFileSync(path.join(__dirname, 'frontend.html'))));
+// La raíz abre directamente el dashboard (mismo contenido que /ui, por compatibilidad)
+const serveUI = async (req, reply) =>
+  reply.type('text/html').send(fs.readFileSync(path.join(__dirname, 'frontend.html')));
 
-fastify.get('/', async (req, reply) =>
-  reply.type('text/html').send(`
-<html><head><title>AEGIS-GRID v3</title></head>
-<body style="font-family:monospace;background:#050508;color:#39ff14;padding:24px;">
-  <h2>🐧🤖 A.E.G.I.S.-GRID API v3.0 — OPERATIONAL</h2>
-  <ul>
-    <li><a href="/api/weather" style="color:#00f0ff">/api/weather</a> — Pallatanga: clima + SSLI landslide model</li>
-    <li><a href="/api/dams"    style="color:#00f0ff">/api/dams</a>    — CELEC ORDS: Mazar, Molino, Sopladora, MinasSF (tiempo real)</li>
-    <li><a href="/api/cenace"  style="color:#00f0ff">/api/cenace</a>  — CENACE: composición, centrales, demanda horaria en MW</li>
-    <li><a href="/api/enso"    style="color:#00f0ff">/api/enso</a>    — NOAA: SSTA seminal + tendencia + clasificación de riesgo</li>
-    <li><a href="/api/status"  style="color:#ff0055">/api/status</a>  — AGREGADO TÁCTICO (single-fetch para el frontend)</li>
-    <li><a href="/ui"          style="color:#39ff14">/ui</a>          — Dashboard</li>
-  </ul>
-</body></html>`));
+fastify.get('/ui', serveUI);
+
+fastify.get('/', serveUI);
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 const boot = async () => {
