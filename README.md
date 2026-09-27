@@ -42,7 +42,7 @@ GET /api/status (único fetch del frontend) ──► frontend.html (dashboard, 
 |---|---|---|
 | `GET /api/weather` | 5 min | Temp, humedad, lluvia, viento, presión, índice SSLI y riesgo de deslave |
 | `GET /api/dams` | 10 min | Cota/caudal/turbinas de los 4 embalses + estado y días a parada de Mazar |
-| `GET /api/cenace` | 30 min | Composición diaria (MWh), hidro por central y MW actuales por fuente |
+| `GET /api/cenace` | 30 min | Composición diaria (MWh), hidro por central y serie horaria completa (labels + MW por fuente) |
 | `GET /api/enso` | 60 min | SSTA Niño 1+2/3/3.4/4, tendencia, nivel de alerta y riesgos local/red |
 | `GET /api/status` | — | Agregado de los 4 anteriores (`timestamp` + 4 bloques) |
 | `GET /` , `GET /ui` | — | Dashboard HTML |

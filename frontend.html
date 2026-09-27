@@ -522,28 +522,25 @@ function setPill(id, text, level) {
 }
 
 // ─── CHART ───
+// hourly: { labels: ['00:00', ...], series: { 'Hidráulica': [MW|null, ...], ... } }
 function renderHourlyChart(hourly, force) {
   if (!hourly && !force) return;
   if (!hourly) hourly = window.__lastHourly;
-  if (!hourly) return;
+  if (!hourly?.labels?.length) return;
   window.__lastHourly = hourly;
   const keys   = ['Hidráulica', 'Térmica', 'Renovable', 'Importación'];
   const colors = [cssVar('--accent')||'#3b82f6', '#ea580c', cssVar('--success')||'#22c55e', '#ca8a04'];
-  const hrs = [];
-  for (let h=0;h<24;h++) for(let m of[0,30]) hrs.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
-  const n = 24;
-  const slicedLabels = hrs.slice(hrs.length - n);
   const datasets = keys.map((k, i) => {
-    const v = hourly[k];
-    return { label: k, data: Array(n-1).fill(null).concat([v?.lastMW ?? null]),
+    return { label: k, data: hourly.series?.[k] ?? [],
              borderColor: colors[i], backgroundColor: colors[i]+'26',
-             fill: true, tension: 0.4, pointRadius: 3, borderWidth: 1.8 };
+             fill: true, tension: 0.4, pointRadius: 0, pointHitRadius: 6,
+             borderWidth: 1.8, spanGaps: true };
   });
   const ctx = $('hourlyChart').getContext('2d');
   if (hourlyChart) hourlyChart.destroy();
   hourlyChart = new Chart(ctx, {
     type: 'line',
-    data: { labels: slicedLabels, datasets },
+    data: { labels: hourly.labels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { labels: { color: cssVar('--chart-tick'), font:{ size:10 }, boxWidth:12 } } },
@@ -643,15 +640,28 @@ function render(s) {
     $('bar-thermal').style.width = pct(comp['térmica']        ?? 0, 0, total*0.4) + '%';
   }
 
-  if (c?.hourlyCurrentMW) {
-    const h = c.hourlyCurrentMW;
-    set('c-demand',   h['DEMANDA NACIONAL']?.lastMW?.toLocaleString() ?? '--');
-    set('c-hydro-mw', h['Hidráulica']?.lastMW ?? '--');
-    set('c-therm-mw', h['Térmica']?.lastMW    ?? '--');
-    const lastTime = h['DEMANDA NACIONAL']?.lastTime;
+  if (c?.hourly?.labels?.length) {
+    const labels = c.hourly.labels;
+    const series = c.hourly.series || {};
+    // Último valor numérico de cada serie (ignora nulls futuros)
+    const lastOf = name => {
+      const arr = series[name];
+      if (!Array.isArray(arr)) return null;
+      for (let i = arr.length - 1; i >= 0; i--) {
+        if (typeof arr[i] === 'number') return { v: arr[i], i };
+      }
+      return null;
+    };
+    const dem = lastOf('DEMANDA NACIONAL');
+    const hyd = lastOf('Hidráulica');
+    const th  = lastOf('Térmica');
+    set('c-demand',   dem ? dem.v.toLocaleString() : '--');
+    set('c-hydro-mw', hyd ? hyd.v : '--');
+    set('c-therm-mw', th  ? th.v  : '--');
+    const lastTime = dem ? labels[dem.i] : null;
     set('c-last-time', lastTime ? `Último dato: ${lastTime} (hora CENACE)` : '');
     set('c-last-time-top', lastTime ? `CENACE ${lastTime}` : '');
-    renderHourlyChart(h);
+    renderHourlyChart(c.hourly);
   }
 
   if (c?.hydroGenerators?.length) {

@@ -316,17 +316,19 @@ fastify.get('/api/cenace', async (req, reply) => {
         }
       }
 
-      // 3. Curva horaria (area/scatter con x = '00:00', '00:30'...) — último segmento del día
-      if (!hourly && Array.isArray(t0.x) && t0.x.length >= 48 && /^[0-2]\d:\d\d$/.test(t0.x[0])) {
-        const xLabels = t0.x;
-        const traces  = {};
+      // 3. Curva horaria (x = '00:00', '00:30'... + y por trace) — serie COMPLETA
+      if (!hourly && Array.isArray(t0.x) && t0.x.length >= 48 && /^[0-2]\d:\d\d$/.test(String(t0.x[0]))) {
+        const xLabels = t0.x.map(String);
+        const series  = {};
         for (const t of data) {
-          const vals  = decodePlotlyY(t.y);
-          // Último valor no-NaN
-          const valid = vals.map((v, i) => [xLabels[i], v]).filter(([, v]) => typeof v === 'number' && !isNaN(v));
-          if (valid.length) traces[t.name] = { lastMW: +valid[valid.length-1][1].toFixed(1), lastTime: valid[valid.length-1][0] };
+          const vals = decodePlotlyY(t.y);
+          const arr  = xLabels.map((_, i) => {
+            const v = vals[i];
+            return (typeof v === 'number' && !isNaN(v)) ? +v.toFixed(1) : null;
+          });
+          if (t.name && arr.some(v => v !== null)) series[t.name] = arr;
         }
-        hourly = traces;
+        if (Object.keys(series).length) hourly = { labels: xLabels, series };
       }
     }
 
@@ -334,7 +336,7 @@ fastify.get('/api/cenace', async (req, reply) => {
       timestamp: new Date().toISOString(),
       composition,
       hydroGenerators:   hydro,
-      hourlyCurrentMW:   hourly
+      hourly
     };
 
     return reply.headers(CORS).send(toCache('cenace', payload));
