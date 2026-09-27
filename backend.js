@@ -128,7 +128,8 @@ fastify.get('/api/weather', async (req, reply) => {
   const cached = fromCache('weather');
   if (cached) return reply.headers(CORS).send(cached);
 
-  const mac   = 'AA:BB:CC:DD:EE:FF';
+  const mac = process.env.AMBIENT_MAC;
+  if (!mac) return reply.headers(CORS).code(500).send({ error: 'AMBIENT_MAC no configurada' });
   const start = Date.now() - 1_800_000;
   const url   = `https://lightning.ambientweather.net/device-data`
     + `?macAddress=${encodeURIComponent(mac)}&dataKey=deviceSummaries&start=${start}&limit=1`;

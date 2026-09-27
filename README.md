@@ -38,6 +38,20 @@ El repositorio incluye un `Dockerfile` hiper-ligero (Node 22 Alpine).
 - **Build Pack:** `Dockerfile`
 - **Port:** `3010`
 
+### Configuración requerida
+
+| Variable | Descripción |
+|---|---|
+| `PORT` | Puerto de escucha (default `3010`) |
+| `AMBIENT_MAC` | MAC de la estación Ambient Weather para `/api/weather` |
+
+```bash
+cp .env.example .env
+# editar .env con tu MAC real
+```
+
+En Coolify, define `AMBIENT_MAC` en Environment Variables. Sin ella, `/api/weather` responde `500`.
+
 ---
 
 ## 📡 Arquitectura de la API Local
