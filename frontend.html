@@ -200,6 +200,8 @@
     .bar-fill { height: 100%; border-radius: 99px; transition: width .7s ease, background .7s ease; background: var(--accent); }
     .bar-tick { position: absolute; top: -3px; bottom: -3px; width: 3px; border-radius: 2px; background: var(--danger); transform: translateX(-50%); pointer-events: auto; }
     .bar-caption { display: flex; justify-content: space-between; font-size: .66rem; color: var(--faint); margin-top: 5px; }
+    .bar-caption-mazar { position: relative; }
+    .bar-caption-mazar .tick-label { position: absolute; transform: translateX(-50%); white-space: nowrap; color: var(--danger); font-weight: 700; }
 
     /* Badges — profesionales, sin glow */
     .badge {
@@ -335,8 +337,8 @@
           <div id="maz-ts" class="small muted">--</div>
         </div>
       </div>
-      <div class="bar-track" role="progressbar" aria-label="Nivel embalse Mazar" aria-valuemin="2098" aria-valuemax="2153" id="mazar-track"><div class="bar-fill" id="mazar-bar" style="width:0%;background:var(--danger)"></div><div class="bar-tick" id="mazar-tick" title="Nivel crítico: 2115 m — salida obligatoria"></div></div>
-      <div class="bar-caption"><span>2098 m (mínimo)</span><span>2115 m crítico</span><span>2153 m (lleno)</span></div>
+      <div class="bar-track" role="progressbar" aria-label="Nivel embalse Mazar" aria-valuemin="2098" aria-valuemax="2153" id="mazar-track"><div class="bar-fill" id="mazar-bar" style="width:0%;background:var(--danger)"></div><div class="bar-tick" id="mazar-tick" style="left:30.9%" title="Nivel crítico: 2115 m — salida obligatoria"></div></div>
+      <div class="bar-caption bar-caption-mazar"><span>2098 m (mínimo)</span><span class="tick-label" id="mazar-tick-label" style="left:30.9%">2115 m crítico</span><span>2153 m (lleno)</span></div>
     </section>
   </div>
 
@@ -603,9 +605,11 @@ function render(s) {
     if (!isNaN(cota)) {
       // Escala completa 2098–2153 con marca crítica en 2115; color por zona de peligro
       const MMIN = 2098, MCRIT = 2115, MWARN = 2120, MFULL = 2153;
+      const critPct = pct(MCRIT, MMIN, MFULL) + '%';
       $('mazar-bar').style.width = pct(cota, MMIN, MFULL) + '%';
       $('mazar-bar').style.background = cota <= MCRIT ? 'var(--danger)' : cota < MWARN ? 'var(--warning)' : 'var(--success)';
-      $('mazar-tick').style.left = pct(MCRIT, MMIN, MFULL) + '%';
+      $('mazar-tick').style.left = critPct;
+      $('mazar-tick-label').style.left = critPct;
       $('mazar-track').setAttribute('aria-valuenow', cota.toFixed(1));
     }
 
