@@ -1,4 +1,11 @@
 {
+  "name": "aegis-grid",
+  "version": "3.0.0",
+  "description": "Alerta temprana El Nino 2026: microclima Pallatanga, hidrometria CELEC, demanda CENACE y ENSO NOAA en un dashboard unico",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "axios": "^1.16.1",
     "chart.js": "^4.5.1",

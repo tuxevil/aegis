@@ -1,68 +1,117 @@
-# 🐧🤖 A.E.G.I.S. - GRID SENTINEL
-**Advanced Ecological & Grid Intelligence System**
+# A.E.G.I.S.-GRID — El Niño & Grid Sentinel
 
-![AEGIS-GRID Status](https://img.shields.io/badge/Status-OPERATIVE-00ff00?style=for-the-badge)
-![Target](https://img.shields.io/badge/Target-PALLATANGA_EC-blue?style=for-the-badge)
-![Nixpacks](https://img.shields.io/badge/Coolify-Ready-blueviolet?style=for-the-badge)
+**Advanced Ecological & Grid Intelligence System.**
 
-A.E.G.I.S.-GRID es un sistema autónomo de alerta temprana, monitoreo hidrológico y análisis de la matriz energética ecuatoriana, diseñado para mitigar los impactos del **Súper El Niño 2026**. Se encarga de cruzar la climatología local en la cordillera andina (Pallatanga) con los datos del Sistema Nacional Interconectado (SNI) de Ecuador.
+Sistema de alerta temprana que cruza el microclima de la cordillera andina (Pallatanga) con el estado del Sistema Nacional Interconectado (SNI) de Ecuador, pensado para anticipar deslaves viales y apagones durante un evento El Niño severo.
 
-## ⚡ Capacidades Core
+![Status](https://img.shields.io/badge/Status-OPERATIVE-00ff00?style=for-the-badge)
+![Node](https://img.shields.io/badge/Node-22-green?style=flat-square)
+![Coolify](https://img.shields.io/badge/Coolify-Ready-blueviolet?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
-1. **Defensa Geológica (SSLI):**
-   - Consume en tiempo real los datos de la Estación Meteorológica de Pallatanga (vía *Ambient Weather*).
-   - Utiliza un **Índice de Saturación de Suelo** (Antecedent Precipitation Index) para disparar alertas críticas de deslaves y bloqueos de la vía E487.
+## Qué monitorea
 
-2. **Defensa Energética (DDPM - Dams Depletion Prediction Model):**
-   - Monitoreo directo sin latencia a la base de datos Oracle REST (ORDS) de CELEC SUR.
-   - Extrae Cota, Caudales y Turbinas en línea de los embalses **Mazar**, **Paute-Molino**, **Sopladora** y **Minas San Francisco**.
-   - Calcula el tiempo restante de turbinación antes del colapso del sistema y envía pre-alertas de apagón para activar bancos de baterías (UPS).
+| Módulo | Fuente | Qué calcula |
+|---|---|---|
+| **Riesgo de deslave (SSLI)** | Estación Ambient Weather local | Índice de saturación de suelo (API) + lluvia horaria → niveles Bajo / Moderado / Crítico |
+| **Embalses (DDPM)** | CELEC SUR ORDS (REST público) | Cota, caudal y turbinas en línea de Mazar, Paute-Molino, Sopladora y Minas San Francisco; días estimados a parada forzada de Mazar |
+| **Demanda nacional** | CENACE Info Operativa (scraper) | Mix hidro/térmico/importado/renovable + demanda actual en MW |
+| **ENSO** | NOAA CPC (TXT semanal) | Anomalías Niño 1+2 y 3.4, tendencia semanal y riesgo local vs. red oriental |
 
-3. **Demanda Nacional en Tiempo Real (CENACE):**
-   - Scraper dinámico que decodifica tensores base64 crudos inyectados en la plataforma operativa de CENACE.
-   - Muestra la curva horaria real, demanda eléctrica (MW) y composición del mix hidro/térmico/importado.
+> Nota de alcance: los umbrales SSLI y la tasa de vaciado de Mazar son heurísticas operativas, no pronósticos oficiales. Para decisiones críticas, contrasta siempre con INAMHI, CELEC y CENACE.
 
-4. **Predicción Súper El Niño (NOAA):**
-   - Lee anomalías SST (Temperatura Superficial del Mar) semanales de la NOAA.
-   - Correlaciona Niño 1+2 (lluvias destructivas en los Andes occidentales) vs. Niño 3.4 (sequías en la cuenca oriental).
+## Arquitectura
 
-## 🚀 Despliegue en Producción (Coolify)
-
-Este repositorio es 100% *Cloud-Native* y está optimizado para despliegues *Zero-Config* usando **Coolify v4** en clusters Proxmox.
-
-### Opción A: Nixpacks (Recomendado)
-Coolify detectará el `package.json`, instalará las dependencias y ejecutará automáticamente el script `"start": "node backend.js"`. 
-
-### Opción B: Dockerfile
-El repositorio incluye un `Dockerfile` hiper-ligero (Node 22 Alpine).
-- **Build Pack:** `Dockerfile`
-- **Port:** `3010`
-
-### Configuración requerida
-
-| Variable | Descripción |
-|---|---|
-| `PORT` | Puerto de escucha (default `3010`) |
-| `AMBIENT_MAC` | MAC de la estación Ambient Weather para `/api/weather` |
-
-```bash
-cp .env.example .env
-# editar .env con tu MAC real
+```text
+Fuentes públicas (Ambient / CELEC / CENACE / NOAA)
+        │  fetch server-side con caché en memoria
+        ▼
+backend.js (Fastify) ── /api/weather · /api/dams · /api/cenace · /api/enso
+        │  agregación interna vía 127.0.0.1
+        ▼
+GET /api/status (único fetch del frontend) ──► frontend.html (dashboard, Chart.js)
 ```
 
-En Coolify, define `AMBIENT_MAC` en Environment Variables. Sin ella, `/api/weather` responde `500`.
+- Caché en memoria por endpoint para no saturar fuentes lentas.
+- `/api/*` restringido a localhost, salvo `/api/status` cuando el `Origin`/`Referer` coincide con el `Host` (ver [modelo de seguridad](#seguridad)).
+- `/` y `/ui` sirven el mismo dashboard.
 
----
+## API
 
-## 📡 Arquitectura de la API Local
+| Endpoint | TTL | Responde |
+|---|---|---|
+| `GET /api/weather` | 5 min | Temp, humedad, lluvia, viento, presión, índice SSLI y riesgo de deslave |
+| `GET /api/dams` | 10 min | Cota/caudal/turbinas de los 4 embalses + estado y días a parada de Mazar |
+| `GET /api/cenace` | 30 min | Composición diaria (MWh), hidro por central y MW actuales por fuente |
+| `GET /api/enso` | 60 min | SSTA Niño 1+2/3/3.4/4, tendencia, nivel de alerta y riesgos local/red |
+| `GET /api/status` | — | Agregado de los 4 anteriores (`timestamp` + 4 bloques) |
+| `GET /` , `GET /ui` | — | Dashboard HTML |
 
-El orquestador levanta un API robusta con múltiples capas de caché en memoria para proteger los endpoints públicos:
+## Inicio rápido
 
-* `GET /api/status` - Aggregator táctico (Todo en uno).
-* `GET /api/weather` - Microclima y modelo de deslaves (5 min TTL).
-* `GET /api/dams` - Hidrometría de CELEC (10 min TTL).
-* `GET /api/cenace` - Red Eléctrica Nacional (30 min TTL).
-* `GET /api/enso` - Estado ENSO NOAA (60 min TTL).
-* `GET /ui` - Interfaz Táctica de Control (Cyberpunk Dashboard).
+Requisitos: Node 22+.
 
-*Ghost in the shell. pi.dev network operative.*
+```bash
+cp .env.example .env   # completa AMBIENT_MAC
+npm install
+npm start              # http://localhost:3010/
+```
+
+## Configuración
+
+| Variable | Requerida | Default | Descripción |
+|---|---|---|---|
+| `AMBIENT_MAC` | Sí | — | MAC de tu estación Ambient Weather (`/api/weather` responde 500 sin ella) |
+| `PORT` | No | `3010` | Puerto de escucha |
+
+`.env` nunca se commitea (ver `.gitignore`). En producción define las variables en el gestor del host.
+
+## Despliegue en Coolify (v4)
+
+Dos caminos equivalentes:
+
+- **Nixpacks (recomendado):** Build Pack automático, detecta `package.json` y corre `npm start`.
+- **Dockerfile:** Build Pack `Dockerfile`, puerto `3010`.
+
+En ambos casos define en **Environment Variables**: `AMBIENT_MAC` y (opcional) `PORT`.
+
+## Docker local
+
+```bash
+docker build -t aegis-grid .
+docker run --rm -p 3010:3010 -e AMBIENT_MAC="AA:BB:CC:DD:EE:FF" aegis-grid
+```
+
+## Estructura
+
+```text
+backend.js       API Fastify + scrapers + caché + agregador
+frontend.html    Dashboard (Tailwind CDN + Chart.js + temas claro/oscuro/auto)
+Dockerfile       Imagen Node 22 Alpine
+package.json     Deps y script start
+.env.example     Plantilla de variables (sin secretos reales)
+```
+
+## Seguridad
+
+- Ningún secreto vive en el repo: la única credencial operativa (`AMBIENT_MAC`, identificador de estación pública) entra por variable de entorno.
+- Acceso `/api/*` solo localhost; `/api/status` además acepta fetch del propio dashboard (misma-host `Origin`/`Referer`). **Esto es ofuscación anti-escáner, no autenticación**: el `Referer` es falsificable. No expongas datos sensibles detrás de esta API.
+- CELEC/CENACE se consultan con verificación TLS desactivada (`rejectUnauthorized: false`) porque sus hosts usan cadenas no estándar; el riesgo asociado es MITM en esas fuentes. Si las entidades publican certificados válidos, reactiva la verificación.
+- Ver `SECURITY.md` para reportar vulnerabilidades.
+
+## Fuentes de datos
+
+- CELEC SUR ORDS — `generacioncsr.celec.gob.ec:8443`
+- CENACE — `cenace.gob.ec/info-operativa/InformacionOperativa.htm`
+- NOAA CPC — `cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt`
+- Ambient Weather — `lightning.ambientweather.net/device-data`
+
+Scrapers frágiles por naturaleza: si una fuente cambia su HTML/JS, el endpoint correspondiente devuelve `500`/`404` con mensaje y el resto del dashboard sigue funcionando (`Promise.allSettled`).
+
+## Contribuir
+
+Ver `CONTRIBUTING.md`. Flujo corto: rama → cambio mínimo → `node --check backend.js` → PR describiendo fuente afectada y cómo verificarla.
+
+## Licencia
+
+MIT — ver `LICENSE`.
