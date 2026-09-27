@@ -3,10 +3,12 @@
   "version": "3.0.0",
   "description": "Alerta temprana El Nino 2026: microclima Pallatanga, hidrometria CELEC, demanda CENACE y ENSO NOAA en un dashboard unico",
   "license": "MIT",
+  "type": "module",
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
+    "@fastify/rate-limit": "^11.2.0",
     "axios": "^1.18.0",
     "chart.js": "^4.5.1",
     "express": "^5.2.1",

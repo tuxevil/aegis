@@ -33,7 +33,7 @@ GET /api/status (único fetch del frontend) ──► frontend.html (dashboard, 
 ```
 
 - Caché en memoria por endpoint para no saturar fuentes lentas.
-- `/api/*` restringido a localhost, salvo `/api/status` cuando el `Origin`/`Referer` coincide con el `Host` (ver [modelo de seguridad](#seguridad)).
+- `/api/*` restringido a localhost, salvo `/api/status` cuando el `Origin`/`Referer` coincide con el `Host` (ver [modelo de seguridad](#seguridad).
 - `/` y `/ui` sirven el mismo dashboard.
 
 ## API
@@ -85,7 +85,7 @@ docker run --rm -p 3010:3010 -e AMBIENT_MAC="AA:BB:CC:DD:EE:FF" aegis-grid
 ## Estructura
 
 ```text
-backend.js       API Fastify + scrapers + caché + agregador
+backend.js       API Fastify (ESM) + scrapers + caché + agregador + rate limit
 frontend.html    Dashboard (Tailwind CDN + Chart.js + temas claro/oscuro/auto)
 Dockerfile       Imagen Node 22 Alpine
 package.json     Deps y script start
@@ -96,6 +96,7 @@ package.json     Deps y script start
 
 - Ningún secreto vive en el repo: la única credencial operativa (`AMBIENT_MAC`, identificador de estación pública) entra por variable de entorno.
 - Acceso `/api/*` solo localhost; `/api/status` además acepta fetch del propio dashboard (misma-host `Origin`/`Referer`). **Esto es ofuscación anti-escáner, no autenticación**: el `Referer` es falsificable. No expongas datos sensibles detrás de esta API.
+- Rate limiting global (`@fastify/rate-limit`): 200 req/min por IP en todas las rutas; localhost exento para no romper la auto-agregación de `/api/status`.
 - CELEC/CENACE se consultan con verificación TLS desactivada (`rejectUnauthorized: false`) porque sus hosts usan cadenas no estándar; el riesgo asociado es MITM en esas fuentes. Si las entidades publican certificados válidos, reactiva la verificación.
 - Ver `SECURITY.md` para reportar vulnerabilidades.
 

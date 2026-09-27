@@ -1,8 +1,27 @@
-const fastify = require('fastify')({ logger: false });
-const https   = require('https');
-const http    = require('http');
-const fs      = require('fs');
-const path    = require('path');
+import Fastify from 'fastify';
+import rateLimit from '@fastify/rate-limit';
+import https from 'https';
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const fastify = Fastify({ logger: false });
+
+// ─── RATE LIMIT (también remedia CodeQL js/missing-rate-limiting) ─────────────
+// Localhost exento: /api/status se auto-consume vía 127.0.0.1 (4 sub-fetch por
+// llamada) y nunca debe recibir 429 de sí mismo.
+// El await es obligatorio: register() es diferido y el hook onRoute del plugin
+// solo cubre rutas definidas DESPUÉS de que ejecuta. Sin await, el límite
+// nunca se aplica (y CodeQL js/missing-rate-limiting seguiría abierto).
+await fastify.register(rateLimit, {
+  global:      true,
+  max:         200,
+  timeWindow:  '1 minute',
+  allowList:   ['127.0.0.1', '::1', '::ffff:127.0.0.1'],
+  skipOnError: true
+});
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 const CORS = {
