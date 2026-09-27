@@ -335,7 +335,7 @@
         </div>
       </div>
       <div class="bar-track" role="progressbar" aria-label="Nivel embalse Mazar"><div class="bar-fill" id="mazar-bar" style="width:0%;background:var(--danger)"></div></div>
-      <div class="bar-caption"><span>2098 m (parada)</span><span>2153 m (lleno)</span></div>
+      <div class="bar-caption"><span>2115 m (parada crítica)</span><span>2153 m (lleno)</span></div>
     </section>
   </div>
 
@@ -603,8 +603,8 @@ function render(s) {
 
     const cota = parseFloat(maz.cotaMsnm);
     if (!isNaN(cota)) {
-      $('mazar-bar').style.width = pct(cota, 2098, 2153) + '%';
-      $('mazar-bar').style.background = cota < 2110 ? 'var(--danger)' : cota < 2115 ? 'var(--warning)' : 'var(--success)';
+      $('mazar-bar').style.width = pct(cota, 2115, 2153) + '%';
+      $('mazar-bar').style.background = cota <= 2115 ? 'var(--danger)' : cota < 2120 ? 'var(--warning)' : 'var(--success)';
     }
 
     const st = maz.status || '—';

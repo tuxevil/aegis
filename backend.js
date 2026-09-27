@@ -224,19 +224,21 @@ fastify.get('/api/dams', async (req, reply) => {
   ]);
 
   // Modelo DDPM: velocidad de vaciado de Mazar
-  // Rango útil: 2153m (lleno) → 2098m (parada forzada)
-  // tasa por defecto: 0.25 m/día si no hay histórico propio
-  const MAZAR_MIN  = 2098;
-  const MAZAR_WARN = 2115;
-  const MAZAR_CRIT = 2110;
+  // Rango operativo: 2153m (lleno) → 2115m (cota mínima de seguridad operativa:
+  // a 2115m la central debe salir de funcionamiento para proteger turbinas).
+  // Tasa por defecto: 0.25 m/día si no hay histórico propio.
+  // Banda de pre-alerta: 5m sobre el nivel crítico (2120m).
+  const MAZAR_FULL = 2153;
+  const MAZAR_CRIT = 2115;
+  const MAZAR_WARN = 2120;
   const depRate    = 0.25;
 
   const cota = mazarCota?.valueedit ?? null;
   let mazStatus   = 'Sin Datos';
   let daysLeft    = null;
   if (cota !== null) {
-    daysLeft  = +((cota - MAZAR_MIN) / depRate).toFixed(1);
-    mazStatus = cota < MAZAR_CRIT ? 'EMERGENCIA CRÍTICA' :
+    daysLeft  = +Math.max(0, (cota - MAZAR_CRIT) / depRate).toFixed(1);
+    mazStatus = cota <= MAZAR_CRIT ? 'EMERGENCIA CRÍTICA — FUERA DE OPERACIÓN' :
                 cota < MAZAR_WARN ? 'ALERTA APAGÓN'       : 'Estable';
   }
 

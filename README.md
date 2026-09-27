@@ -14,7 +14,7 @@ Sistema de alerta temprana que cruza el microclima de la cordillera andina (Pall
 | Módulo | Fuente | Qué calcula |
 |---|---|---|
 | **Riesgo de deslave (SSLI)** | Estación Ambient Weather local | Índice de saturación de suelo (API) + lluvia horaria → niveles Bajo / Moderado / Crítico |
-| **Embalses (DDPM)** | CELEC SUR ORDS (REST público) | Cota, caudal y turbinas en línea de Mazar, Paute-Molino, Sopladora y Minas San Francisco; días estimados a parada forzada de Mazar |
+| **Embalses (DDPM)** | CELEC SUR ORDS (REST público) | Cota, caudal y turbinas en línea de Mazar, Paute-Molino, Sopladora y Minas San Francisco; días estimados a parada de Mazar (nivel crítico: **2115 m s.n.m.**, salida obligatoria para proteger turbinas; pre-alerta a 2120 m) |
 | **Demanda nacional** | CENACE Info Operativa (scraper) | Mix hidro/térmico/importado/renovable + demanda actual en MW |
 | **ENSO** | NOAA CPC (TXT semanal) | Anomalías Niño 1+2 y 3.4, tendencia semanal y riesgo local vs. red oriental |
 
