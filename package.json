@@ -1,7 +1,7 @@
 {
   "name": "aegis-grid",
-  "version": "3.0.0",
-  "description": "Alerta temprana El Nino 2026: microclima Pallatanga, hidrometria CELEC, demanda CENACE y ENSO NOAA en un dashboard unico",
+  "version": "4.0.0",
+  "description": "Observatorio abierto de energia de Ecuador y clima de Pallatanga con tendencias, fuentes y escenarios",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -9,14 +9,13 @@
   },
   "dependencies": {
     "@fastify/rate-limit": "^11.2.0",
-    "axios": "^1.20.0",
     "chart.js": "^4.5.1",
-    "express": "^5.2.1",
-    "fastify": "^5.12.1",
+    "fastify": "^5.12.5",
     "jsdom": "^29.1.1"
   },
   "scripts": {
     "start": "node backend.js",
-    "test": "node --test"
+    "test": "node --test",
+    "check": "node --check backend.js && node --check sources.js && node --check assessment.js && node --check public/app.js"
   }
 }

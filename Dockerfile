@@ -3,11 +3,15 @@ FROM node:22-alpine
 WORKDIR /app
 
 # Copy package config and install dependencies
-COPY package.json ./
-RUN npm install --production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 # Copy application code
-COPY backend.js celec.js frontend.html ./
+COPY backend.js celec.js mazar.js history.js sources.js assessment.js frontend.html ./
+COPY public/ ./public/
+
+ENV DATA_DIR=/data
+VOLUME ["/data"]
 
 # Expose standard port
 EXPOSE 3010

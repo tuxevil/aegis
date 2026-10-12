@@ -1,768 +1,903 @@
-<!DOCTYPE html>
-<html lang="es" data-theme="system">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light dark">
-  <title>A.E.G.I.S.-GRID — El Niño & Grid Sentinel</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-  <script>
-    // Aplica tema persistido antes del primer paint (evita FOUC)
-    try {
-      const t = localStorage.getItem('aegis-theme') || 'system';
-      document.documentElement.dataset.theme = t;
-    } catch {}
-  </script>
-  <style>
-    :root {
-      --radius: 12px;
-      --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    }
-    /* ── DARK (default profesional) ── */
-    [data-theme="dark"], [data-theme="system"] {
-      --bg: #0b0e13;
-      --bg-soft: #10141b;
-      --card: #131922;
-      --card-2: #171e29;
-      --border: #232c3a;
-      --border-soft: #1a2230;
-      --text: #e6ebf2;
-      --muted: #8b96a8;
-      --faint: #5b6678;
-      --accent: #3b82f6;
-      --accent-soft: rgba(59,130,246,.12);
-      --success: #22c55e;
-      --success-soft: rgba(34,197,94,.12);
-      --warning: #f59e0b;
-      --warning-soft: rgba(245,158,11,.13);
-      --danger: #ef4444;
-      --danger-soft: rgba(239,68,68,.12);
-      --info: #06b6d4;
-      --info-soft: rgba(6,182,212,.12);
-      --track: #1e2632;
-      --shadow: 0 8px 28px rgba(0,0,0,.35);
-      --header-bg: rgba(11,14,19,.82);
-      --chart-grid: #1e2632;
-      --chart-tick: #7b879c;
-    }
-    /* ── LIGHT ── */
-    [data-theme="light"] {
-      --bg: #f4f6f9;
-      --bg-soft: #eef1f6;
-      --card: #ffffff;
-      --card-2: #f8fafc;
-      --border: #e2e8f0;
-      --border-soft: #edf1f7;
-      --text: #0f172a;
-      --muted: #5b6b82;
-      --faint: #94a3b8;
-      --accent: #2563eb;
-      --accent-soft: rgba(37,99,235,.09);
-      --success: #15803d;
-      --success-soft: rgba(21,128,61,.1);
-      --warning: #b45309;
-      --warning-soft: rgba(180,83,9,.1);
-      --danger: #dc2626;
-      --danger-soft: rgba(220,38,38,.08);
-      --info: #0e7490;
-      --info-soft: rgba(14,116,144,.09);
-      --track: #e8edf3;
-      --shadow: 0 6px 22px rgba(15,23,42,.08);
-      --header-bg: rgba(255,255,255,.85);
-      --chart-grid: #e8edf3;
-      --chart-tick: #64748b;
-    }
-    /* System: respeta SO cuando data-theme=system */
-    @media (prefers-color-scheme: light) {
-      [data-theme="system"] {
-        --bg: #f4f6f9; --bg-soft: #eef1f6; --card: #ffffff; --card-2: #f8fafc;
-        --border: #e2e8f0; --border-soft: #edf1f7; --text: #0f172a;
-        --muted: #5b6b82; --faint: #94a3b8; --accent: #2563eb;
-        --accent-soft: rgba(37,99,235,.09); --success: #15803d;
-        --success-soft: rgba(21,128,61,.1); --warning: #b45309;
-        --warning-soft: rgba(180,83,9,.1); --danger: #dc2626;
-        --danger-soft: rgba(220,38,38,.08); --info: #0e7490;
-        --info-soft: rgba(14,116,144,.09); --track: #e8edf3;
-        --shadow: 0 6px 22px rgba(15,23,42,.08);
-        --header-bg: rgba(255,255,255,.85);
-        --chart-grid: #e8edf3; --chart-tick: #64748b;
-      }
-    }
-
-    * { box-sizing: border-box; }
-    html, body { min-height: 100%; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      margin: 0;
-      -webkit-font-smoothing: antialiased;
-    }
-    .app { max-width: 1380px; margin: 0 auto; padding: 0 18px 28px; }
-
-    /* Header */
-    .topbar {
-      position: sticky; top: 0; z-index: 20;
-      background: var(--header-bg);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
-    .topbar-inner {
-      max-width: 1380px; margin: 0 auto; padding: 12px 18px;
-      display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-    .brand-mark {
-      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-      display: grid; place-items: center; font-size: 1.2rem;
-      background: linear-gradient(135deg, #2563eb, #06b6d4);
-      color: #fff; box-shadow: var(--shadow);
-    }
-    .brand h1 { font-size: 1.02rem; margin: 0; letter-spacing: .02em; font-weight: 750; }
-    .brand h1 small { font-weight: 500; color: var(--muted); font-size: .72rem; margin-left: 6px; }
-    .brand p { margin: 2px 0 0; font-size: .74rem; color: var(--muted); }
-
-    .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .clock { font-family: var(--mono); font-size: .8rem; color: var(--muted); text-align: right; line-height: 1.35; }
-    .sync-dot { display:inline-block; width:7px; height:7px; border-radius:99px; background: var(--success); margin-right:6px; vertical-align:1px; }
-    .sync-dot.err { background: var(--danger); }
-
-    /* Segmented theme control */
-    .theme-seg {
-      display: flex; background: var(--card-2); border: 1px solid var(--border);
-      border-radius: 99px; padding: 3px; gap: 2px;
-    }
-    .theme-seg button {
-      border: 0; background: transparent; color: var(--muted);
-      font-size: .72rem; font-weight: 600; padding: 6px 11px; border-radius: 99px; cursor: pointer;
-    }
-    .theme-seg button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: var(--shadow); border: 1px solid var(--border); }
-    .theme-seg button:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .btn {
-      border: 1px solid var(--border); background: var(--card); color: var(--text);
-      border-radius: 99px; padding: 7px 13px; font-size: .74rem; font-weight: 650; cursor: pointer;
-    }
-    .btn:hover { border-color: var(--accent); }
-    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-    /* Layout */
-    .status-strip {
-      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-      margin: 16px 0 14px; font-size: .76rem; color: var(--muted);
-    }
-    .pill {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: var(--card); border: 1px solid var(--border);
-      padding: 6px 11px; border-radius: 99px; font-weight: 600; color: var(--text);
-    }
-    .pill .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--success); }
-    .pill.warn .dot { background: var(--warning); }
-    .pill.danger .dot { background: var(--danger); }
-
-    .grid { display: grid; gap: 14px; }
-    .grid-2 { grid-template-columns: 1fr 1fr; }
-    .grid-3 { grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 1020px) { .grid-3 { grid-template-columns: 1fr 1fr; } .grid-2 { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } .app { padding: 0 12px 22px; } }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      min-width: 0;
-      position: relative;
-    }
-    .card.accent-green { border-top: 3px solid var(--success); }
-    .card.accent-blue { border-top: 3px solid var(--accent); }
-    .card.accent-red { border-top: 3px solid var(--danger); }
-    .card.accent-amber { border-top: 3px solid var(--warning); }
-    .card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-    .card-title { font-size: .74rem; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0; }
-    .card-subtitle { font-size: .72rem; color: var(--faint); margin-top: 4px; }
-
-    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
-    @media (max-width: 480px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
-    .label { font-size: .66rem; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); font-weight: 700; }
-    .val { font-size: 1.55rem; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-    .val-sm { font-size: 1.08rem; font-weight: 750; font-variant-numeric: tabular-nums; }
-    .unit { font-size: .7rem; color: var(--faint); margin-left: 4px; font-weight: 500; }
-    .muted { color: var(--muted); } .small { font-size: .76rem; }
-    .mono { font-family: var(--mono); }
-
-    .split { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
-    @media (max-width: 480px) { .split { flex-direction: column; } .split > div:last-child { text-align: left !important; } }
-
-    .bar-track { background: var(--track); border-radius: 99px; height: 8px; overflow: visible; margin-top: 7px; position: relative; }
-    .bar-fill { height: 100%; border-radius: 99px; transition: width .7s ease, background .7s ease; background: var(--accent); }
-    .bar-tick { position: absolute; top: -3px; bottom: -3px; width: 3px; border-radius: 2px; background: var(--danger); transform: translateX(-50%); pointer-events: auto; }
-    .bar-caption { display: flex; justify-content: space-between; font-size: .66rem; color: var(--faint); margin-top: 5px; }
-    .bar-caption-mazar { position: relative; }
-    .bar-caption-mazar .tick-label { position: absolute; transform: translateX(-50%); white-space: nowrap; color: var(--danger); font-weight: 700; }
-
-    /* Badges — profesionales, sin glow */
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: .68rem; font-weight: 750; letter-spacing: .02em;
-      padding: 5px 10px; border-radius: 99px; border: 1px solid transparent;
-      max-width: 100%;
-    }
-    .badge::before { content: ''; width: 7px; height: 7px; border-radius: 99px; background: currentColor; flex-shrink: 0; }
-    .badge-green { background: var(--success-soft); color: var(--success); border-color: currentColor; }
-    .badge-red { background: var(--danger-soft); color: var(--danger); border-color: currentColor; }
-    .badge-yellow, .badge-orange { background: var(--warning-soft); color: var(--warning); border-color: currentColor; }
-    .badge-blue { background: var(--accent-soft); color: var(--accent); border-color: currentColor; }
-    .badge.blink { animation: pulse 1.4s ease-in-out infinite; }
-    @keyframes pulse { 50% { opacity: .55; } }
-    @media (prefers-reduced-motion: reduce) { .badge.blink { animation: none; } .bar-fill { transition: none; } }
-
-    /* Listas internas con scroll propio (evita scroll global excesivo) */
-    .scroll-list { max-height: 268px; overflow: auto; scrollbar-width: thin; padding-right: 2px; }
-    .scroll-list::-webkit-scrollbar { width: 6px; } .scroll-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
-    .dam-row {
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      padding: 9px 0; border-bottom: 1px solid var(--border-soft); font-size: .8rem;
-    }
-    .dam-row:last-child { border-bottom: 0; }
-    .dam-name { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .dam-val { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
-
-    canvas { max-height: 220px; width: 100% !important; }
-    .chart-wrap { position: relative; height: 220px; }
-
-    .alert-box { background: var(--card-2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; }
-    #e-alert { font-size: .88rem; font-weight: 800; letter-spacing: -.01em; }
-    .risk-text { font-size: .78rem; line-height: 1.45; }
-
-    .footer { margin-top: 16px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: .7rem; color: var(--faint); }
-
-    #toast {
-      position: fixed; bottom: 18px; right: 18px; z-index: 50;
-      background: var(--card); border: 1px solid var(--border); color: var(--text);
-      padding: 10px 14px; border-radius: 10px; font-size: .76rem; font-weight: 600;
-      box-shadow: var(--shadow); opacity: 0; transform: translateY(6px);
-      transition: opacity .25s, transform .25s; pointer-events: none;
-      display: flex; align-items: center; gap: 8px;
-    }
-    #toast.show { opacity: 1; transform: none; }
-    #toast .ok { width: 8px; height: 8px; border-radius: 99px; background: var(--success); }
-
-    .skeleton { color: transparent !important; background: var(--track); border-radius: 6px; }
-  </style>
-</head>
-<body>
-<header class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">
-      <div class="brand-mark" aria-hidden="true">◈</div>
-      <div>
-        <h1>A.E.G.I.S.-GRID <small>v3.0 · Operativo</small></h1>
-        <p>El Niño 2026 · Pallatanga · Mazar · Sistema Nacional Interconectado</p>
-      </div>
-    </div>
-    <div class="top-actions">
-      <div class="clock" aria-live="polite">
-        <div id="clock" class="mono">--:--:--</div>
-        <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Sincronizando…</span></div>
-      </div>
-      <div class="theme-seg" role="group" aria-label="Tema de interfaz">
-        <button type="button" data-set-theme="light" aria-pressed="false">Claro</button>
-        <button type="button" data-set-theme="dark" aria-pressed="false">Oscuro</button>
-        <button type="button" data-set-theme="system" aria-pressed="false">Auto</button>
-      </div>
-      <button class="btn btn-primary" id="btn-refresh" type="button">Actualizar</button>
-    </div>
-  </div>
-</header>
-
-<main class="app" aria-label="Panel táctico AEGIS-GRID">
-  <div class="status-strip" aria-live="polite">
-    <span class="pill" id="pill-landslide"><span class="dot"></span><span id="pill-landslide-text">Deslave: —</span></span>
-    <span class="pill" id="pill-grid"><span class="dot"></span><span id="pill-grid-text">Mazar: —</span></span>
-    <span class="pill" id="pill-enso"><span class="dot"></span><span id="pill-enso-text">ENSO: —</span></span>
-    <span class="muted small" id="c-last-time-top"></span>
-  </div>
-
-  <!-- ROW 1: ALERTAS -->
-  <div class="grid grid-2" style="margin-bottom:14px;">
-    <section class="card accent-blue" id="card-landslide" aria-labelledby="t-landslide">
-      <div class="card-header">
-        <h2 class="card-title" id="t-landslide">Pallatanga — Riesgo de deslave</h2>
-        <span id="landslide-tag"></span>
-      </div>
-      <div class="split">
-        <div style="flex:1;min-width:0;">
-          <div class="label">Temp / Humedad</div>
-          <div><span class="val-sm" id="w-temp">--</span><span class="unit">°C</span>
-               &nbsp;/&nbsp;<span class="val-sm" id="w-hum">--</span><span class="unit">%</span></div>
-          <div class="kpi-grid" style="margin-top:12px;">
-            <div><div class="label">Lluvia horaria</div><div><span class="val-sm" id="w-rain-rate">--</span><span class="unit">mm/h</span></div></div>
-            <div><div class="label">Lluvia diaria</div><div><span class="val-sm" id="w-rain-day">--</span><span class="unit">mm</span></div></div>
-            <div><div class="label">Presión</div><div><span class="val-sm" id="w-pres">--</span><span class="unit">hPa</span> <span id="w-baro-trend" class="small muted"></span></div></div>
-            <div><div class="label">Viento racha</div><div><span class="val-sm" id="w-gust">--</span><span class="unit">km/h</span></div></div>
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#090c12" />
+    <title>AEGIS // GRID SENTINEL</title>
+    <meta
+      name="description"
+      content="Consola de energía y clima: Mazar, generación de Ecuador, lluvia de Pallatanga y ENSO. Gráficos, telemetría y tendencias."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AEGIS // GRID SENTINEL" />
+    <meta
+      property="og:description"
+      content="Energía de Ecuador y clima de Pallatanga. Una consola abierta para seguir las señales."
+    />
+    <meta
+      property="og:image"
+      content="https://aegis.tuxevil.com/assets/social.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <script src="/assets/chart.js" defer></script>
+    <script src="/assets/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#workspace">Ir a la consola</a>
+    <div class="console-shell">
+      <aside class="rail">
+        <a href="#overview" class="brand"
+          ><span class="brand-glyph">▰</span
+          ><span
+            >AEGIS<span class="brand-sub">GRID SENTINEL / V4</span></span
+          ></a
+        >
+        <div class="rail-section">// WORKSPACES</div>
+        <nav aria-label="Vistas de la consola">
+          <button data-view="overview" aria-current="page">
+            <span class="nav-icon">▦</span>Resumen<kbd>1</kbd>
+          </button>
+          <button data-view="energy">
+            <span class="nav-icon">ϟ</span>Energía<kbd>2</kbd>
+          </button>
+          <button data-view="weather">
+            <span class="nav-icon">≋</span>Pallatanga<kbd>3</kbd>
+          </button>
+          <button data-view="enso">
+            <span class="nav-icon">◎</span>Pacífico<kbd>4</kbd>
+          </button>
+          <button data-view="sources">
+            <span class="nav-icon">⌘</span>Fuentes / log<kbd>5</kbd>
+          </button>
+        </nav>
+        <div class="rail-section">// DATA LINKS</div>
+        <div class="source-links" id="source-links">
+          <span>CELEC<span class="source-state">···</span></span
+          ><span>CENACE<span class="source-state">···</span></span
+          ><span>AMBIENT<span class="source-state">···</span></span
+          ><span>NOAA<span class="source-state">···</span></span
+          ><span>FORECAST<span class="source-state">···</span></span>
+        </div>
+        <div class="rail-bottom">
+          <button id="command-open" class="rail-command">
+            ⌕ COMANDOS<kbd>/</kbd></button
+          ><button id="help-open" class="rail-command">
+            ? ATAJOS<kbd>?</kbd></button
+          ><a
+            href="https://github.com/tuxevil/aegis"
+            target="_blank"
+            rel="noopener noreferrer"
+            >SOURCE ↗</a
+          ><span class="rail-coordinate">EC / PALLATANGA<br />UTC−05:00</span>
+        </div>
+      </aside>
+      <div class="console-main">
+        <header class="console-top">
+          <div class="breadcrumb">
+            <span class="terminal-prompt">&gt;_</span><span>AEGIS</span
+            ><span class="divider">/</span
+            ><strong id="view-name">OVERVIEW</strong>
           </div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;min-width:132px;">
-          <div class="label">Índice SSLI</div>
-          <div><span class="val" id="w-ssli">--</span><span class="unit">mm</span></div>
-          <div class="label" style="margin-top:10px;">UV / Solar</div>
-          <div class="small"><span id="w-uv">--</span> / <span id="w-sol">--</span><span class="unit">W/m²</span></div>
-        </div>
-      </div>
-      <div class="bar-track" role="progressbar" aria-label="Índice SSLI"><div class="bar-fill" id="ssli-bar" style="width:0%"></div></div>
-      <div class="bar-caption"><span>SSLI 0–60 mm</span><span id="ssli-pct"></span></div>
-    </section>
-
-    <section class="card accent-red" id="card-grid" aria-labelledby="t-grid">
-      <div class="card-header">
-        <h2 class="card-title" id="t-grid">Embalse Mazar — Riesgo de apagón</h2>
-        <span id="maz-status-tag"></span>
-      </div>
-      <div class="split">
-        <div>
-          <div class="label">Cota actual</div>
-          <div><span class="val" id="maz-cota">--</span><span class="unit">msnm</span></div>
-          <div class="kpi-grid" style="margin-top:12px;">
-            <div><div class="label">Caudal entrada</div><div><span class="val-sm" id="maz-caud">--</span><span class="unit">m³/s</span></div></div>
-            <div><div class="label">Turbinas en línea</div><div class="small" style="font-weight:700;margin-top:4px;" id="maz-units">--</div></div>
+          <div class="top-actions">
+            <span class="sync-dot" id="sync-dot"></span
+            ><span id="sync-text" role="status">CONNECTING</span
+            ><button
+              class="chrome-button"
+              id="refresh"
+              title="Actualizar [R]"
+              aria-label="Actualizar panorama"
+            >
+              ↻ <span>SYNC</span><kbd>R</kbd></button
+            ><button
+              class="chrome-button"
+              id="theme"
+              title="Efecto CRT"
+              aria-label="Activar efecto CRT"
+              aria-pressed="false"
+            >
+              CRT</button
+            ><button
+              class="chrome-button share-trigger"
+              title="Compartir [S]"
+              aria-label="Compartir panorama"
+            >
+              ↗ <span>EXPORT</span><kbd>S</kbd>
+            </button>
           </div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div class="label">Días a parada</div>
-          <div><span class="val" id="maz-days">--</span></div>
-          <div class="label" style="margin-top:10px;">Último dato</div>
-          <div id="maz-ts" class="small muted">--</div>
-        </div>
-      </div>
-      <div class="bar-track" role="progressbar" aria-label="Nivel embalse Mazar" aria-valuemin="2098" aria-valuemax="2153" id="mazar-track"><div class="bar-fill" id="mazar-bar" style="width:0%;background:var(--danger)"></div><div class="bar-tick" id="mazar-tick" style="left:30.9%" title="Nivel crítico: 2115 m — salida obligatoria"></div></div>
-      <div class="bar-caption bar-caption-mazar"><span>2098 m (mínimo)</span><span class="tick-label" id="mazar-tick-label" style="left:30.9%">2115 m crítico</span><span>2153 m (lleno)</span></div>
-    </section>
-  </div>
-
-  <!-- ROW 2: EMBALSES SECUNDARIOS -->
-  <div class="grid grid-3" style="margin-bottom:14px;">
-    <section class="card" aria-label="Paute Molino">
-      <h2 class="card-title">Paute Molino</h2>
-      <p class="card-subtitle">Cuenca oriental · cota y caudales</p>
-      <div style="margin-top:10px;"><div class="label">Cota</div>
-        <div><span class="val-sm" id="mol-cota">--</span><span class="unit">msnm</span></div></div>
-      <div class="kpi-grid" style="margin-top:10px;">
-        <div><div class="label">Caudal río</div><div class="small" style="font-weight:700;"><span id="mol-caud-real">--</span><span class="unit">m³/s</span></div></div>
-        <div><div class="label">Cuenca</div><div class="small" style="font-weight:700;"><span id="mol-caud-cuenca">--</span><span class="unit">m³/s</span></div></div>
-      </div>
-    </section>
-    <section class="card" aria-label="Sopladora">
-      <h2 class="card-title">Sopladora</h2>
-      <p class="card-subtitle">Caudal y turbinas</p>
-      <div style="margin-top:10px;"><div class="label">Cota</div>
-        <div><span class="val-sm" id="sop-cota">--</span><span class="unit">msnm</span></div></div>
-      <div class="kpi-grid" style="margin-top:10px;">
-        <div><div class="label">Caudal</div><div class="small" style="font-weight:700;"><span id="sop-caud">--</span><span class="unit">m³/s</span></div></div>
-        <div><div class="label">Turbinas</div><div class="small" style="font-weight:700;" id="sop-units">--</div></div>
-      </div>
-    </section>
-    <section class="card" aria-label="Minas San Francisco">
-      <h2 class="card-title">Minas San Francisco</h2>
-      <p class="card-subtitle">Caudal y turbinas</p>
-      <div style="margin-top:10px;"><div class="label">Cota</div>
-        <div><span class="val-sm" id="msf-cota">--</span><span class="unit">msnm</span></div></div>
-      <div class="kpi-grid" style="margin-top:10px;">
-        <div><div class="label">Caudal</div><div class="small" style="font-weight:700;"><span id="msf-caud">--</span><span class="unit">m³/s</span></div></div>
-        <div><div class="label">Turbinas</div><div class="small" style="font-weight:700;" id="msf-units">--</div></div>
-      </div>
-    </section>
-  </div>
-
-  <!-- ROW 3: CENACE -->
-  <div class="grid grid-2" style="margin-bottom:14px;">
-    <section class="card accent-green" aria-labelledby="t-mix">
-      <div class="card-header"><h2 class="card-title" id="t-mix">Matriz nacional — Hoy (MWh)</h2></div>
-      <div class="kpi-grid">
-        <div><div class="label">Hidroeléctrica</div>
-          <div><span class="val-sm" id="c-hydro">--</span><span class="unit">MWh</span></div>
-          <div class="bar-track"><div class="bar-fill" id="bar-hydro" style="background:var(--success);width:0%"></div></div></div>
-        <div><div class="label">Térmica</div>
-          <div><span class="val-sm" id="c-thermal">--</span><span class="unit">MWh</span></div>
-          <div class="bar-track"><div class="bar-fill" id="bar-thermal" style="background:var(--warning);width:0%"></div></div></div>
-        <div><div class="label">Importación</div><div class="small" style="font-weight:700;"><span id="c-import">--</span><span class="unit">MWh</span></div></div>
-        <div><div class="label">Renovable</div><div class="small" style="font-weight:700;"><span id="c-renew">--</span><span class="unit">MWh</span></div></div>
-      </div>
-      <div class="card-header" style="margin-top:16px;"><h2 class="card-title">Demanda en tiempo real (MW)</h2></div>
-      <div class="kpi-grid">
-        <div><div class="label">Demanda nacional</div><div><span class="val" id="c-demand">--</span><span class="unit">MW</span></div></div>
-        <div><div class="label">Hidro / Térmica</div><div class="small" style="font-weight:700;margin-top:8px;"><span id="c-hydro-mw">--</span> / <span id="c-therm-mw">--</span><span class="unit">MW</span></div></div>
-      </div>
-      <div class="small muted" style="margin-top:8px;" id="c-last-time">Último dato: --</div>
-    </section>
-
-    <section class="card accent-green" aria-labelledby="t-hydro">
-      <div class="card-header"><h2 class="card-title" id="t-hydro">Centrales hidroeléctricas — Acumulado</h2></div>
-      <div id="hydro-list" class="scroll-list" aria-live="polite">
-        <div class="dam-row"><span class="muted small">Cargando…</span></div>
-      </div>
-    </section>
-  </div>
-
-  <!-- ROW 4: ENSO + CURVA -->
-  <div class="grid grid-2" style="margin-bottom:14px;">
-    <section class="card accent-amber" aria-labelledby="t-enso">
-      <div class="card-header"><h2 class="card-title" id="t-enso">NOAA ENSO — Anomalías semanales</h2></div>
-      <div class="kpi-grid">
-        <div><div class="label">Niño 1+2 (costa EC)</div>
-          <div><span class="val" id="e-12">--</span><span class="unit">°C</span> <span id="e-12-trend" class="small"></span></div></div>
-        <div><div class="label">Niño 3.4 (Pacífico)</div>
-          <div><span class="val-sm" id="e-34">--</span><span class="unit">°C</span> <span id="e-34-trend" class="small"></span></div></div>
-      </div>
-      <div class="alert-box" style="margin-top:12px;"><div id="e-alert">--</div></div>
-      <div class="kpi-grid" style="margin-top:12px;">
-        <div><div class="label" style="margin-bottom:4px;">Riesgo local (Pallatanga)</div><div id="e-local-risk" class="risk-text"></div></div>
-        <div><div class="label" style="margin-bottom:4px;">Riesgo red (oriente)</div><div id="e-grid-risk" class="risk-text"></div></div>
-      </div>
-      <div class="small muted" style="margin-top:8px;">Reporte NOAA: <span id="e-date">--</span></div>
-    </section>
-
-    <section class="card accent-green" aria-labelledby="t-curve">
-      <div class="card-header"><div><h2 class="card-title" id="t-curve">Generación nacional — Curva horaria (MW)</h2>
-        <div class="card-subtitle">Datos: CENACE InfoOperativa</div></div></div>
-      <div class="chart-wrap"><canvas id="hourlyChart" aria-label="Curva horaria de generación"></canvas></div>
-    </section>
-  </div>
-
-  <!-- ROW 5: CLIMA -->
-  <section class="card" aria-label="Precipitación Pallatanga">
-    <div class="card-header"><h2 class="card-title">Precipitación — Estación Pallatanga</h2></div>
-    <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:12px;" id="rain-grid">
-      <div><div class="label">Mensual</div><div><span class="val-sm" id="w-rain-mo">--</span><span class="unit">mm</span></div></div>
-      <div><div class="label">Anual</div><div><span class="val-sm" id="w-rain-yr">--</span><span class="unit">mm</span></div></div>
-      <div><div class="label">Radiación solar</div><div class="small" style="font-weight:700;"><span id="w-sol2">--</span><span class="unit">W/m²</span></div></div>
-      <div><div class="label">Dirección viento</div><div class="small" style="font-weight:700;"><span id="w-wdir">--</span><span class="unit">°</span></div></div>
-    </div>
-  </section>
-
-  <div class="footer">
-    <span>A.E.G.I.S.-GRID v3 · Pallatanga — Mazar — SNI · CENACE · CELEC · NOAA · Ambient Weather</span>
-    <span id="foot-ts" class="mono"></span>
-  </div>
-</main>
-
-<div id="toast" role="status"><span class="ok"></span><span>Datos actualizados</span></div>
-
-<script>
-const API = '';
-let hourlyChart = null;
-
-// ─── TEMA Light / Dark / System con persistencia ───
-const themeBtns = [...document.querySelectorAll('[data-set-theme]')];
-function currentTheme() { return document.documentElement.dataset.theme || 'system'; }
-function paintThemeButtons() {
-  const t = currentTheme();
-  themeBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.setTheme === t)));
-}
-function setTheme(t) {
-  document.documentElement.dataset.theme = t;
-  try { localStorage.setItem('aegis-theme', t); } catch {}
-  paintThemeButtons();
-  renderHourlyChart(window.__lastHourly || null, true);
-}
-themeBtns.forEach(b => b.addEventListener('click', () => setTheme(b.dataset.setTheme)));
-paintThemeButtons();
-try {
-  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
-    if (currentTheme() === 'system') renderHourlyChart(window.__lastHourly || null, true);
-  });
-} catch {}
-
-// ─── HELPERS ───
-const $  = id => document.getElementById(id);
-const set = (id, v, fallback = '--') => { const el = $(id); if(el) el.textContent = v ?? fallback; };
-
-function setTag(id, text, cls) {
-  const el = $(id);
-  if (!el) return;
-  const map = { green:'green', red:'red', yellow:'yellow', orange:'orange', blue:'blue' };
-  el.innerHTML = `<span class="badge badge-${map[cls]||'blue'}">${text}</span>`;
-}
-
-function riskClass(text='') {
-  if (/CRÍTICO|EMERGENCIA|SUPER|ALTO/.test(text)) return 'red';
-  if (/MODERADO|MONITOREO|ALERTA|EL NIÑO/.test(text)) return 'orange';
-  if (/VIGILAN|CALENTAM/.test(text)) return 'yellow';
-  return 'green';
-}
-
-function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-
-function trendArrow(v) {
-  const n = parseFloat(v);
-  if (isNaN(n) || Math.abs(n) < 0.01) return '<span class="muted">→</span>';
-  return n > 0
-    ? `<span style="color:var(--danger)">▲ +${n}</span>`
-    : `<span style="color:var(--info)">▼ ${n}</span>`;
-}
-
-function pct(val, min, max) {
-  return Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
-}
-
-function fmtTs(iso) {
-  if (!iso) return '--';
-  const d = new Date(iso);
-  return d.toLocaleString('es-EC', { timeZone: 'America/Guayaquil',
-    month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-}
-
-function setPill(id, text, level) {
-  const pill = $(id);
-  if (!pill) return;
-  pill.classList.remove('warn','danger');
-  if (level === 'red') pill.classList.add('danger');
-  else if (level === 'orange' || level === 'yellow') pill.classList.add('warn');
-  const label = pill.querySelector('span:last-child');
-  if (label) label.textContent = text;
-}
-
-// ─── CHART ───
-// hourly: { labels: ['00:00', ...], series: { 'Hidráulica': [MW|null, ...], ... } }
-function renderHourlyChart(hourly, force) {
-  if (!hourly && !force) return;
-  if (!hourly) hourly = window.__lastHourly;
-  if (!hourly?.labels?.length) return;
-  window.__lastHourly = hourly;
-  const keys   = ['Hidráulica', 'Térmica', 'Renovable', 'Importación'];
-  const colors = [cssVar('--accent')||'#3b82f6', '#ea580c', cssVar('--success')||'#22c55e', '#ca8a04'];
-  const datasets = keys.map((k, i) => {
-    return { label: k, data: hourly.series?.[k] ?? [],
-             borderColor: colors[i], backgroundColor: colors[i]+'26',
-             fill: true, tension: 0.4, pointRadius: 0, pointHitRadius: 6,
-             borderWidth: 1.8, spanGaps: true };
-  });
-  const ctx = $('hourlyChart').getContext('2d');
-  if (hourlyChart) hourlyChart.destroy();
-  hourlyChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: hourly.labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: cssVar('--chart-tick'), font:{ size:10 }, boxWidth:12 } } },
-      scales: {
-        x: { ticks:{ color: cssVar('--chart-tick'), maxTicksLimit:8, font:{size:9} }, grid:{ color: cssVar('--chart-grid') } },
-        y: { ticks:{ color: cssVar('--chart-tick'), font:{size:9} }, grid:{ color: cssVar('--chart-grid') },
-             title:{ display:true, text:'MW', color: cssVar('--chart-tick'), font:{size:9} } }
-      }
-    }
-  });
-}
-
-// ─── RENDER ───
-function render(s) {
-  const w = s.weather;
-  const d = s.dams;
-  const c = s.cenace;
-  const e = s.enso;
-
-  if (w) {
-    set('w-temp',       w.tempC);
-    set('w-hum',        w.humidity);
-    set('w-rain-rate',  w.rainRateMmHr);
-    set('w-rain-day',   w.rainDailyMm);
-    set('w-pres',       w.pressureHpa);
-    set('w-baro-trend', w.baroTrend !== 'Estable' ? `(${w.baroTrend})` : '');
-    set('w-gust',       w.windGustKmh);
-    set('w-uv',         w.uvIndex ?? '--');
-    set('w-sol',        w.solarRadiation);
-    set('w-sol2',       w.solarRadiation);
-    set('w-wdir',       w.windDirDeg);
-    set('w-ssli',       w.ssliIndex);
-    set('w-rain-mo',    w.rainMonthlyMm);
-    set('w-rain-yr',    w.rainYearlyMm);
-
-    const ssliPct = pct(w.ssliIndex, 0, 60);
-    $('ssli-bar').style.width = ssliPct + '%';
-    $('ssli-bar').style.background = ssliPct > 58 ? 'var(--danger)' : ssliPct > 33 ? 'var(--warning)' : 'var(--accent)';
-    set('ssli-pct', Math.round(ssliPct) + '%');
-
-    const risk = w.landslideRisk || '—';
-    const rc   = riskClass(risk);
-    setTag('landslide-tag', risk, rc === 'red' ? 'red' : rc === 'orange' ? 'orange' : rc === 'yellow' ? 'yellow' : rc === 'green' ? 'green' : 'blue');
-    const lc = $('card-landslide');
-    lc.classList.remove('accent-blue','accent-red','accent-amber','accent-green');
-    lc.classList.add(rc === 'red' ? 'accent-red' : rc === 'orange' || rc === 'yellow' ? 'accent-amber' : rc === 'green' ? 'accent-green' : 'accent-blue');
-    setPill('pill-landslide', 'Deslave: ' + risk, rc);
-  }
-
-  if (d?.mazar) {
-    const maz   = d.mazar;
-    set('maz-cota',  maz.cotaMsnm ?? '--');
-    set('maz-caud',  maz.caudalEntradaM3s ?? '--');
-    set('maz-units', maz.unidadesLinea !== null && maz.unidadesLinea !== undefined ? `${maz.unidadesLinea} turbina(s)` : '--');
-    set('maz-days',  maz.daysToShutdown !== null && maz.daysToShutdown !== undefined ? maz.daysToShutdown : '--');
-    const ageMinutes = maz.timestamp ? Math.max(0, Math.floor((Date.now() - Date.parse(maz.timestamp)) / 60000)) : null;
-    const ageLabel = Number.isFinite(ageMinutes)
-      ? (ageMinutes < 60 ? `${ageMinutes} min` : `${Math.floor(ageMinutes / 60)} h ${ageMinutes % 60} min`)
-      : null;
-    set('maz-ts', maz.timestamp ? `Última lectura: ${fmtTs(maz.timestamp)}${ageLabel ? ' · hace ' + ageLabel : ''}` : '--');
-
-    const cota = parseFloat(maz.cotaMsnm);
-    if (!isNaN(cota)) {
-      // Escala completa 2098–2153 con marca crítica en 2115; color por zona de peligro
-      const MMIN = 2098, MCRIT = 2115, MWARN = 2120, MFULL = 2153;
-      const critPct = pct(MCRIT, MMIN, MFULL) + '%';
-      $('mazar-bar').style.width = pct(cota, MMIN, MFULL) + '%';
-      $('mazar-bar').style.background = cota <= MCRIT ? 'var(--danger)' : cota < MWARN ? 'var(--warning)' : 'var(--success)';
-      $('mazar-tick').style.left = critPct;
-      $('mazar-tick-label').style.left = critPct;
-      $('mazar-track').setAttribute('aria-valuenow', cota.toFixed(1));
-    }
-
-    const st = maz.status || '—';
-    const sc = riskClass(st);
-    setTag('maz-status-tag', st, sc);
-    const gc = $('card-grid');
-    gc.classList.remove('accent-blue','accent-red','accent-amber','accent-green');
-    gc.classList.add(sc === 'red' ? 'accent-red' : sc === 'orange' || sc === 'yellow' ? 'accent-amber' : sc === 'green' ? 'accent-green' : 'accent-blue');
-    setPill('pill-grid', 'Mazar: ' + st, sc);
-  }
-
-  if (d?.molino) {
-    set('mol-cota',        d.molino.cotaMsnm ?? '--');
-    set('mol-caud-real',   d.molino.caudalRealM3s ?? '--');
-    set('mol-caud-cuenca', d.molino.caudalCuencaM3s ?? '--');
-  }
-  if (d?.sopladora) {
-    set('sop-cota',  d.sopladora.cotaMsnm ?? '--');
-    set('sop-caud',  d.sopladora.caudalM3s ?? '--');
-    set('sop-units', d.sopladora.unidadesLinea !== null && d.sopladora.unidadesLinea !== undefined ? `${d.sopladora.unidadesLinea} turbina(s)` : '--');
-  }
-  if (d?.minasSF) {
-    set('msf-cota',  d.minasSF.cotaMsnm ?? '--');
-    set('msf-caud',  d.minasSF.caudalM3s ?? '--');
-    set('msf-units', d.minasSF.unidadesLinea !== null && d.minasSF.unidadesLinea !== undefined ? `${d.minasSF.unidadesLinea} turbina(s)` : '--');
-  }
-
-  if (c?.composition) {
-    const comp  = c.composition;
-    const total = Object.values(comp).reduce((a,b) => a+b, 0) || 1;
-    set('c-hydro',   (comp['hidroeléctrica'] ?? 0).toLocaleString());
-    set('c-thermal', (comp['térmica']        ?? 0).toLocaleString());
-    set('c-import',  (comp['importación']    ?? 0).toLocaleString());
-    set('c-renew',   (comp['renovable']      ?? 0).toLocaleString());
-    $('bar-hydro').style.width   = pct(comp['hidroeléctrica'] ?? 0, 0, total) + '%';
-    $('bar-thermal').style.width = pct(comp['térmica']        ?? 0, 0, total*0.4) + '%';
-  }
-
-  if (c?.hourly?.labels?.length) {
-    const labels = c.hourly.labels;
-    const series = c.hourly.series || {};
-    // Último valor numérico de cada serie (ignora nulls futuros)
-    const lastOf = name => {
-      const arr = series[name];
-      if (!Array.isArray(arr)) return null;
-      for (let i = arr.length - 1; i >= 0; i--) {
-        if (typeof arr[i] === 'number') return { v: arr[i], i };
-      }
-      return null;
-    };
-    const dem = lastOf('DEMANDA NACIONAL');
-    const hyd = lastOf('Hidráulica');
-    const th  = lastOf('Térmica');
-    set('c-demand',   dem ? dem.v.toLocaleString() : '--');
-    set('c-hydro-mw', hyd ? hyd.v : '--');
-    set('c-therm-mw', th  ? th.v  : '--');
-    const lastTime = dem ? labels[dem.i] : null;
-    set('c-last-time', lastTime ? `Último dato: ${lastTime} (hora CENACE)` : '');
-    set('c-last-time-top', lastTime ? `CENACE ${lastTime}` : '');
-    renderHourlyChart(c.hourly);
-  }
-
-  if (c?.hydroGenerators?.length) {
-    const total = c.hydroGenerators.reduce((a,g) => a + g.generationMWh, 0) || 1;
-    const sorted = [...c.hydroGenerators].sort((a,b) => b.generationMWh - a.generationMWh);
-    $('hydro-list').innerHTML = sorted.map(g => {
-      const barW = pct(g.generationMWh, 0, total * 0.6);
-      return `
-        <div class="dam-row">
-          <div style="flex:1;min-width:0;">
-            <div class="dam-name">${g.central}</div>
-            <div class="bar-track" style="margin-top:5px;">
-              <div class="bar-fill" style="width:${barW}%;background:var(--success);opacity:.75;"></div>
+        </header>
+        <main id="workspace" tabindex="-1">
+          <div class="workspace-head">
+            <div>
+              <p class="workspace-label" id="view-code">01 / SYSTEM OVERVIEW</p>
+              <h1 id="view-title">
+                MONITOR DE SEÑALES<span class="cursor">_</span>
+              </h1>
+            </div>
+            <div class="workspace-meta">
+              <span id="today">ECUADOR / UTC−5</span
+              ><strong id="clock">--:--:--</strong>
             </div>
           </div>
-          <div class="dam-val">${g.generationMWh.toLocaleString()} <span class="unit">MWh</span></div>
-        </div>`;
-    }).join('');
-  }
+          <div
+            id="connection-message"
+            class="connection-message"
+            role="status"
+            hidden
+          ></div>
+          <div class="metric-strip">
+            <div>
+              <span>MAZAR <small>m</small></span
+              ><strong id="kpi-mazar">—</strong>
+            </div>
+            <div>
+              <span>AFLUENTE <small>m³/s</small></span
+              ><strong id="kpi-inflow">—</strong>
+            </div>
+            <div>
+              <span>DEMANDA <small>MW</small></span
+              ><strong id="kpi-demand">—</strong>
+            </div>
+            <div>
+              <span>HIDRO <small>% día</small></span
+              ><strong id="kpi-hydro">—</strong>
+            </div>
+            <div>
+              <span>PALLATANGA <small>°C</small></span
+              ><strong id="kpi-temp">—</strong>
+            </div>
+            <div>
+              <span>LLUVIA HOY <small>mm</small></span
+              ><strong id="kpi-rain">—</strong>
+            </div>
+          </div>
+          <div class="alert-strip">
+            <div
+              class="signal-banner"
+              id="energy-overview"
+              data-level="unknown"
+            >
+              <span class="signal-id">PWR</span
+              ><span class="status" id="energy-status">SIN DATOS</span>
+              <h2 id="energy-title">Esperando telemetría</h2>
+              <span id="energy-coverage" class="hidden-copy"></span>
+              <p id="energy-summary" class="hidden-copy"></p>
+            </div>
+            <div class="signal-banner" id="local-overview" data-level="unknown">
+              <span class="signal-id">MET</span
+              ><span class="status" id="local-status">SIN DATOS</span>
+              <h2 id="local-title">Esperando estación</h2>
+              <span id="local-coverage" class="hidden-copy"></span>
+              <p id="local-summary" class="hidden-copy"></p>
+            </div>
+          </div>
+          <section
+            class="view overview-view"
+            data-workspace="overview"
+            aria-label="Resumen"
+          >
+            <div class="monitor-grid">
+              <div data-slot="mazar">
+                <article
+                  class="panel reservoir"
+                  data-panel="mazar"
+                  id="energy-panel"
+                  tabindex="0"
+                >
+                  <div class="panel-header">
+                    <div>
+                      <h3>MAZAR / COTA</h3>
+                    </div>
+                    <span class="source-label">CELEC SUR</span>
+                    <button
+                      aria-label="Detalles de mazar"
+                      class="inspect-button"
+                      data-detail="mazar"
+                    >
+                      ↗ DETALLE
+                    </button>
+                  </div>
+                  <div class="metric-row">
+                    <div class="main-metric">
+                      <span id="maz-level">—</span
+                      ><span class="metric-unit">m s. n. m.</span>
+                    </div>
+                    <div class="metric-context">
+                      <span class="trend-label" id="maz-trend"
+                        >Sin tendencia disponible</span
+                      ><span id="maz-trend-window"
+                        >Necesitamos lecturas separadas</span
+                      >
+                    </div>
+                  </div>
+                  <div
+                    aria-label="Cota de Mazar, escala de altura"
+                    aria-valuemax="2153"
+                    aria-valuemin="2098"
+                    class="level-scale"
+                    id="level-scale"
+                    role="meter"
+                  >
+                    <div class="level-fill" id="level-fill"></div>
+                    <span class="critical-marker"></span
+                    ><span class="level-pin" id="level-pin"></span>
+                  </div>
+                  <div class="scale-labels">
+                    <span>2098 <small>diseño</small></span
+                    ><span class="critical-label"
+                      >2115 <small>seguridad</small></span
+                    ><span>2153 <small>máximo</small></span>
+                  </div>
+                  <div class="chart-topline">
+                    <span id="maz-history-label"
+                      >Evolución observada · hasta 72 h</span
+                    >
+                    <div
+                      aria-label="Ventana del gráfico de Mazar"
+                      class="segmented"
+                    >
+                      <button aria-pressed="false" data-maz-window="24">
+                        24 h</button
+                      ><button aria-pressed="true" data-maz-window="72">
+                        72 h
+                      </button>
+                    </div>
+                  </div>
+                  <div class="chart-wrap">
+                    <canvas
+                      aria-label="Evolución de la cota de Mazar y umbral de seguridad de 2115 metros"
+                      id="maz-chart"
+                      role="img"
+                    ></canvas>
+                    <p class="chart-empty" id="maz-empty">
+                      Esperando historial de CELEC
+                    </p>
+                  </div>
+                  <div class="reservoir-insights">
+                    <div>
+                      <span class="insight-label">ESCENARIO DE CONTINUIDAD</span
+                      ><strong id="maz-days">Sin proyección</strong>
+                      <p id="maz-projection">Faltan lecturas suficientes.</p>
+                    </div>
+                    <div>
+                      <span class="insight-label">AGUA QUE ENTRA</span
+                      ><strong id="maz-inflow">— <small>m³/s</small></strong>
+                      <p id="maz-inflow-note">Caudal afluente observado</p>
+                    </div>
+                  </div>
+                  <p class="source-note" id="maz-date">
+                    Última medición pendiente
+                  </p>
+                  <details class="panel-notes">
+                    <summary>
+                      Qué significan estas señales <span>+</span>
+                    </summary>
+                    <ul class="reason-list" id="energy-reasons"></ul>
+                    <p>
+                      2115 m es un umbral de seguridad frente al ingreso de
+                      sedimentos a las turbinas. Los 2098 m del diseño no
+                      garantizan operación segura hasta esa cota. Puede haber
+                      restricciones antes y operación excepcional por debajo.
+                    </p>
+                    <p>
+                      Los días representan un escenario hasta 2115 m si continúa
+                      el descenso medido. No son una fecha de apagón ni un
+                      porcentaje de energía almacenada.
+                    </p>
+                    <a
+                      href="https://www.elcomercio.com/actualidad/negocios/mazar-debajo-nivel-operar-riesgo-sedimentos/"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      >Explicación de Diego Morales, exgerente de CELEC Sur ↗</a
+                    >
+                  </details>
+                </article>
+              </div>
+              <div data-slot="rain">
+                <article
+                  class="panel rainfall"
+                  data-panel="rain"
+                  id="local-panel"
+                  tabindex="0"
+                >
+                  <div class="panel-header">
+                    <div>
+                      <h3>PALLATANGA / LLUVIA</h3>
+                    </div>
+                    <span class="source-label">PALLATANGA</span>
+                    <button
+                      aria-label="Detalles de rain"
+                      class="inspect-button"
+                      data-detail="rain"
+                    >
+                      ↗ DETALLE
+                    </button>
+                  </div>
+                  <div class="metric-row">
+                    <div class="main-metric">
+                      <span id="rain-main">—</span
+                      ><span class="metric-unit" id="rain-unit"
+                        >mm previstos</span
+                      >
+                    </div>
+                    <div class="metric-context">
+                      <span class="trend-label" id="rain-main-title"
+                        >Próximas 24 horas</span
+                      ><span id="rain-subtitle">Modelo meteorológico</span>
+                    </div>
+                  </div>
+                  <div class="weather-strip">
+                    <span
+                      ><svg aria-hidden="true" viewbox="0 0 24 24">
+                        <path
+                          d="M10 4a2 2 0 0 1 4 0v10a4 4 0 1 1-4 0Z"
+                        ></path></svg
+                      ><b id="weather-temp">—</b> °C</span
+                    ><span
+                      ><svg aria-hidden="true" viewbox="0 0 24 24">
+                        <path
+                          d="M12 3c-2 4-6 7-6 11a6 6 0 0 0 12 0c0-4-4-7-6-11Z"
+                        ></path></svg
+                      ><b id="weather-day">—</b> mm hoy</span
+                    ><span
+                      ><svg aria-hidden="true" viewbox="0 0 24 24">
+                        <path
+                          d="M3 8h13a3 3 0 1 0-3-3M3 12h17M3 16h11a3 3 0 1 1-3 3"
+                        ></path></svg
+                      ><b id="weather-wind">—</b> km/h</span
+                    >
+                  </div>
+                  <div class="chart-topline">
+                    <span id="rain-chart-label"
+                      >Lluvia prevista · próximas 48 h</span
+                    >
+                    <div aria-label="Tipo de datos de lluvia" class="segmented">
+                      <button aria-pressed="false" data-rain-mode="observed">
+                        Medida</button
+                      ><button aria-pressed="true" data-rain-mode="forecast">
+                        Prevista
+                      </button>
+                    </div>
+                  </div>
+                  <div class="chart-wrap">
+                    <canvas
+                      aria-label="Lluvia medida por la estación o prevista por un modelo meteorológico"
+                      id="rain-chart"
+                      role="img"
+                    ></canvas>
+                    <p class="chart-empty" id="rain-empty">
+                      Consultando el pronóstico
+                    </p>
+                  </div>
 
-  if (e) {
-    set('e-12',   e.nino12SSTA?.toFixed(1));
-    set('e-34',   e.nino34SSTA?.toFixed(1));
-    set('e-date', e.dateReported);
-    $('e-12-trend').innerHTML = trendArrow(e.trend?.nino12);
-    $('e-34-trend').innerHTML = trendArrow(e.trend?.nino34);
+                  <p class="source-note" id="weather-date">
+                    Estación: lectura pendiente · Pronóstico: consulta pendiente
+                  </p>
+                  <details class="panel-notes">
+                    <summary>Qué podemos anticipar <span>+</span></summary>
+                    <p>
+                      La estación muestra lluvia y condiciones locales. El
+                      modelo Open-Meteo anticipa precipitación en la cabecera
+                      cantonal, que puede diferir de una ladera o de la
+                      propiedad donde está la estación.
+                    </p>
+                    <p>
+                      AEGIS no mide saturación del suelo ni publica
+                      probabilidades de deslave. Las señales de vigilancia por
+                      lluvia son experimentales; consultá siempre los avisos
+                      oficiales.
+                    </p>
+                    <a
+                      href="https://open-meteo.com/"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      >Pronóstico y atribución: Open-Meteo ↗</a
+                    >
+                  </details>
+                </article>
+              </div>
+              <div data-slot="national">
+                <section
+                  aria-labelledby="national-title"
+                  class="panel national"
+                  data-panel="national"
+                  id="national-panel"
+                  tabindex="0"
+                >
+                  <div class="panel-header">
+                    <div>
+                      <h3 id="national-title">SNI / GENERACIÓN</h3>
+                    </div>
+                    <span class="source-label">CENACE</span>
+                    <button
+                      aria-label="Detalles de national"
+                      class="inspect-button"
+                      data-detail="national"
+                    >
+                      ↗ DETALLE
+                    </button>
+                  </div>
+                  <div class="generation-overview">
+                    <div class="donut-wrap">
+                      <canvas
+                        aria-label="Participación de cada fuente en la energía acumulada del día"
+                        id="mix-chart"
+                        role="img"
+                      ></canvas>
+                      <div class="donut-center">
+                        <strong id="hydro-share">—</strong
+                        ><span>hidroeléctrica</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p class="mix-caption">ENERGÍA ACUMULADA DEL DÍA</p>
+                      <div class="mix-legend" id="mix-legend">
+                        <p class="muted">Fuente aún no disponible</p>
+                      </div>
+                      <p class="source-note" id="mix-date">
+                        Fecha de origen pendiente
+                      </p>
+                    </div>
+                  </div>
+                  <div class="chart-topline">
+                    <span>Producción y demanda atendida · MW</span
+                    ><span class="source-note" id="national-time">—</span>
+                  </div>
+                  <div class="chart-wrap national-chart">
+                    <canvas
+                      aria-label="Producción por fuente y demanda nacional atendida, cada media hora"
+                      id="national-chart"
+                      role="img"
+                    ></canvas>
+                    <p class="chart-empty" id="national-empty">
+                      Esperando curva de CENACE
+                    </p>
+                  </div>
+                  <div class="chart-legend">
+                    ■ HIDRO ■ TÉRMICA ■ RENOVABLE ┄ DEMANDA
+                  </div>
 
-    const alertEl = $('e-alert');
-    alertEl.textContent = e.alertLevel;
-    const ac = riskClass(e.alertLevel);
-    alertEl.style.color = ac === 'red' ? 'var(--danger)' : ac === 'orange' ? 'var(--warning)' : ac === 'yellow' ? 'var(--warning)' : 'var(--success)';
-    alertEl.classList.toggle('blink', ac === 'red');
+                  <details class="panel-notes">
+                    <summary>
+                      Aporte de las centrales y señales faltantes <span>+</span>
+                    </summary>
+                    <div class="central-list" id="central-list"></div>
+                    <p>
+                      Energía acumulada en MWh; no es potencia disponible en MW.
+                      Coca Codo depende del caudal y puede restringirse por
+                      sedimentos incluso cuando llueve mucho.
+                    </p>
+                    <p id="energy-missing">
+                      Falta confirmar disponibilidad de respaldo y avisos de
+                      racionamiento.
+                    </p>
+                    <a
+                      href="https://www.cenace.gob.ec/info-operativa/InformacionOperativa.htm"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      >Consultar la operación publicada por CENACE ↗</a
+                    >
+                  </details>
+                </section>
+              </div>
+              <div data-slot="enso">
+                <section
+                  aria-labelledby="enso-title"
+                  class="panel enso"
+                  data-panel="enso"
+                  id="enso-panel"
+                  tabindex="0"
+                >
+                  <div class="panel-header">
+                    <div>
+                      <h3 id="enso-title">PACÍFICO / ENSO</h3>
+                    </div>
+                    <span class="source-label">NOAA</span>
+                    <button
+                      aria-label="Detalles de enso"
+                      class="inspect-button"
+                      data-detail="enso"
+                    >
+                      ↗ DETALLE
+                    </button>
+                  </div>
+                  <div class="enso-status">
+                    <span class="status" id="enso-status"
+                      >Diagnóstico pendiente</span
+                    >
+                    <p id="enso-issued">Esperando el boletín oficial</p>
+                  </div>
 
-    const lr = e.localRisk || '';
-    const gr = e.gridRisk  || '';
-    const col = t => riskClass(t) === 'red' ? 'var(--danger)' : riskClass(t) === 'orange' || riskClass(t) === 'yellow' ? 'var(--warning)' : 'var(--success)';
-    $('e-local-risk').innerHTML = `<span style="color:${col(lr)};font-weight:700;">${lr}</span>`;
-    $('e-grid-risk').innerHTML  = `<span style="color:${col(gr)};font-weight:700;">${gr}</span>`;
-    setPill('pill-enso', 'ENSO: ' + (e.alertLevel || '—'), ac);
-  }
+                  <div class="enso-values">
+                    <div>
+                      <span>Frente a Ecuador · Niño 1+2</span
+                      ><strong id="nino12">—</strong>
+                    </div>
+                    <div>
+                      <span>Pacífico central · Niño 3.4</span
+                      ><strong id="nino34">—</strong>
+                    </div>
+                  </div>
+                  <p class="source-note" id="enso-date">
+                    Anomalía relativa semanal · °C
+                  </p>
+                  <div class="chart-wrap enso-chart">
+                    <canvas
+                      aria-label="Anomalías relativas semanales Niño 1+2 y Niño 3.4 durante seis meses"
+                      id="enso-chart"
+                      role="img"
+                    ></canvas>
+                    <p class="chart-empty" id="enso-empty">Esperando índices</p>
+                  </div>
 
-  set('foot-ts', 'sync ' + new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }));
-}
-
-// ─── SYNC LOOP ───
-let syncTimer = null;
-async function sync(manual) {
-  const dot = $('sync-dot'), txt = $('sync-text');
-  try {
-    if (manual) txt.textContent = 'Actualizando…';
-    const res  = await fetch(`${API}/api/status`);
-    if (res.status === 403) throw new Error('API restringida: abre el dashboard desde el mismo host (403)');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    render(data);
-    const now = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' });
-    txt.textContent = `Sync ${now}`;
-    if (dot) dot.classList.remove('err');
-    const t = $('toast');
-    t.classList.add('show');
-    clearTimeout(syncTimer);
-    syncTimer = setTimeout(() => t.classList.remove('show'), 2000);
-  } catch(err) {
-    txt.textContent = `Error: ${err.message}`;
-    if (dot) dot.classList.add('err');
-  }
-}
-
-$('btn-refresh').addEventListener('click', () => sync(true));
-
-// Clock
-setInterval(() => {
-  $('clock').textContent = new Date().toLocaleTimeString('es-EC', { timeZone:'America/Guayaquil' });
-}, 1000);
-$('clock').textContent = new Date().toLocaleTimeString('es-EC', { timeZone:'America/Guayaquil' });
-
-// Responsive rain grid: 4 cols desktop, 2 cols móvil
-function fitRainGrid() {
-  const g = $('rain-grid');
-  if (!g) return;
-  g.style.gridTemplateColumns = window.innerWidth < 640 ? '1fr 1fr' : 'repeat(4,1fr)';
-}
-window.addEventListener('resize', fitRainGrid);
-fitRainGrid();
-
-// Initial + periodic sync
-sync(false);
-setInterval(() => sync(false), 5 * 60 * 1000);
-</script>
-</body>
+                  <details class="panel-notes">
+                    <summary>
+                      Observación, diagnóstico y pronóstico <span>+</span>
+                    </summary>
+                    <p>
+                      Los índices del gráfico son anomalías relativas semanales;
+                      no equivalen a ONI ni a RONI trimestral. El diagnóstico
+                      ENSO procede del boletín oficial de NOAA, no de un umbral
+                      de una sola semana.
+                    </p>
+                    <p>
+                      La sequía de 2024 continuó cuando ENSO volvió a
+                      neutralidad. Por eso el riesgo energético se evalúa con
+                      reserva y producción, independientemente del estado de El
+                      Niño.
+                    </p>
+                    <a
+                      href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_advisory/ensodisc.shtml"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      >Diagnóstico y perspectiva oficial NOAA ↗</a
+                    >
+                  </details>
+                </section>
+              </div>
+            </div>
+          </section>
+          <section
+            class="view"
+            data-workspace="energy"
+            hidden
+            aria-label="Energía"
+          >
+            <div class="monitor-grid energy-grid">
+              <div data-slot="mazar"></div>
+              <div data-slot="national"></div>
+            </div>
+            <section aria-labelledby="cascade-title" class="cascade-panel">
+              <div class="cascade-heading">
+                <h3 id="cascade-title">PAUTE / CASCADA</h3>
+              </div>
+              <div class="cascade">
+                <div class="cascade-node">
+                  <span class="node-number">01</span><strong>Mazar</strong
+                  ><span>Almacena y regula</span
+                  ><small>170 MW instalados</small>
+                </div>
+                <span aria-hidden="true" class="cascade-arrow">→</span>
+                <div class="cascade-node">
+                  <span class="node-number">02</span><strong>Molino</strong
+                  ><span>Embalse Amaluza</span><small>1100 MW instalados</small>
+                </div>
+                <span aria-hidden="true" class="cascade-arrow">→</span>
+                <div class="cascade-node">
+                  <span class="node-number">03</span><strong>Sopladora</strong
+                  ><span>Reutiliza el agua turbinada</span
+                  ><small>487 MW instalados</small>
+                </div>
+              </div>
+              <div class="cascade-caption">
+                <span id="amaluza-signal"
+                  >Amaluza: esperando lectura de nivel</span
+                ><a
+                  href="https://www.celec.gob.ec/celecsur/informacion-tecnica/central-hidroelectrica-paute-sopladora/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  >Cómo funciona la cascada ↗</a
+                >
+              </div>
+            </section>
+            <section class="data-panel">
+              <div class="data-panel-header">
+                <h2>HIDROELÉCTRICAS / PRODUCCIÓN DEL DÍA</h2>
+                <span>MWh · CENACE</span>
+              </div>
+              <div id="energy-table" class="table-scroll"></div>
+            </section>
+          </section>
+          <section
+            class="view"
+            data-workspace="weather"
+            hidden
+            aria-label="Pallatanga"
+          >
+            <div class="monitor-grid weather-grid">
+              <div data-slot="rain"></div>
+              <div class="data-panel weather-telemetry">
+                <div class="data-panel-header">
+                  <h2>ESTACIÓN / TELEMETRÍA</h2>
+                  <span>AMBIENT</span>
+                </div>
+                <div id="weather-telemetry" class="telemetry-grid"></div>
+                <div class="resource-links">
+                  <a
+                    href="https://servicios.inamhi.gob.ec/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >INAMHI ↗</a
+                  ><a
+                    href="https://www.ecu911.gob.ec/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >ECU 911 / VÍAS ↗</a
+                  >
+                </div>
+              </div>
+            </div>
+            <section class="data-panel">
+              <div class="data-panel-header">
+                <h2>PREVISIÓN HORARIA / 48 H</h2>
+                <span>MODELO · OPEN-METEO</span>
+              </div>
+              <div id="forecast-table" class="table-scroll"></div>
+            </section>
+          </section>
+          <section
+            class="view"
+            data-workspace="enso"
+            hidden
+            aria-label="Pacífico"
+          >
+            <div class="monitor-grid enso-grid">
+              <div data-slot="enso"></div>
+              <section class="data-panel">
+                <div class="data-panel-header">
+                  <h2>SERIE / ANOMALÍA RELATIVA SEMANAL</h2>
+                  <span>°C · NOAA</span>
+                </div>
+                <div id="enso-table" class="table-scroll"></div>
+              </section>
+            </div>
+          </section>
+          <section
+            class="view"
+            data-workspace="sources"
+            hidden
+            aria-label="Fuentes y registro"
+          >
+            <section class="data-panel">
+              <div class="data-panel-header">
+                <h2>FUENTES / ESTADO Y MEDICIÓN</h2>
+                <span id="source-count">0/5</span>
+              </div>
+              <div id="source-table" class="table-scroll"></div>
+            </section>
+            <div class="monitor-grid sources-grid">
+              <section class="data-panel">
+                <div class="data-panel-header">
+                  <h2>SESSION / EVENT LOG</h2>
+                  <span>LOCAL</span>
+                </div>
+                <div id="event-log" class="event-log">
+                  <span>&gt; esperando primera consulta…</span>
+                </div>
+              </section>
+              <section class="data-panel">
+                <div class="data-panel-header">
+                  <h2>PROTOCOLOS / CONTEXTO</h2>
+                  <span>AEGIS</span>
+                </div>
+                <section class="methodology" id="metodologia">
+                  <details>
+                    <summary>
+                      Fuentes, cobertura y cómo leemos el riesgo <span>+</span>
+                    </summary>
+                    <div class="method-grid">
+                      <div>
+                        <h3>Energía</h3>
+                        <p id="energy-method">
+                          Evaluación parcial basada en nivel y tendencia de
+                          Mazar. No es un pronóstico oficial de cortes.
+                        </p>
+                        <p>
+                          Caudal: comparación con su propia historia, no con una
+                          media estacional. La escala de altura no es un
+                          porcentaje de reserva hídrica ni energética.
+                        </p>
+                      </div>
+                      <div>
+                        <h3>Clima local</h3>
+                        <p id="local-method">
+                          Lluvia medida por una estación de Pallatanga y
+                          previsión para la cabecera cantonal. No son un mapa de
+                          amenaza ni estado oficial de vías.
+                        </p>
+                        <p>
+                          Una señal de lluvia no proporciona probabilidad de
+                          deslave ni mide humedad del suelo.
+                        </p>
+                      </div>
+                    </div>
+                    <p>
+                      Mostramos por separado hora de medición y hora de
+                      consulta. Si una fuente falla o queda antigua, no la
+                      reemplazamos por cero ni por una etiqueta de tranquilidad.
+                    </p>
+                    <p>
+                      NOAA CPC · CELEC SUR · CENACE · Ambient Weather ·
+                      <a
+                        href="https://open-meteo.com/"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        >Open-Meteo</a
+                      >. Datos y pronósticos sujetos a cambios. AEGIS es un
+                      observatorio independiente: verificá decisiones críticas
+                      con las autoridades.
+                    </p>
+                  </details>
+                </section>
+                <details>
+                  <summary>CRISIS / ECUADOR 2024</summary>
+                  <p>
+                    Abril: reservas agotadas y respaldo insuficiente. Junio:
+                    sedimentos restringieron Coca Codo. Septiembre–diciembre:
+                    sequía y menor producción sostuvieron los racionamientos.
+                  </p>
+                  <a
+                    href="https://www.cenace.gob.ec/wp-content/uploads/2025/03/Informe-de-rendicion-de-cuentas-2024_CENACE_final-rev.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >INFORME CENACE ↗</a
+                  >
+                </details>
+              </section>
+            </div>
+          </section>
+        </main>
+        <footer class="console-footer">
+          <span
+            ><i class="footer-dot"></i>MONITOR /
+            <strong id="footer-view">OVERVIEW</strong></span
+          ><span class="footer-shortcuts"
+            ><kbd>1–5</kbd>VISTAS <kbd>R</kbd>SYNC <kbd>D</kbd>DETALLE
+            <kbd>/</kbd>COMANDOS <kbd>?</kbd>AYUDA</span
+          ><span id="footer-sync">SIN CONSULTA</span>
+        </footer>
+      </div>
+    </div>
+    <dialog
+      class="console-dialog inspector"
+      id="detail-dialog"
+      aria-labelledby="detail-title"
+    >
+      <div class="dialog-top">
+        <div>
+          <span class="dialog-code">INSPECTOR / DATA STREAM</span>
+          <h2 id="detail-title">DETALLE</h2>
+        </div>
+        <button
+          class="chrome-button"
+          data-close="detail-dialog"
+          aria-label="Cerrar detalle"
+        >
+          ESC ×
+        </button>
+      </div>
+      <div class="detail-chart-wrap">
+        <canvas
+          id="detail-chart"
+          role="img"
+          aria-label="Gráfico ampliado"
+        ></canvas>
+        <p id="detail-empty" class="chart-empty" hidden>Sin serie disponible</p>
+      </div>
+      <div id="detail-content"></div>
+    </dialog>
+    <dialog
+      class="console-dialog command-dialog"
+      id="command-dialog"
+      aria-labelledby="command-title"
+    >
+      <div class="dialog-top">
+        <h2 id="command-title">&gt;_ COMMAND PALETTE</h2>
+        <button
+          class="chrome-button"
+          data-close="command-dialog"
+          aria-label="Cerrar comandos"
+        >
+          ESC ×
+        </button>
+      </div>
+      <label class="command-input"
+        ><span>&gt;</span
+        ><input
+          id="command-input"
+          type="search"
+          placeholder="vista, sincronizar, detalle…"
+          autocomplete="off"
+          aria-label="Buscar comando"
+      /></label>
+      <div id="command-list" role="list"></div>
+      <div class="command-hint">
+        ↑↓ SELECCIONAR / ENTER EJECUTAR / ESC CERRAR
+      </div>
+    </dialog>
+    <dialog
+      class="console-dialog help-dialog"
+      id="help-dialog"
+      aria-labelledby="help-title"
+    >
+      <div class="dialog-top">
+        <h2 id="help-title">KEYBOARD / HOTKEYS</h2>
+        <button
+          class="chrome-button"
+          data-close="help-dialog"
+          aria-label="Cerrar atajos"
+        >
+          ESC ×
+        </button>
+      </div>
+      <div class="hotkey-list">
+        <div><kbd>1</kbd><span>Resumen</span></div>
+        <div><kbd>2</kbd><span>Energía / Mazar / SNI</span></div>
+        <div><kbd>3</kbd><span>Pallatanga / estación / previsión</span></div>
+        <div><kbd>4</kbd><span>Pacífico / ENSO</span></div>
+        <div><kbd>5</kbd><span>Fuentes / log / metodología</span></div>
+        <div><kbd>R</kbd><span>Consultar fuentes</span></div>
+        <div><kbd>D</kbd><span>Inspeccionar panel seleccionado</span></div>
+        <div><kbd>S</kbd><span>Exportar panorama</span></div>
+        <div><kbd>/</kbd><kbd>Ctrl K</kbd><span>Paleta de comandos</span></div>
+        <div><kbd>F</kbd><span>Modo foco</span></div>
+        <div><kbd>?</kbd><span>Esta ayuda</span></div>
+        <div>
+          <kbd>Esc</kbd><span>Cerrar diálogo / salir del modo foco</span>
+        </div>
+      </div>
+    </dialog>
+    <dialog
+      aria-labelledby="share-title"
+      class="console-dialog share-dialog"
+      id="share-dialog"
+    >
+      <div class="dialog-top">
+        <div>
+          <h2 id="share-title">EXPORTAR / SNAPSHOT</h2>
+        </div>
+        <button aria-label="Cerrar" class="icon-button" id="share-close">
+          ×
+        </button>
+      </div>
+      <canvas
+        aria-label="Snapshot de la consola AEGIS"
+        height="630"
+        id="share-canvas"
+        width="1200"
+      ></canvas>
+      <p>
+        La tarjeta refleja esta consulta. Los datos pueden cambiar; compartí
+        también el enlace para ver la actualización.
+      </p>
+      <div class="share-actions">
+        <button class="button" id="share-native">COMPARTIR ENLACE</button
+        ><button class="button secondary" id="share-download">
+          DESCARGAR PNG</button
+        ><button class="text-button" id="share-copy">COPIAR RESUMEN</button>
+      </div>
+      <p id="share-feedback" role="status"></p>
+    </dialog>
+    <noscript
+      ><div class="noscript">
+        JavaScript requerido para consultar telemetría.
+        <a href="https://www.cenace.gob.ec/">CENACE ↗</a> /
+        <a href="https://servicios.inamhi.gob.ec/">INAMHI ↗</a>
+      </div></noscript
+    >
+  </body>
 </html>

@@ -4,8 +4,8 @@
 
 | Version | Supported |
 |---|---|
-| 3.x (main) | Yes |
-| < 3.0 | No |
+| 4.x | Yes |
+| 3.x | Legacy |
 
 ## Reporting a Vulnerability
 
@@ -28,6 +28,5 @@ bypass of the localhost restriction, or injection via scraped sources.
   (`rejectUnauthorized: false`) due to non-standard chains on those hosts.
   This exposes those fetches to MITM; re-enable verification if the sources
   publish valid certificates.
-- Frontend dependencies load from CDN (Tailwind, Chart.js). A CDN compromise
-  would affect the dashboard; pin or vendor these files if your threat model
-  requires it.
+- Chart.js is served from the locked local package; the interface does not load external executable scripts. Google Fonts is optional and falls back to system fonts.
+- DATA_DIR stores public observations only. Mount persistent storage to retain trends across redeployments. Source errors must not expose station identifiers or private request URLs.
