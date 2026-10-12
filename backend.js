@@ -1,3 +1,4 @@
+import { fetchMrid as readMrid } from './celec.js';
 import Fastify from 'fastify';
 import rateLimit from '@fastify/rate-limit';
 import https from 'https';
@@ -92,29 +93,7 @@ function fetchUrl(urlStr, { rejectUnauthorized = true, timeoutMs = 9000 } = {}) 
   });
 }
 
-// ─── CELEC ORDS HELPER ───────────────────────────────────────────────────────
-// La API devuelve 24 registros empezando en `fecha`. Para obtener los datos
-// MÁS RECIENTES usamos fecha=HOY y filtramos nulls, luego ordenamos desc.
-function celecUrl(mrid, nowDate) {
-  const pad   = n => String(n).padStart(2, '0');
-  const fecha = `${pad(nowDate.getDate())}/${pad(nowDate.getMonth()+1)}/${nowDate.getFullYear()} 00:00:00`;
-  const start = new Date(nowDate.getTime() - 2*86400_000).toISOString();
-  const end   = nowDate.toISOString();
-  return `https://generacioncsr.celec.gob.ec:8443/ords/csr/sardomcsr/pointValues?mrid=${mrid}`
-    + `&fechaInicio=${encodeURIComponent(start)}&fechaFin=${encodeURIComponent(end)}`
-    + `&fecha=${encodeURIComponent(fecha)}`;
-}
-
-async function fetchMrid(mrid, nowDate) {
-  try {
-    const res  = await fetchUrl(celecUrl(mrid, nowDate), { rejectUnauthorized: false });
-    if (res.status !== 200) return null;
-    const items = JSON.parse(res.data).items || [];
-    const valid = items.filter(i => i.valueedit !== null)
-                       .sort((a,b) => new Date(b.loctimestamp) - new Date(a.loctimestamp));
-    return valid.length ? valid[0] : null;
-  } catch { return null; }
-}
+const fetchMrid = (mrid, nowDate) => readMrid(mrid, nowDate, fetchUrl);
 
 // ─── PLOTLY TYPED-ARRAY DECODER ──────────────────────────────────────────────
 // CENACE usa bdata (base64 float64 little-endian) en las curvas de área.

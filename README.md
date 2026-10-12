@@ -33,6 +33,7 @@ GET /api/status (único fetch del frontend) ──► frontend.html (dashboard, 
 ```
 
 - Caché en memoria por endpoint para no saturar fuentes lentas.
+- CELEC se consulta con el día de `America/Guayaquil`. Si no hay muestras, se consulta el día anterior; ante fallos se conserva la última lectura válida por señal en memoria (hasta reiniciar el proceso). Mazar muestra la fecha y antigüedad real de su lectura.
 - `/api/*` restringido a localhost, salvo `/api/status` cuando el `Origin`/`Referer` coincide con el `Host` (ver [modelo de seguridad](#seguridad).
 - `/` y `/ui` sirven el mismo dashboard.
 
@@ -85,6 +86,8 @@ docker run --rm -p 3010:3010 -e AMBIENT_MAC="AA:BB:CC:DD:EE:FF" aegis-grid
 ## Estructura
 
 ```text
+celec.js         Consulta CELEC con fecha de Ecuador y última lectura válida
+test/celec.test.js Regresión de consulta nocturna y recuperación de lecturas
 backend.js       API Fastify (ESM) + scrapers + caché + agregador + rate limit
 frontend.html    Dashboard (Tailwind CDN + Chart.js + temas claro/oscuro/auto)
 Dockerfile       Imagen Node 22 Alpine
