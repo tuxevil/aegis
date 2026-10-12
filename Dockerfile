@@ -7,7 +7,7 @@ COPY package.json ./
 RUN npm install --production
 
 # Copy application code
-COPY backend.js frontend.html ./
+COPY backend.js celec.js frontend.html ./
 
 # Expose standard port
 EXPOSE 3010

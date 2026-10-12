@@ -599,7 +599,11 @@ function render(s) {
     set('maz-caud',  maz.caudalEntradaM3s ?? '--');
     set('maz-units', maz.unidadesLinea !== null && maz.unidadesLinea !== undefined ? `${maz.unidadesLinea} turbina(s)` : '--');
     set('maz-days',  maz.daysToShutdown !== null && maz.daysToShutdown !== undefined ? maz.daysToShutdown : '--');
-    set('maz-ts',    fmtTs(maz.timestamp));
+    const ageMinutes = maz.timestamp ? Math.max(0, Math.floor((Date.now() - Date.parse(maz.timestamp)) / 60000)) : null;
+    const ageLabel = Number.isFinite(ageMinutes)
+      ? (ageMinutes < 60 ? `${ageMinutes} min` : `${Math.floor(ageMinutes / 60)} h ${ageMinutes % 60} min`)
+      : null;
+    set('maz-ts', maz.timestamp ? `Última lectura: ${fmtTs(maz.timestamp)}${ageLabel ? ' · hace ' + ageLabel : ''}` : '--');
 
     const cota = parseFloat(maz.cotaMsnm);
     if (!isNaN(cota)) {
