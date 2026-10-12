@@ -12,7 +12,7 @@
     "axios": "^1.20.0",
     "chart.js": "^4.5.1",
     "express": "^5.2.1",
-    "fastify": "^5.12.1",
+    "fastify": "^5.12.5",
     "jsdom": "^29.1.1"
   },
   "scripts": {
