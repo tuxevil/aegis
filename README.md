@@ -13,6 +13,9 @@ Estamos diseñando una evolución hacia **Blackout Map** (reportes ciudadanos y 
 
 ## La consola
 
+Fundaciones PR-01: [contratos y activación local de API v1](docs/architecture/aegis-5-public-v1.md).
+Los flags están desactivados por defecto; solo hay un endpoint v1 de salud, sin datos de cortes.
+
 - **Energía nacional:** evolución de Mazar, caudal afluente y su cambio, escenario de continuidad hasta el umbral de seguridad, cascada Mazar–Molino–Sopladora, composición de la producción y curva horaria CENACE.
 - **Pallatanga:** lluvia y condiciones de una estación Ambient Weather, previsión horaria para la cabecera cantonal y acceso directo a avisos oficiales y estado vial.
 - **Contexto del Pacífico:** diagnóstico oficial NOAA y anomalías relativas semanales Niño 1+2 y Niño 3.4, sin confundirlas con ONI o RONI trimestral.

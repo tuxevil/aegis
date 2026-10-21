@@ -1,5 +1,11 @@
 # AEGIS v4
 
+AEGIS 5 PR-01 adds disabled-by-default flags (`feature-flags.js`), closed public
+DTO schemas (`api/schemas.js`) and an isolated GET `/api/v1/health/public` behind
+`PUBLIC_API_V1`. Public access uses explicit route metadata + GET, never a URL
+prefix or Origin/Referer. V4 interfaces/access and JSON history are preserved.
+See `docs/architecture/aegis-5-public-v1.md` and `docs/verification/aegis-5-pr-01.md`.
+
 Public dashboard with equal emphasis on Ecuadorian energy and Pallatanga weather. Research with dated primary sources lives in `docs/research/`; these reports are background, never live data feeds.
 
 The small module interfaces are `createApp({fetchUrl, store, now, mac})`, source parsers/loaders and `buildAssessment(data, now)`. Tests and production use these same interfaces. Sources are independently cached and failures preserve original measurement dates. `HistoryStore` supports an in-memory adapter for tests and atomic persisted observations for production.

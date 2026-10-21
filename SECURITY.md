@@ -18,6 +18,13 @@ bypass of the localhost restriction, or injection via scraped sources.
 
 ## Security Model (read before deploying)
 
+- With `PUBLIC_API_V1=true`, only registered GET routes explicitly marked
+  public bypass the v4 policy. PR-01 registers `/api/v1/health/public` only,
+  rate limited to 60 requests/minute per remote IP. No prefix-wide exemption,
+  CORS permission or proxy trust is added. Other v1 paths/methods remain closed
+  remotely; localhost retains the existing v4 exemption. Origin/Referer never
+  unlock these private routes. See `docs/architecture/aegis-5-public-v1.md`.
+
 - `AMBIENT_MAC` is the only operational credential and must be injected via
   environment variable. Never commit `.env` or real station identifiers.
 - `/api/*` allows localhost only. `/api/status` additionally allows requests

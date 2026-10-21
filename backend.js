@@ -14,6 +14,8 @@ import {
   SOURCE_URLS,
 } from "./sources.js";
 import { buildAssessment } from "./assessment.js";
+import { readFeatureFlags } from "./feature-flags.js";
+import { isPublicV1Request, registerPublicV1 } from "./api/public-v1.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const localIP = (ip) => ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(ip);
@@ -32,7 +34,9 @@ export async function createApp({
   ),
   now = () => new Date(),
   mac = process.env.AMBIENT_MAC,
+  flags = readFeatureFlags(),
 } = {}) {
+  const features = readFeatureFlags(flags);
   const app = Fastify({ logger: false });
   await app.register(rateLimit, {
     max: 200,
@@ -42,6 +46,7 @@ export async function createApp({
   // Preserve the existing public-dashboard policy. No private station identifier is returned.
   app.addHook("onRequest", async (req, reply) => {
     const endpoint = req.url.split("?")[0];
+    if (features.PUBLIC_API_V1 && isPublicV1Request(req)) return;
     if (!endpoint.startsWith("/api/") || localIP(req.ip)) return;
     if (endpoint === "/api/status") {
       const host = originHost(req.headers.host || "");
@@ -57,6 +62,7 @@ export async function createApp({
       .code(403)
       .send({ error: "Acceso al panorama desde el dashboard" });
   });
+  if (features.PUBLIC_API_V1) await registerPublicV1(app, { now });
   const caches = new Map();
   const inflight = new Map();
   const getText = async (url, options) => {
