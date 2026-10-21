@@ -2,6 +2,15 @@
 
 Un observatorio público para entender las señales de energía de Ecuador y las condiciones locales de Pallatanga, con igual protagonismo. Su objetivo es ayudar a anticiparse: explicar qué cambió, por qué importa y qué datos faltan. No anuncia horarios de cortes ni calcula probabilidades de apagón o deslave.
 
+## AEGIS 5.0 (planificado; no desplegado)
+
+Estamos diseñando una evolución hacia **Blackout Map** (reportes ciudadanos y evidencia geográfica), **Sector Watch** (seguimiento de horarios oficiales y notificaciones opt-in), **Time Machine** (historial auditable), OSINT responsable e **Infrastructure Explorer** 2D/3D. Estas funciones **no están implementadas** en v4. La consola actual sigue operativa.
+
+- [Objetivos, experiencia y límites del producto](docs/roadmap/aegis-5-prd.md)
+- [Arquitectura, API, datos, seguridad y fuentes](docs/architecture/aegis-5-design.md)
+- [Backlog por PRs y criterios de aceptación](docs/roadmap/aegis-5-backlog.md)
+- [Instrucciones para Codex](docs/roadmap/aegis-5-codex.md) y [AGENTS.md](AGENTS.md)
+
 ## La consola
 
 - **Energía nacional:** evolución de Mazar, caudal afluente y su cambio, escenario de continuidad hasta el umbral de seguridad, cascada Mazar–Molino–Sopladora, composición de la producción y curva horaria CENACE.
