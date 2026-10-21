@@ -10,6 +10,7 @@ RUN npm ci --omit=dev
 COPY backend.js celec.js mazar.js history.js sources.js assessment.js feature-flags.js frontend.html ./
 COPY api/ ./api/
 COPY storage/ ./storage/
+COPY reports/ ./reports/
 COPY scripts/ ./scripts/
 COPY demo/ ./demo/
 COPY public/ ./public/

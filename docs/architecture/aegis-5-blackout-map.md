@@ -1,5 +1,9 @@
 # AEGIS 5 — Blackout Map de lectura (PR-03)
 
+PR-04 añade recepción opt-in y resúmenes moderados por sector bajo su propio flag;
+ver [reportes ciudadanos](aegis-5-citizen-reports.md). Este documento describe la
+base de lectura y demo de PR-03, que sigue funcionando con reportes OFF.
+
 ## Activación y compatibilidad
 
 ```bash

@@ -1,10 +1,10 @@
 import fs from "node:fs";
 import { createHash } from "node:crypto";
 
-const sql = fs.readFileSync(new URL("./migrations/001-foundations.sql", import.meta.url), "utf8");
-export const MIGRATIONS = Object.freeze([
-  Object.freeze({ version: 1, sql, checksum: createHash("sha256").update(sql).digest("hex") }),
-]);
+export const MIGRATIONS = Object.freeze(["001-foundations.sql", "002-citizen-reports.sql"].map((file, index) => {
+  const sql = fs.readFileSync(new URL(`./migrations/${file}`, import.meta.url), "utf8");
+  return Object.freeze({ version: index + 1, sql, checksum: createHash("sha256").update(sql).digest("hex") });
+}));
 export const APPLICATION_ID = 0x41454735;
 
 // Inspect before changing pragmas, so unknown/future databases fail closed.

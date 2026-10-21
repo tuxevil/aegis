@@ -20,7 +20,17 @@ SQLITE_STORAGE (no demo/live mixing). Live read APIs project reviewed public
 evidence only; no verified supply/coverage is inferred from an empty result.
 Map is an optional local SVG/GeoJSON reference, never home pins or outage polygons.
 See `docs/architecture/aegis-5-blackout-map.md` for routes, publication gates,
-geography limits and browser verification. No reporting/Push/OSINT ingestion yet.
+geography limits and browser verification. No Push/OSINT ingestion yet.
+
+PR-04 adds `/report` behind CITIZEN_REPORTS (OFF) and migration 002 for private
+report roots/revisions/reviews. Live requires configured HTTPS REPORTS_ORIGIN;
+demo remains memory-only. Inputs have no free text/GPS/contact data. Receipts are
+client CSPRNG bearer secrets, SHA256 only in DB, never URL/localStorage. All new
+reports/corrections await local operator review; only aggregates of >=3 approved
+reports per sector/24 h are public. No incidents inferred or created yet (PR-05).
+IP-based guard is bounded/ephemeral in RAM, single process, with documented limits.
+See `docs/architecture/aegis-5-citizen-reports.md` for consent, retention, moderation,
+antiabuse, migration/rollback and prerequisites before live reception.
 
 Public dashboard with equal emphasis on Ecuadorian energy and Pallatanga weather. Research with dated primary sources lives in `docs/research/`; these reports are background, never live data feeds.
 

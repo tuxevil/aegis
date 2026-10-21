@@ -23,6 +23,7 @@
     <p class="lead">Busca una localidad y consulta qué evidencia existe, de dónde viene y cuándo se actualizó.</p>
     <p class="coverage-note"><span aria-hidden="true">ⓘ</span> Sin información no significa «sin cortes». AEGIS no opera la red ni garantiza horarios de reposición.</p>
   </section>
+  <!-- reports-link -->
   <form id="search-form" role="search" class="search-form">
     <label for="area-search">Provincia, cantón, parroquia o sector</label>
     <div class="search-row"><input id="area-search" name="q" type="search" maxlength="100" placeholder="Por ejemplo, Pallatanga" autocomplete="off" aria-describedby="search-help"><button type="submit">Buscar área <span aria-hidden="true">→</span></button></div>
@@ -36,6 +37,7 @@
     <section id="results" tabindex="-1" aria-labelledby="results-title">
       <div class="section-heading"><div><p class="eyebrow">EVIDENCIAS, NO PREDICCIONES</p><h2 id="results-title">Últimas fichas</h2><p id="selected-area" class="muted">Todas las áreas disponibles</p></div><button type="button" id="refresh" class="secondary">Actualizar</button></div>
       <div class="filters"><label for="layer">Tipo de fuente</label><select id="layer"><option value="">Todas las fuentes</option><option value="official">Avisos de entidades</option><option value="citizen">Reportes ciudadanos</option><option value="osint">Prensa y OSINT</option></select><button type="button" id="clear-area" class="text-button" hidden>Quitar filtro de área</button></div>
+      <p id="citizen-summary" class="report-summary muted" role="status" aria-live="polite" hidden></p>
       <p id="request-status" class="request-status" role="status" aria-live="polite">Consultando información…</p>
       <div id="event-list" class="event-list" aria-busy="true"></div>
       <button type="button" id="more-events" class="secondary wide" hidden>Ver más fichas</button>
@@ -56,7 +58,7 @@
       </section>
     </aside>
   </div>
-  <section class="method-note"><h2>Una consulta con límites claros</h2><p>La cobertura es parcial y puede estar desactualizada. No se infieren cortes de las cotas de los embalses ni se calcula una probabilidad de apagón. Reportar, suscribirse y recibir notificaciones se habilitarán en etapas posteriores.</p></section>
+  <section class="method-note"><h2>Una consulta con límites claros</h2><p>La cobertura es parcial y puede estar desactualizada. No se infieren cortes de las cotas de los embalses ni se calcula una probabilidad de apagón. <!-- report-availability --></p></section>
 </main>
 <footer><strong>AEGIS</strong><span>Procedencia antes que certeza.</span><a href="/ui">Observatorio técnico v4 →</a></footer>
 <noscript><p class="mode-banner">Esta consulta interactiva necesita JavaScript. La consola técnica está disponible en <a href="/ui">/ui</a> y la API pública de áreas en <a href="/api/v1/areas">/api/v1/areas</a>.</p></noscript>
