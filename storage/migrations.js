@@ -26,10 +26,10 @@ export function inspectDatabase(db, migrations = MIGRATIONS) {
   return applied;
 }
 
-export function migrate(db, applied, now, migrations = MIGRATIONS) {
-  db.exec("BEGIN IMMEDIATE");
+export function migrate(db, applied, now, migrations = MIGRATIONS, { transactionOpen = false } = {}) {
+  if (!transactionOpen) db.exec("BEGIN IMMEDIATE");
   try {
-    // Another opener may have migrated while a snapshot was being taken.
+    // Recheck under the writer lock, including after a snapshot.
     const current = inspectDatabase(db, migrations);
     if (current.length !== applied.length) throw new Error("Esquema cambió durante apertura; reintentar");
     db.exec(`CREATE TABLE IF NOT EXISTS schema_migrations (

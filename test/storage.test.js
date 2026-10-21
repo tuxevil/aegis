@@ -3,12 +3,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 import { openStore } from "../storage/sqlite-store.js";
 import { MIGRATIONS } from "../storage/migrations.js";
-import { restoreSnapshot, verifySnapshot } from "../storage/backups.js";
+import { restoreSnapshot, verifySnapshot, snapshot } from "../storage/backups.js";
 import { createApp } from "../backend.js";
 import { HistoryStore } from "../history.js";
 
@@ -247,4 +247,43 @@ test("operator CLI init/status/backup/verify/restore works; status never creates
   assert.equal(cli("restore", snapshot, restored), path.join(restored, "aegis-v5.sqlite"));
   assert.throws(() => cli("restore", snapshot, dbDirectory));
   assert.equal(JSON.parse(cli("status")).version, 1);
+});
+
+test("writer lock covers snapshot and migration with no commit gap; failed snapshots release lock", async t => {
+  const directory = temporary(t), file = path.join(directory, "aegis-v5.sqlite");
+  const initial = await openStore({ directory, synthetic: true });
+  initial.writeBatch(demoBatch()); initial.close();
+  const migrations = [...MIGRATIONS, migration("CREATE TABLE after_snapshot(id INTEGER PRIMARY KEY) STRICT;")];
+  let attempts = 0, snapshotFile;
+  async function concurrentWriterMustWait() {
+    // A separate process avoids blocking this process's event loop while backup runs.
+    const child = spawn(process.execPath, ["--input-type=module", "-e", `
+      import {DatabaseSync} from 'node:sqlite';
+      const db=new DatabaseSync(process.argv[1],{timeout:50});
+      try {db.exec("INSERT INTO settings(key,value) VALUES('concurrent-write','lost-on-rollback')");process.exitCode=2;}
+      catch(error){if(!/locked/.test(error.message))throw error;}
+      finally{db.close();}
+    `, file], { stdio: ["ignore", "pipe", "pipe"] });
+    let stderr = ""; child.stderr.on("data", data => { stderr += data; });
+    const code = await new Promise((resolve, reject) => { child.on("error", reject); child.on("close", resolve); });
+    assert.equal(code, 0, stderr); attempts++;
+  }
+  const upgraded = await openStore({ directory, synthetic: true, migrations, takeSnapshot: async (...args) => {
+    await concurrentWriterMustWait();
+    snapshotFile = await snapshot(...args);
+    await concurrentWriterMustWait(); // The former race: snapshot completed, migration not started.
+    return snapshotFile;
+  } });
+  upgraded.close();
+  assert.equal(attempts, 2); assert.equal(verifySnapshot(snapshotFile), 1);
+  const reader = new DatabaseSync(file);
+  assert.equal(reader.prepare("SELECT value FROM settings WHERE key='concurrent-write'").get(), undefined);
+  reader.exec("INSERT INTO settings(key,value) VALUES('after-migration','ok')");reader.close();
+  const rollback = path.join(directory, "rollback-before-snapshot");
+  await restoreSnapshot(snapshotFile, rollback);
+  await assert.rejects(openStore({ directory: rollback, synthetic: true, migrations,
+    takeSnapshot: async () => { throw new Error("backup-failed"); } }), /backup-failed/);
+  const writable = await openStore({ directory: rollback, synthetic: true });
+  writable.writeBatch({ areas: [{ ...demoBatch().areas[0], id: "after-failed-backup" }] });
+  assert.ok(writable.repositories.areas.get("after-failed-backup")); writable.close();
 });

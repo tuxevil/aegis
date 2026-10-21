@@ -94,3 +94,15 @@ base activa o borrar historial JSON.
 Próximo, tras revisión e integración de dependencias: PR-03, mapa/lista móvil y
 API de solo lectura, fixtures explícitos y tres escenarios de demo. Ningún PR
 anterior se fusionó automáticamente ni se activaron funcionalidades en producción.
+
+Seguimiento de revisión durante PR-03:
+
+- P1: el snapshot de migración ahora se toma con BEGIN IMMEDIATE ya adquirido y
+  mantenido hasta COMMIT de migración. El backup usa otra conexión de solo lectura,
+  evitando BUSY de un backup sobre la conexión con escritura activa.
+- Regresión entre procesos: escritores quedan bloqueados antes y después del
+  snapshot, incluyendo la antigua ventana de carrera; fallo de backup libera el
+  lock y deja la base anterior utilizable.
+- P2: engines.node en package.json y package-lock.json se alinean a >=22.16.
+- Nueva suite: 55 tests (14 de storage). Las notas anteriores describen la primera
+  entrega; este seguimiento documenta las correcciones de revisión.

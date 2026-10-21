@@ -95,7 +95,10 @@ Las migraciones aplican en una transacción IMMEDIATE. Errores FULL/IOERR pueden
 revertir automáticamente: se conserva el error original aunque no quede una
 transacción que deshacer.
 
-Antes de actualizar una base persistente existente se crea automáticamente un
+Antes de actualizar una base persistente existente se adquiere BEGIN IMMEDIATE
+y se mantiene el lock de escritura durante el snapshot y la migración, hasta
+COMMIT. El snapshot se lee mediante otra conexión de solo lectura; ningún proceso
+puede insertar datos en la ventana entre respaldo y migración. Se crea un
 snapshot pre-migration verificado. Si falla el backup no se migra. La primera
 creación no requiere snapshot. Nunca editar una migración aplicada: agregar otra
 versión. No se ejecuta down destructivo. Rollback de esquema mediante snapshot
