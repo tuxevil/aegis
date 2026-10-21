@@ -74,6 +74,11 @@ NOAA: los índices semanales no producen una clasificación oficial por umbral. 
 
 Node ≥ 22.
 
+El almacenamiento opcional de AEGIS 5 y sus pruebas requieren Node ≥ 22.16
+(`node:sqlite`, sin paquetes adicionales). Permanece apagado mediante
+`SQLITE_STORAGE=false`; v4 conserva su historial JSON. Ver
+[SQLite, backups y restauración](docs/architecture/aegis-5-storage.md).
+
 ```bash
 npm ci
 cp .env.example .env

@@ -9,9 +9,12 @@ RUN npm ci --omit=dev
 # Copy application code
 COPY backend.js celec.js mazar.js history.js sources.js assessment.js feature-flags.js frontend.html ./
 COPY api/ ./api/
+COPY storage/ ./storage/
+COPY scripts/ ./scripts/
 COPY public/ ./public/
 
 ENV DATA_DIR=/data
+ENV DB_DIR=/data/v5
 VOLUME ["/data"]
 
 # Expose standard port

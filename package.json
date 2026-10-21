@@ -16,6 +16,7 @@
   "scripts": {
     "start": "node backend.js",
     "test": "node --test",
-    "check": "node --check backend.js && node --check sources.js && node --check assessment.js && node --check public/app.js && node --check feature-flags.js && node --check api/schemas.js && node --check api/public-v1.js"
+    "check": "node --check backend.js && node --check sources.js && node --check assessment.js && node --check public/app.js && node --check feature-flags.js && node --check api/schemas.js && node --check api/public-v1.js && node --check storage/sqlite-store.js && node --check storage/repositories.js && node --check storage/migrations.js && node --check storage/backups.js && node --check scripts/storage.js",
+    "storage": "node scripts/storage.js"
   }
 }

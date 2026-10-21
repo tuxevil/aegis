@@ -37,3 +37,8 @@ bypass of the localhost restriction, or injection via scraped sources.
   publish valid certificates.
 - Chart.js is served from the locked local package; the interface does not load external executable scripts. Google Fonts is optional and falls back to system fonts.
 - DATA_DIR stores public observations only. Mount persistent storage to retain trends across redeployments. Source errors must not expose station identifiers or private request URLs.
+- Optional v5 SQLite is internal only, disabled by default, and never replaces
+  v4 history. DB_DIR/snapshots require private filesystem permissions and a
+  persistent volume. Demo databases refuse live records and vice versa. Backups
+  are operator CLI actions, not public HTTP routes; restoration refuses existing
+  destinations. See `docs/architecture/aegis-5-storage.md` for limits and recovery.

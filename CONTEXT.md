@@ -6,6 +6,14 @@ DTO schemas (`api/schemas.js`) and an isolated GET `/api/v1/health/public` behin
 prefix or Origin/Referer. V4 interfaces/access and JSON history are preserved.
 See `docs/architecture/aegis-5-public-v1.md` and `docs/verification/aegis-5-pr-01.md`.
 
+PR-02 adds optional `SQLITE_STORAGE` (OFF): `storage/sqlite-store.js` uses
+Node >=22.16 built-in SQLite, WAL, checksum migrations, immutable transactional
+repositories and verified snapshots. `DB_DIR` is separate from v4 JSON, default
+`.data/v5` locally or `/data/v5` in Docker. Demo/live mode is fixed per database.
+No ingestors or public data routes use SQLite yet. Operational commands and
+limits: `docs/architecture/aegis-5-storage.md`; never copy only a live WAL main
+file or restore over an active database. No DATA_DIR migration in PR-02.
+
 Public dashboard with equal emphasis on Ecuadorian energy and Pallatanga weather. Research with dated primary sources lives in `docs/research/`; these reports are background, never live data feeds.
 
 The small module interfaces are `createApp({fetchUrl, store, now, mac})`, source parsers/loaders and `buildAssessment(data, now)`. Tests and production use these same interfaces. Sources are independently cached and failures preserve original measurement dates. `HistoryStore` supports an in-memory adapter for tests and atomic persisted observations for production.
