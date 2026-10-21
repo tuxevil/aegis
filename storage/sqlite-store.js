@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import { inspectDatabase, migrate, MIGRATIONS } from "./migrations.js";
 import { createRepositories } from "./repositories.js";
 import { snapshot, verifyDatabase, pruneDailySnapshots } from "./backups.js";
+import { createPublicReader } from "./public-reader.js";
 
 export async function openStore({
   directory = process.env.DB_DIR || ".data/v5",
@@ -64,6 +65,7 @@ export async function openStore({
     }, onWriteFailure: error => { writeFailure = error; } });
     const store = {
       repositories,
+      publicReader: createPublicReader(db, { synthetic, available }),
       transaction(work) {
         available();
         if (writing || typeof work !== "function" || work.constructor.name === "AsyncFunction") throw new Error("Transacción síncrona, sin anidación");

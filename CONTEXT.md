@@ -10,9 +10,17 @@ PR-02 adds optional `SQLITE_STORAGE` (OFF): `storage/sqlite-store.js` uses
 Node >=22.16 built-in SQLite, WAL, checksum migrations, immutable transactional
 repositories and verified snapshots. `DB_DIR` is separate from v4 JSON, default
 `.data/v5` locally or `/data/v5` in Docker. Demo/live mode is fixed per database.
-No ingestors or public data routes use SQLite yet. Operational commands and
+No ingestors are active; PR-03 adds an optional reviewed public reader. Operational commands and
 limits: `docs/architecture/aegis-5-storage.md`; never copy only a live WAL main
 file or restore over an active database. No DATA_DIR migration in PR-02.
+
+PR-03 adds `/map` behind BLACKOUT_MAP + PUBLIC_API_V1, preserving `/` and `/ui`.
+BLACKOUT_DEMO adds explicitly synthetic, ephemeral SQLite fixtures and refuses
+SQLITE_STORAGE (no demo/live mixing). Live read APIs project reviewed public
+evidence only; no verified supply/coverage is inferred from an empty result.
+Map is an optional local SVG/GeoJSON reference, never home pins or outage polygons.
+See `docs/architecture/aegis-5-blackout-map.md` for routes, publication gates,
+geography limits and browser verification. No reporting/Push/OSINT ingestion yet.
 
 Public dashboard with equal emphasis on Ecuadorian energy and Pallatanga weather. Research with dated primary sources lives in `docs/research/`; these reports are background, never live data feeds.
 

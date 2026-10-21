@@ -1,17 +1,18 @@
 import { errorSchema } from "./schemas.js";
+import { registerBlackoutApi } from "./blackout.js";
 
 // This metadata belongs to registered routes, never to a URL prefix.
 export function isPublicV1Request(req) {
   return req.method === "GET" && req.routeOptions.config.publicApiV1 === true;
 }
 
-export async function registerPublicV1(app, { now }) {
+export async function registerPublicV1(app, { now, blackout = false, reader }) {
   await app.register(async (publicApi) => {
     publicApi.setErrorHandler((error, req, reply) => {
-      const status = error.validation || error.statusCode === 400 ? 400 : error.statusCode === 429 ? 429 : 500;
-      reply.code(status).send({ error: {
-        code: status === 400 ? "INVALID_REQUEST" : status === 429 ? "RATE_LIMITED" : "INTERNAL_ERROR",
-        message: status === 400 ? "Solicitud inválida" : status === 429 ? "Demasiadas solicitudes" : "Servicio no disponible",
+      const status = error.validation || error.statusCode === 400 ? 400 : error.statusCode === 404 ? 404 : error.statusCode === 429 ? 429 : 500;
+      reply.header("Cache-Control", "no-store").code(status).send({ error: {
+        code: status === 400 ? "INVALID_REQUEST" : status === 404 ? "NOT_FOUND" : status === 429 ? "RATE_LIMITED" : "INTERNAL_ERROR",
+        message: status === 400 ? "Solicitud inválida" : status === 404 ? "Registro no disponible" : status === 429 ? "Demasiadas solicitudes" : "Servicio no disponible",
       } });
     });
     publicApi.get("/api/v1/health/public", {
@@ -42,5 +43,6 @@ export async function registerPublicV1(app, { now }) {
     }, async () => ({
       api_version: "1", status: "foundation", timestamp: now().toISOString(), coverage: "unknown",
     }));
+    if (blackout) registerBlackoutApi(publicApi, { reader, now });
   });
 }

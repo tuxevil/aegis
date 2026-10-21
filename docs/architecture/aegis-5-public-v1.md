@@ -1,5 +1,9 @@
 # API pública v1 — fundaciones PR-01
 
+PR-03 añade rutas de consulta bajo BLACKOUT_MAP, descritas en
+[Blackout Map](aegis-5-blackout-map.md). Con ese flag OFF se conserva únicamente
+la salud de estas fundaciones.
+
 Los contratos ejecutables están en `api/schemas.js`; los ejemplos públicos en
 `test/fixtures/public-v1.json` son **sintéticos** y nunca se cargan en el servidor.
 Se usa Fastify y su validación/serialización existente, sin nuevas dependencias.

@@ -1,0 +1,284 @@
+{
+  "areas": [
+    {
+      "id": "demo-chimborazo",
+      "name": "Chimborazo (ámbito de demo)",
+      "parent_id": null,
+      "type": "province",
+      "location_precision": "administrative_area",
+      "code": null,
+      "polygon_ref": null,
+      "polygon_version": null,
+      "synthetic": true
+    },
+    {
+      "id": "demo-pallatanga",
+      "name": "Pallatanga",
+      "parent_id": "demo-chimborazo",
+      "type": "canton",
+      "location_precision": "administrative_area",
+      "code": null,
+      "polygon_ref": null,
+      "polygon_version": null,
+      "synthetic": true
+    },
+    {
+      "id": "demo-a",
+      "name": "Sector de ejemplo A",
+      "parent_id": "demo-pallatanga",
+      "type": "sector",
+      "location_precision": "generalized_sector",
+      "code": null,
+      "polygon_ref": null,
+      "polygon_version": null,
+      "synthetic": true
+    },
+    {
+      "id": "demo-b",
+      "name": "Sector de ejemplo B",
+      "parent_id": "demo-pallatanga",
+      "type": "sector",
+      "location_precision": "generalized_sector",
+      "code": null,
+      "polygon_ref": null,
+      "polygon_version": null,
+      "synthetic": true
+    },
+    {
+      "id": "demo-c",
+      "name": "Sector de ejemplo C",
+      "parent_id": "demo-pallatanga",
+      "type": "sector",
+      "location_precision": "generalized_sector",
+      "code": null,
+      "polygon_ref": null,
+      "polygon_version": null,
+      "synthetic": true
+    }
+  ],
+  "sources": [
+    {
+      "id": "demo-authority",
+      "kind": "authority",
+      "name": "Distribuidora ficticia — ejemplo",
+      "official": true,
+      "source_url": null,
+      "access_policy": "public",
+      "enabled": true,
+      "synthetic": true
+    },
+    {
+      "id": "demo-citizen",
+      "kind": "citizen",
+      "name": "Reporte ciudadano sintético",
+      "official": false,
+      "source_url": null,
+      "access_policy": "public",
+      "enabled": true,
+      "synthetic": true
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "demo-artifact-scheduled",
+      "source_id": "demo-authority",
+      "source_url": "https://example.invalid/demo-scheduled",
+      "source_published_at": null,
+      "fetched_at": "2026-10-21T15:00:00Z",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "media_type": "text/plain",
+      "stored_ref": null,
+      "parse_version": "demo-v1",
+      "extraction_status": "parsed",
+      "provenance": "Documento sintético de ejemplo, no fuente real",
+      "synthetic": true
+    },
+    {
+      "id": "demo-artifact-reported",
+      "source_id": "demo-citizen",
+      "source_url": "https://example.invalid/demo-reported",
+      "source_published_at": null,
+      "fetched_at": "2026-10-21T15:00:00Z",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "media_type": "text/plain",
+      "stored_ref": null,
+      "parse_version": "demo-v1",
+      "extraction_status": "parsed",
+      "provenance": "Documento sintético de ejemplo, no fuente real",
+      "synthetic": true
+    },
+    {
+      "id": "demo-artifact-corrected",
+      "source_id": "demo-citizen",
+      "source_url": "https://example.invalid/demo-corrected",
+      "source_published_at": null,
+      "fetched_at": "2026-10-21T15:00:00Z",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "media_type": "text/plain",
+      "stored_ref": null,
+      "parse_version": "demo-v1",
+      "extraction_status": "parsed",
+      "provenance": "Documento sintético de ejemplo, no fuente real",
+      "synthetic": true
+    }
+  ],
+  "observations": [
+    {
+      "id": "demo-observation-scheduled",
+      "source_id": "demo-authority",
+      "artifact_id": "demo-artifact-scheduled",
+      "area_id": "demo-a",
+      "dedupe_key": "scheduled",
+      "kind": "official_schedule",
+      "summary": "Aviso sintético: programación de mantenimiento, no es un horario real.",
+      "occurred_at": null,
+      "observed_at": null,
+      "reported_start_at": null,
+      "source_published_at": null,
+      "ingested_at": "2026-10-21T15:00:00Z",
+      "temporal_confidence": "approximate",
+      "location_precision": "generalized_sector",
+      "moderation_state": "approved",
+      "synthetic": true
+    },
+    {
+      "id": "demo-observation-reported",
+      "source_id": "demo-citizen",
+      "artifact_id": "demo-artifact-reported",
+      "area_id": "demo-b",
+      "dedupe_key": "reported",
+      "kind": "citizen_report",
+      "summary": "Reporte sintético aislado: sin luz; inicio y reposición desconocidos.",
+      "occurred_at": null,
+      "observed_at": null,
+      "reported_start_at": null,
+      "source_published_at": null,
+      "ingested_at": "2026-10-21T15:00:00Z",
+      "temporal_confidence": "approximate",
+      "location_precision": "generalized_sector",
+      "moderation_state": "approved",
+      "synthetic": true
+    },
+    {
+      "id": "demo-observation-corrected",
+      "source_id": "demo-citizen",
+      "artifact_id": "demo-artifact-corrected",
+      "area_id": "demo-c",
+      "dedupe_key": "corrected",
+      "kind": "citizen_report",
+      "summary": "Reporte sintético original, posteriormente corregido.",
+      "occurred_at": null,
+      "observed_at": null,
+      "reported_start_at": null,
+      "source_published_at": null,
+      "ingested_at": "2026-10-21T15:00:00Z",
+      "temporal_confidence": "approximate",
+      "location_precision": "generalized_sector",
+      "moderation_state": "approved",
+      "synthetic": true
+    },
+    {
+      "id": "demo-observation-correction",
+      "source_id": "demo-citizen",
+      "artifact_id": "demo-artifact-corrected",
+      "area_id": "demo-c",
+      "dedupe_key": "correction",
+      "kind": "citizen_report",
+      "summary": "Corrección sintética: el reporte anterior se retiró por error de sector.",
+      "occurred_at": null,
+      "observed_at": null,
+      "reported_start_at": null,
+      "source_published_at": null,
+      "ingested_at": "2026-10-21T15:30:00Z",
+      "temporal_confidence": "approximate",
+      "location_precision": "generalized_sector",
+      "moderation_state": "approved",
+      "synthetic": true
+    }
+  ],
+  "events": [
+    {
+      "id": "demo-event-scheduled",
+      "area_id": "demo-a",
+      "type": "scheduled",
+      "status": "official",
+      "start_at": "2026-10-22T13:00:00Z",
+      "end_at": "2026-10-22T14:00:00Z",
+      "start_basis": "official",
+      "end_basis": "official",
+      "last_evidence_at": "2026-10-21T15:00:00Z",
+      "confidence_explanation": "Programación de ejemplo, sin validez operativa.",
+      "created_at": "2026-10-21T15:00:00Z",
+      "updated_at": "2026-10-21T15:00:00Z",
+      "synthetic": true
+    },
+    {
+      "id": "demo-event-reported",
+      "area_id": "demo-b",
+      "type": "unplanned",
+      "status": "reported",
+      "start_at": null,
+      "end_at": null,
+      "start_basis": "unknown",
+      "end_basis": "unknown",
+      "last_evidence_at": "2026-10-21T15:00:00Z",
+      "confidence_explanation": "Un reporte sin corroboración no confirma un corte en todo el sector.",
+      "created_at": "2026-10-21T15:00:00Z",
+      "updated_at": "2026-10-21T15:00:00Z",
+      "synthetic": true
+    },
+    {
+      "id": "demo-event-corrected",
+      "area_id": "demo-c",
+      "type": "unknown",
+      "status": "unknown",
+      "start_at": null,
+      "end_at": null,
+      "start_basis": "unknown",
+      "end_basis": "unknown",
+      "last_evidence_at": "2026-10-21T15:30:00Z",
+      "confidence_explanation": "Reporte corregido por su autor. No se puede afirmar que hubo corte ni reposición.",
+      "created_at": "2026-10-21T15:00:00Z",
+      "updated_at": "2026-10-21T15:30:00Z",
+      "synthetic": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "demo-link-scheduled",
+      "event_id": "demo-event-scheduled",
+      "observation_id": "demo-observation-scheduled",
+      "relation": "support",
+      "match_reason": "Revisión sintética para demostrar la interfaz",
+      "human_reviewed": true,
+      "synthetic": true
+    },
+    {
+      "id": "demo-link-reported",
+      "event_id": "demo-event-reported",
+      "observation_id": "demo-observation-reported",
+      "relation": "support",
+      "match_reason": "Revisión sintética para demostrar la interfaz",
+      "human_reviewed": true,
+      "synthetic": true
+    },
+    {
+      "id": "demo-link-corrected",
+      "event_id": "demo-event-corrected",
+      "observation_id": "demo-observation-corrected",
+      "relation": "support",
+      "match_reason": "Revisión sintética para demostrar la interfaz",
+      "human_reviewed": true,
+      "synthetic": true
+    },
+    {
+      "id": "demo-link-correction",
+      "event_id": "demo-event-corrected",
+      "observation_id": "demo-observation-correction",
+      "relation": "retraction",
+      "match_reason": "Revisión sintética para demostrar la interfaz",
+      "human_reviewed": true,
+      "synthetic": true
+    }
+  ]
+}
