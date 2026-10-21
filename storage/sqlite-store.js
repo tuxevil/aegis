@@ -6,6 +6,7 @@ import { createRepositories } from "./repositories.js";
 import { snapshot, verifyDatabase, pruneDailySnapshots } from "./backups.js";
 import { createPublicReader } from "./public-reader.js";
 import { createCitizenReports } from "./citizen-reports.js";
+import { createCorrelation } from "./correlation.js";
 
 export async function openStore({
   directory = process.env.DB_DIR || ".data/v5",
@@ -70,6 +71,7 @@ export async function openStore({
       repositories,
       publicReader: createPublicReader(db, { synthetic, available }),
       reports: createCitizenReports(db, { synthetic, available, transaction: work => store.transaction(work), now }),
+      correlation: createCorrelation(db, { synthetic, available, transaction: work => store.transaction(work), now }),
       transaction(work) {
         available();
         if (writing || typeof work !== "function" || work.constructor.name === "AsyncFunction") throw new Error("Transacción síncrona, sin anidación");

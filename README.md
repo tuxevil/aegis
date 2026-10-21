@@ -23,6 +23,11 @@ PR-04 añade `/report` para crear, corregir y retirar con código privado, siemp
 bajo `CITIZEN_REPORTS=false` por defecto. Los reportes requieren revisión y solo
 aparecen agregados por sector: [flujo, privacidad y moderación](docs/architecture/aegis-5-citizen-reports.md).
 
+PR-05 incorpora [correlación local y auditoría de evidencia](docs/architecture/aegis-5-correlation.md):
+reglas explicables de zona/tiempo/tipo, deduplicación de orígenes, competencia
+oficial y retractaciones sin borrar historia. `EVENT_CORRELATION=false`; no inicia
+ingestión ni convierte recibos ciudadanos en incidentes. Ver [pruebas y límites](docs/verification/aegis-5-pr-05.md).
+
 - **Energía nacional:** evolución de Mazar, caudal afluente y su cambio, escenario de continuidad hasta el umbral de seguridad, cascada Mazar–Molino–Sopladora, composición de la producción y curva horaria CENACE.
 - **Pallatanga:** lluvia y condiciones de una estación Ambient Weather, previsión horaria para la cabecera cantonal y acceso directo a avisos oficiales y estado vial.
 - **Contexto del Pacífico:** diagnóstico oficial NOAA y anomalías relativas semanales Niño 1+2 y Niño 3.4, sin confundirlas con ONI o RONI trimestral.

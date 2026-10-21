@@ -194,7 +194,7 @@ test("migration v1→v2 preserves history, makes snapshot and supports snapshot 
   const directory = temporary(t), old = await openStore({ directory, synthetic: true, migrations: MIGRATIONS.slice(0, 1) });
   old.writeBatch(seed); old.close();
   const upgraded = await openStore({ directory, synthetic: true });
-  assert.equal(upgraded.info().version, 2); assert.equal(upgraded.repositories.events.list().length, 3); upgraded.close();
+  assert.equal(upgraded.info().version, MIGRATIONS.length); assert.equal(upgraded.repositories.events.list().length, 3); upgraded.close();
   const snapshot = path.join(directory, "backups", fs.readdirSync(path.join(directory, "backups"))[0]);
   assert.equal(verifySnapshot(snapshot), 1);
   const rollback = path.join(directory, "rollback"); await restoreSnapshot(snapshot, rollback);
