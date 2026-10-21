@@ -68,3 +68,7 @@ Revisión requerida de esta entrega y dependencia #8 antes de integrar.
 Próximo: PR-02, SQLite/migraciones/backups junto al JSON v4; conservar historial y
 probar restauración/idempotencia/rollback. No se inició PR-02.
 Rollback de PR-01: flags OFF y reinicio, o restaurar app v4 preservando DATA_DIR.
+
+Seguimiento antes de PR-02: se detectó y corrigió que Dockerfile no copiaba
+feature-flags.js y api/. `docker build -t aegis-pr01-review .` pasó; smoke HTTP
+con servidor real dentro de Node 22 Alpine verificó raíz, app.js y salud OFF/ON.
