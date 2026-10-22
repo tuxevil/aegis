@@ -113,3 +113,20 @@ consulta el último resultado completado del historial mientras existe una reser
 conservando hora y frescura originales incluso si el proceso se interrumpe. No se
 rejuvenece la evidencia; después del TTL real pasa a stale. Regresión añadida.
 Check y suite completa tras el fix: **130/130** en Node 24.21.0.
+
+## Revalidación 2026-10-22
+
+Rama actualizada con PR-05 (`c319262`), sin integrar PRs ni tocar main.
+`npm ci` correcto (cero vulnerabilidades), check correcto y **130/130** tests
+en Node v24.21.0; **130/130** también en Node 22.16 Alpine, sin red y con
+el repositorio en solo lectura. `git diff --check` limpio.
+
+Se conserva el fix `26dc17b`: capturas running/interrumpidas consultan el último
+resultado completado, mantienen su timestamp y pasan a stale al vencer el TTL
+original. La regresión lo verifica sin peticiones reales. Sin cambios adicionales
+de runtime, fuentes, dependencias o esquema en esta revalidación.
+No se repitieron descargas reales, build Docker ni QA visual; evidencia anterior
+distingue esas comprobaciones. Las regresiones DOM permanecen en la suite.
+Permisos de reutilización, periodicidad y catálogo territorial siguen pendientes.
+OFFICIAL_SCHEDULES permanece OFF; sin alertas, merge de PR ni deploy.
+Próximo: PR-07 con consentimiento y gates de fuente; fuera de esta entrega.
