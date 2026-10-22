@@ -33,11 +33,11 @@ try {
     await page.getByRole("checkbox", { name: /Acepto el uso/ }).check();
     const local = new Date(Date.now() - 5 * 3600000 - (index + 1) * 60000).toISOString().slice(0, 16);
     await page.getByLabel("Hora en que lo notaste", { exact: false }).fill(local);
+    await page.waitForFunction(() => !document.getElementById("send-report").disabled);
     if (await page.locator("#question-group").isVisible()) {
       const question = await page.locator("#question-label").textContent(), digits = question.match(/(\d+) \+ (\d+)/);
       await page.locator("#challenge-answer").fill(String(Number(digits[1]) + Number(digits[2])));
     }
-    await page.waitForFunction(() => !document.getElementById("send-report").disabled);
     await page.getByRole("button", { name: "Enviar a revisión", exact: true }).click();
     await page.getByText("Reporte recibido, pendiente de revisión.", { exact: false }).waitFor();
     const code = await page.locator("#private-receipt").inputValue();
