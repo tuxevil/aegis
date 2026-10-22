@@ -6,6 +6,7 @@ import { createRepositories } from "./repositories.js";
 import { snapshot, verifyDatabase, pruneDailySnapshots } from "./backups.js";
 import { createPublicReader } from "./public-reader.js";
 import { createCitizenReports } from "./citizen-reports.js";
+import { createSubscriptions } from "./subscriptions.js";
 import { createSchedules } from "./schedules.js";
 import { createCorrelation } from "./correlation.js";
 
@@ -17,6 +18,7 @@ export async function openStore({
   migrations = MIGRATIONS,
   takeSnapshot = snapshot,
   allowMigrations = true,
+  pushStorageKey = process.env.PUSH_STORAGE_KEY,
 } = {}) {
   if (typeof synthetic !== "boolean" || !Number.isSafeInteger(maxBytes) || maxBytes < 65536) throw new Error("Configuración SQLite inválida");
   if (directory !== ":memory:") fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
@@ -72,6 +74,7 @@ export async function openStore({
       repositories,
       publicReader: createPublicReader(db, { synthetic, available }),
       reports: createCitizenReports(db, { synthetic, available, transaction: work => store.transaction(work), now }),
+      subscriptions: createSubscriptions(db, { synthetic, available, transaction: work => store.transaction(work), now, key: pushStorageKey, getSchedules: () => store.schedules }),
       schedules: createSchedules(db, { synthetic, available, transaction: work => store.transaction(work), now }),
       correlation: createCorrelation(db, { synthetic, available, transaction: work => store.transaction(work), now }),
       transaction(work) {

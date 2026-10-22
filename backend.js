@@ -15,6 +15,8 @@ import {
 } from "./sources.js";
 import { buildAssessment } from "./assessment.js";
 import { readFeatureFlags } from "./feature-flags.js";
+import { readPushConfig } from "./push/policy.js";
+import { isSubscriptionRequest } from "./api/subscriptions.js";
 import { isPublicV1Request, registerPublicV1 } from "./api/public-v1.js";
 import { emptyReader } from "./storage/public-reader.js";
 import { isCitizenReportRequest } from "./api/citizen-reports.js";
@@ -38,12 +40,15 @@ export async function createApp({
   mac = process.env.AMBIENT_MAC,
   flags = readFeatureFlags(),
   reportsOrigin = process.env.REPORTS_ORIGIN,
+  pushConfig = null,
   openV5Store = async () => {
     const { openStore } = await import("./storage/sqlite-store.js");
     return openStore({ now });
   },
 } = {}) {
   const features = readFeatureFlags(flags);
+  if (features.PUSH_ALERTS && (!features.PUBLIC_API_V1 || !features.SQLITE_STORAGE || !features.OFFICIAL_SCHEDULES || !features.BLACKOUT_MAP || features.BLACKOUT_DEMO)) throw new Error("PUSH_ALERTS requiere API, SQLite, cronogramas y catálogo de mapa sin demo");
+  const watchConfig = features.PUSH_ALERTS ? pushConfig || readPushConfig() : null;
   if (features.OFFICIAL_SCHEDULES && (!features.PUBLIC_API_V1 || !features.SQLITE_STORAGE || features.BLACKOUT_DEMO)) throw new Error("OFFICIAL_SCHEDULES requiere API pública y SQLite sin demo de mapa");
   if (features.BLACKOUT_MAP && !features.PUBLIC_API_V1) throw new Error("BLACKOUT_MAP requiere PUBLIC_API_V1");
   if (features.BLACKOUT_DEMO && (!features.BLACKOUT_MAP || features.SQLITE_STORAGE)) {
@@ -68,6 +73,7 @@ export async function createApp({
     const endpoint = req.url.split("?")[0];
     if (features.PUBLIC_API_V1 && isPublicV1Request(req)) return;
     if (features.CITIZEN_REPORTS && isCitizenReportRequest(req)) return;
+    if (features.PUSH_ALERTS && isSubscriptionRequest(req)) return;
     if (!endpoint.startsWith("/api/") || localIP(req.ip)) return;
     if (endpoint === "/api/status") {
       const host = originHost(req.headers.host || "");
@@ -85,11 +91,12 @@ export async function createApp({
   });
   let publicReader = emptyReader;
   let reportStore;
+  let stopPushWorker;
   if (features.SQLITE_STORAGE) {
     // Optional storage is never used in place of the v4 HistoryStore.
     const v5Store = await openV5Store();
     app.decorate("v5Store", v5Store);
-    app.addHook("onClose", async () => v5Store.close());
+    app.addHook("onClose", async () => { await stopPushWorker?.(); v5Store.close(); });
     publicReader = v5Store.publicReader || emptyReader;
     reportStore = v5Store;
   }
@@ -104,9 +111,14 @@ export async function createApp({
     reportStore = demoStore;
   }
   if (features.PUBLIC_API_V1) await registerPublicV1(app, { now, blackout: features.BLACKOUT_MAP, reader: publicReader,
+    subscriptions: features.PUSH_ALERTS ? { store: reportStore, config: watchConfig } : null,
     schedules: features.OFFICIAL_SCHEDULES ? reportStore : null,
     reporting: features.CITIZEN_REPORTS ? { store: reportStore, origin: reportsOrigin } : null,
   });
+  if(features.PUSH_ALERTS){
+    try {reportStore.subscriptions.ready();
+    if(watchConfig.delivery){const {startPushWorker}=await import("./push/transport.js");stopPushWorker=startPushWorker(reportStore,watchConfig);}} catch(error){await app.close();throw error;}
+  }
   const caches = new Map();
   const inflight = new Map();
   const getText = async (url, options) => {
@@ -208,6 +220,14 @@ export async function createApp({
   if (features.CITIZEN_REPORTS) app.get("/report", (_, reply) => reply.header("Cache-Control", "no-store")
     .header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
     .header("Referrer-Policy", "no-referrer").type("text/html").send(fs.readFileSync(path.join(directory, "public/report.html"))));
+  if (features.PUSH_ALERTS) {
+    const watchCsp="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; img-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
+    app.get("/watch",(_,reply)=>reply.redirect("/watch/"));
+    const watchFiles={"":"text/html; charset=utf-8","app.js":"text/javascript","style.css":"text/css","sw.js":"text/javascript","manifest.webmanifest":"application/manifest+json","icon-192.png":"image/png","icon-512.png":"image/png"};
+    for(const [file,type] of Object.entries(watchFiles)) app.get(`/watch/${file}`,(_,reply)=>reply
+      .header("Content-Security-Policy",watchCsp).header("Referrer-Policy","no-referrer").header("Cache-Control","no-store")
+      .type(type).send(fs.readFileSync(path.join(directory,"public/watch",file||"index.html"))));
+  }
   const assets = {
     "app.js": "text/javascript",
     "style.css": "text/css",

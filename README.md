@@ -171,3 +171,9 @@ La MAC entra por variable de entorno y no se devuelve al cliente. Los errores de
 Para mejorar la anticipación nacional: caudales y sedimentos CCS verificables, generación/disponibilidad por unidad, curva cota–volumen útil, combustible y respaldo térmico, importaciones programadas y avisos oficiales de déficit. Para amenazas territoriales: avisos INAMHI con geografía y vencimiento, observaciones de cuenca y estado vial con fecha. Ninguna de esas integraciones se presenta como ya disponible.
 
 La calibración futura debe contrastar las señales con series históricas y eventos: anticipación, falsas alertas y episodios no detectados. AEGIS comunica lo observado y escenarios condicionados mientras esa validación no exista.
+
+Sector Watch PR-07: `/watch/` permite guardar hasta cinco sectores, gestionar
+la suscripción con código privado y elegir Push por consentimiento separado.
+`PUSH_ALERTS=false` y `PUSH_DELIVERY=false` mantienen recepción/envíos desactivados.
+[Configuración, privacidad, límites y rollback](docs/architecture/aegis-5-push.md).
+No se activó en producción ni se verificó entrega real en proveedores/dispositivos.

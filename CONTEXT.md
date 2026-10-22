@@ -75,3 +75,11 @@ Never fill unknown data with zero, compute a fake reserve margin from production
 Serving assets is allowlisted. Source text is rendered with DOM textContent; external scripts are never executed. Keep station identifiers out of API responses, captured artifacts and logs. Persist history on a mounted DATA_DIR before redeploying. Preserve measurements and their timestamps on source failures.
 
 Public UI: retro terminal console, five workspaces (overview/energy/weather/enso/sources), keyboard shortcuts, searchable command palette and chart/data inspector. Keep overview terse and graphical; contextual interpretation lives in the inspector and methodology. Energy and climate retain equal prominence. CRT is optional; typing fields must never trigger bare-key shortcuts.
+
+PR-07 adds scoped /watch/ PWA and anonymous subscriptions with five curated sectors,
+separate opt-in and private management code. PUSH_ALERTS stays OFF; delivery also
+requires PUSH_DELIVERY=true and live storage. Migration 005 encrypts endpoints,
+keys, aliases and outbox payloads with a persistent private PUSH_STORAGE_KEY.
+Reviewed fresh official schedules only; explicit documentary cancellation, never
+missing rows. Before-send and receive validation suppress stale details. No
+production sends; see docs/architecture/aegis-5-push.md and verification PR-07.

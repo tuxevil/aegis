@@ -1,3 +1,4 @@
+import { cancellationText } from "../push/policy.js";
 import { createHash, randomUUID } from "node:crypto";
 import { provider } from "../schedules/providers.js";
 import { parseEeasa, labelKey } from "../schedules/eeasa.js";
@@ -541,10 +542,19 @@ export function createSchedules(
         return { provider_id: claim.provider_id, outcome, artifact_id };
       });
     },
-    listPublic({ area_id, from, to, type = null, limit = 21, offset = 0 }) {
+    listPublic({
+      area_id,
+      from,
+      to,
+      type = null,
+      limit = 21,
+      offset = 0,
+      revision_id = null,
+    }) {
       available();
       if (
         !identifier(area_id) ||
+        (revision_id !== null && !identifier(revision_id)) ||
         !Number.isInteger(limit) ||
         limit < 1 ||
         limit > 51 ||
@@ -579,7 +589,7 @@ export function createSchedules(
         AND v.review_no=(SELECT MAX(z.review_no) FROM schedule_reviews z WHERE z.revision_id=r.id)
         AND r.revision_no=(SELECT MAX(q.revision_no) FROM schedule_revisions q JOIN schedule_reviews w ON w.revision_id=q.id
           WHERE q.entry_id=r.entry_id AND w.decision='reviewed' AND w.rights_reviewed=1 AND w.review_no=(SELECT MAX(t.review_no) FROM schedule_reviews t WHERE t.revision_id=q.id))
-        AND v.area_id=? AND r.start_at<? AND r.end_at>? AND (? IS NULL OR r.type=?) ORDER BY r.start_at,r.id LIMIT ? OFFSET ?`,
+        AND v.area_id=? AND r.start_at<? AND r.end_at>? AND (? IS NULL OR r.type=?) AND (? IS NULL OR r.id=?) ORDER BY r.start_at,r.id LIMIT ? OFFSET ?`,
         )
         .all(
           p.id,
@@ -594,12 +604,27 @@ export function createSchedules(
           lower,
           type,
           type,
+          revision_id,
+          revision_id,
           limit,
           offset,
         );
       return {
         data: rows.map((row) => {
           const latest = head(row.entry_id);
+          const cancellationSchema = db
+            .prepare(
+              "SELECT 1 FROM sqlite_master WHERE type='table' AND name='schedule_cancellations'",
+            )
+            .get();
+          const cancelled =
+            cancellationSchema &&
+            db
+              .prepare(
+                "SELECT 1 FROM schedule_cancellations WHERE revision_id=?",
+              )
+              .get(row.id);
+
           const source_status = health.failed
             ? "failed"
             : health.stale
@@ -625,11 +650,13 @@ export function createSchedules(
             parser_confidence: row.parser_confidence,
             review_state: "reviewed",
             effective_status:
-              source_status === "current"
-                ? row.revision_no > 1
-                  ? "revised"
-                  : "published"
-                : "unverified",
+              cancelled && source_status === "current"
+                ? "cancelled"
+                : source_status === "current" && !cancellationText(row.motive)
+                  ? row.revision_no > 1
+                    ? "revised"
+                    : "published"
+                  : "unverified",
             revision_no: row.revision_no,
             predecessor_id: row.predecessor_id,
             imported_at: row.imported_at,
