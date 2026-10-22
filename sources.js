@@ -1,7 +1,7 @@
 import https from "node:https";
 import http from "node:http";
 import { JSDOM } from "jsdom";
-import { fetchMrid } from "./celec.js";
+import { fetchMrid, CELEC_REFRESH_FAILURE } from "./celec.js";
 import { assessMazar } from "./mazar.js";
 
 export const SOURCE_URLS = {
@@ -304,7 +304,7 @@ export async function loadDams(fetchUrl, store, now) {
     store
       .read(String(id))
       .filter((r) => Date.parse(r.loctimestamp) >= now - 72 * 3600000);
-  return {
+  const result = {
     timestamp: now.toISOString(),
     source: SOURCE_URLS.celec,
     mazar: {
@@ -338,6 +338,8 @@ export async function loadDams(fetchUrl, store, now) {
       timestamp: observed(650919),
     },
   };
+  Object.defineProperty(result,CELEC_REFRESH_FAILURE,{value:Boolean(reading(30031)?.[CELEC_REFRESH_FAILURE])});
+  return result;
 }
 
 const numeric = (value, conversion = (v) => v, precision = 1) =>

@@ -227,7 +227,7 @@ export async function createApp({
     .header("Referrer-Policy", "no-referrer").type("text/html").send(fs.readFileSync(path.join(directory, "public/report.html"))));
   if(features.EXPLORER_3D){
     app.get("/explorer",(_,reply)=>reply.redirect("/explorer/"));
-    for(const [file,type] of Object.entries({"":"text/html; charset=utf-8","app.js":"text/javascript","scene.js":"text/javascript","style.css":"text/css"}))app.get(`/explorer/${file}`,(_,reply)=>reply.header("Cache-Control","no-store").header("Referrer-Policy","no-referrer").header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'").type(type).send(fs.readFileSync(path.join(directory,"public/explorer",file||"index.html"))));
+    for(const [file,type] of Object.entries({"":"text/html; charset=utf-8","app.js":"text/javascript","scene.js":"text/javascript","style.css":"text/css"}))app.get(`/explorer/${file}`,(_,reply)=>reply.header("Cache-Control","no-store").header("Referrer-Policy","no-referrer").header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'").type(type).send(file ? fs.readFileSync(path.join(directory,"public/explorer",file)) : fs.readFileSync(path.join(directory,"public/explorer/index.html"),"utf8").replace("<!-- map-link -->",features.BLACKOUT_MAP ? ' · <a href="/map">Mapa ciudadano</a>' : "")));
   }
   if(features.TIME_MACHINE){
     app.get("/history",(_,reply)=>reply.redirect("/history/"));

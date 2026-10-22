@@ -3,7 +3,7 @@ import { reportError } from "./policy.js";
 const hash = value => createHash("sha256").update(value).digest("hex");
 
 // Single-process, bounded, ephemeral abuse controls: no raw IP or fingerprint on disk.
-export function createReportGuard({ now = () => new Date(), capacity = 10000 } = {}) {
+export function createReportGuard({ now = () => new Date(), capacity = 10000, maxAttempts = 30 } = {}) {
   const secret = randomBytes(32), subjects = new Map(), challenges = new Map();
   let nextSweep = -Infinity;
   const keyFor = ip => createHmac("sha256", secret).update(ip).digest("hex");
@@ -38,7 +38,7 @@ export function createReportGuard({ now = () => new Date(), capacity = 10000 } =
     },
     attempt(ip) {
       const { state } = subject(ip);
-      if (++state.attempts > 30) throw reportError("RATE_LIMITED", 429);
+      if (++state.attempts > maxAttempts) throw reportError("RATE_LIMITED", 429);
     },
     check(ip, { challenge_id, answer, website }, fingerprint) {
       const { key, state } = subject(ip), challenge = challenges.get(hash(challenge_id));

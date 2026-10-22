@@ -36,3 +36,8 @@ NO-GO para cota-volumen real hasta datos/licencia/datum/validación disponibles.
 Final: **177/177** también en Node22.16 Alpine sin red/read-only. Docker
 aegis-pr11-review construido; **4/4** tests contra código/HTML/JS empaquetados
 sin red. git diff --check limpio, sin despliegue.
+
+Revisión: fallo de refresh CELEC se propaga por metadata Symbol no serializable
+a la proyección estrecha, conservando lectura/fecha y todos los campos JSON v4.
+El enlace al mapa solo aparece cuando BLACKOUT_MAP está activo. Regresión añadida;
+npm ci audit0, check y **178/178** en esta rama antes de integrar fixes previos.

@@ -1,3 +1,4 @@
+import {CELEC_REFRESH_FAILURE} from "../celec.js";
 import { errorSchema } from "./schemas.js";
 export const INFRA_REFERENCES = Object.freeze({
   safety_m: 2115,
@@ -17,7 +18,7 @@ export function projectInfrastructure(data, history, now) {
   const state =
     value === null || !dated
       ? "missing"
-      : data.retrievalFailed
+      : (data.retrievalFailed || data[CELEC_REFRESH_FAILURE])
         ? "failed"
         : age > 2 * 3600000 || age < -300000
           ? "stale"
