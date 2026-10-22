@@ -2,7 +2,7 @@
 const ancestry = `WITH RECURSIVE tree(root,id,depth) AS (
   SELECT id,id,0 FROM areas UNION SELECT tree.root,a.id,tree.depth+1 FROM tree JOIN areas a ON a.parent_id=tree.id WHERE tree.depth<3
 )`;
-const visible = `FROM evidence l
+const baseVisible = `FROM evidence l
   JOIN observations o ON o.id=l.observation_id
   JOIN sources s ON s.id=o.source_id
   LEFT JOIN artifacts a ON a.id=o.artifact_id
@@ -19,8 +19,11 @@ export const emptyReader = Object.freeze({
   synthetic: false, listAreas: () => [], listEvents: () => [], listEvidence: () => [], getEvent: () => null,
 });
 
-export function createPublicReader(db, { synthetic, available }) {
+export function createPublicReader(db, { synthetic, available, now = () => new Date() }) {
   db.function("public_search", { deterministic: true }, normalize);
+  db.function("public_clock", () => now().toISOString());
+  const feedsSchema = db.prepare("SELECT 1 FROM sqlite_master WHERE name='feed_permissions' AND type='table'").get();
+  const visible = baseVisible + (feedsSchema ? ` AND (s.id NOT IN ('news_celec-news','news_ministry-news') OR EXISTS(SELECT 1 FROM feed_permissions fp WHERE 'news_'||fp.provider_id=s.id AND fp.id=(SELECT MAX(p2.id) FROM feed_permissions p2 WHERE p2.provider_id=fp.provider_id) AND fp.decision='approved' AND fp.valid_until>public_clock()))` : "");
   const mode = Number(synthetic), modes = [mode, mode, mode, mode];
   const publicLinks = (eventId, { limit = 21, offset = 0 } = {}) => db.prepare(`
     SELECT l.id,o.area_id,o.source_id,s.name AS source_name,s.kind AS source_kind,

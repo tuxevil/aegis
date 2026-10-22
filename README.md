@@ -177,3 +177,5 @@ la suscripción con código privado y elegir Push por consentimiento separado.
 `PUSH_ALERTS=false` y `PUSH_DELIVERY=false` mantienen recepción/envíos desactivados.
 [Configuración, privacidad, límites y rollback](docs/architecture/aegis-5-push.md).
 No se activó en producción ni se verificó entrega real en proveedores/dispositivos.
+
+PR-08: [feeds y revisión de noticias](docs/architecture/aegis-5-feeds.md), sin ingesta automática, permisos reales ni artículos completos; OSINT_NEWS=false.

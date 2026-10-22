@@ -122,3 +122,5 @@ bypass of the localhost restriction, or injection via scraped sources.
 - The /watch/ service worker caches static shell only, never API/receipts/v4.
   Logical expiry and deletion do not erase old WAL/snapshots; protect those copies.
   PUSH_DELIVERY is a separate OFF gate; no real Push was sent in development.
+
+- PR-08 fetch uses fixed HTTPS feed/robots registry, bounded bodies and timeout, no redirects or arbitrary URL fetch. XML DTD rejected, no article/script/image execution. Persistent permission record and per-item human rights/geography review gate publication; lexical classification never confirms incidents. Source permission expiry/revocation hides feed evidence while preserving audit. Local CLI only, OSINT_NEWS OFF.
