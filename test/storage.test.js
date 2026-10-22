@@ -26,7 +26,8 @@ async function memory(t, options = {}) {
   t.after(() => store.close());
   return store;
 }
-const migration = sql => ({ version: 2, sql, checksum: createHash("sha256").update(sql).digest("hex") });
+const latest = MIGRATIONS.length;
+const migration = sql => ({ version: latest + 1, sql, checksum: createHash("sha256").update(sql).digest("hex") });
 
 test("SQLite WAL survives a new process and repeated migrations; v4 JSON untouched", async t => {
   const directory = temporary(t);
@@ -41,7 +42,7 @@ test("SQLite WAL survives a new process and repeated migrations; v4 JSON untouch
     const s=await openStore({directory:process.argv[1],synthetic:true});
     console.log(JSON.stringify({info:s.info(),observation:s.repositories.observations.get('demo-observation')}));s.close();`;
   const result = JSON.parse(execFileSync(process.execPath, ["--input-type=module", "-e", source, directory], { encoding: "utf8" }));
-  assert.equal(result.info.version, 1);
+  assert.equal(result.info.version, latest);
   assert.equal(result.observation.occurred_at, "2026-10-22T00:00:00.000Z");
   assert.equal(result.observation.observed_at, null);
   assert.deepEqual(fs.readFileSync(legacy), original);
@@ -108,7 +109,7 @@ test("online snapshot captures WAL and restores into a new directory without ove
   store.writeBatch(demoBatch());
   assert.ok(fs.existsSync(path.join(directory, "aegis-v5.sqlite-wal")));
   const snapshot = await store.backup();
-  assert.equal(verifySnapshot(snapshot), 1);
+  assert.equal(verifySnapshot(snapshot), latest);
   const restoreDirectory = path.join(directory, "restored");
   await restoreSnapshot(snapshot, restoreDirectory);
   const restored = await openStore({ directory: restoreDirectory, synthetic: true });
@@ -146,10 +147,10 @@ test("migration failure rolls back DDL and rows, creates a restorable pre-migrat
   await assert.rejects(openStore({ directory, synthetic: true, now, migrations: [...MIGRATIONS, badMigration] }), /nonexistent/);
   const snapshots = fs.readdirSync(path.join(directory, "backups")).filter(file => file.startsWith("pre-migration-"));
   assert.equal(snapshots.length, 1);
-  assert.equal(verifySnapshot(path.join(directory, "backups", snapshots[0])), 1);
+  assert.equal(verifySnapshot(path.join(directory, "backups", snapshots[0])), latest);
   const db = new DatabaseSync(path.join(directory, "aegis-v5.sqlite"));
   assert.equal(db.prepare("SELECT name FROM sqlite_master WHERE name='transient'").get(), undefined);
-  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 1);
+  assert.equal(db.prepare("PRAGMA user_version").get().user_version, latest);
   db.close();
   const reopened = await openStore({ directory, synthetic: true, now });
   assert.equal(reopened.repositories.observations.list().length, 1); reopened.close();
@@ -165,7 +166,7 @@ test("successful version upgrade is repeatable; older code refuses future schema
   const migrations = [...MIGRATIONS, migration("CREATE TABLE next_version(id INTEGER PRIMARY KEY) STRICT;")];
   for (let i = 0; i < 2; i++) {
     const upgraded = await openStore({ directory, synthetic: true, now, migrations });
-    assert.equal(upgraded.info().version, 2); upgraded.close();
+    assert.equal(upgraded.info().version, latest + 1); upgraded.close();
   }
   const file = path.join(directory, "aegis-v5.sqlite"), before = fs.readFileSync(file);
   await assert.rejects(openStore({ directory, synthetic: true }), /incompatible/);
@@ -239,14 +240,14 @@ test("operator CLI init/status/backup/verify/restore works; status never creates
   }).trim();
   assert.throws(() => cli("status"));
   assert.equal(fs.existsSync(dbDirectory), false);
-  assert.equal(JSON.parse(cli("init")).version, 1);
-  assert.equal(JSON.parse(cli("status")).version, 1);
+  assert.equal(JSON.parse(cli("init")).version, latest);
+  assert.equal(JSON.parse(cli("status")).version, latest);
   const snapshot = cli("backup");
   assert.match(cli("verify", snapshot), /válido/);
   const restored = path.join(directory, "restored");
   assert.equal(cli("restore", snapshot, restored), path.join(restored, "aegis-v5.sqlite"));
   assert.throws(() => cli("restore", snapshot, dbDirectory));
-  assert.equal(JSON.parse(cli("status")).version, 1);
+  assert.equal(JSON.parse(cli("status")).version, latest);
 });
 
 test("writer lock covers snapshot and migration with no commit gap; failed snapshots release lock", async t => {
@@ -275,7 +276,7 @@ test("writer lock covers snapshot and migration with no commit gap; failed snaps
     return snapshotFile;
   } });
   upgraded.close();
-  assert.equal(attempts, 2); assert.equal(verifySnapshot(snapshotFile), 1);
+  assert.equal(attempts, 2); assert.equal(verifySnapshot(snapshotFile), latest);
   const reader = new DatabaseSync(file);
   assert.equal(reader.prepare("SELECT value FROM settings WHERE key='concurrent-write'").get(), undefined);
   reader.exec("INSERT INTO settings(key,value) VALUES('after-migration','ok')");reader.close();

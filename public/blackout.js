@@ -3,7 +3,7 @@
   "use strict";
   const $ = id => document.getElementById(id);
   const state = { mode: null, areas: new Map(), events: [], areaId: "", areaOffset: null,
-    eventOffset: null, areaQuery: "", searchVersion: 0, eventVersion: 0, map: null, mapLoading: false };
+    eventOffset: null, areaQuery: "", searchVersion: 0, eventVersion: 0, summaryVersion: 0, map: null, mapLoading: false };
   const kinds = { province: "Provincia", canton: "Cantón", parish: "Parroquia", sector: "Sector" };
   const statuses = { reported: "Reportado · sin confirmar", corroborated: "Corroborado", official: "Oficial",
     ended: "Finalizado según evidencia", unknown: "Desconocido / corregido" };
@@ -73,6 +73,24 @@
   function timeBlock(label, value) {
     const block = node("div"); block.append(node("span", label), node("strong", date(value))); return block;
   }
+  async function loadReportSummary() {
+    const version = ++state.summaryVersion;
+    const area = state.areas.get(state.areaId), panel = $("citizen-summary");
+    if (!$("reports-link") || area?.type !== "sector") { panel.hidden = true; return; }
+    panel.hidden = false; panel.textContent = "Consultando reportes agregados del sector…";
+    const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 10000);
+    try {
+      const response = await fetch(`/api/v1/report-summary?area_id=${encodeURIComponent(area.id)}`, { cache: "no-store", signal: controller.signal });
+      if (!response.ok) throw new Error("Unavailable");
+      const summary = await response.json();
+      if (state.areaId !== area.id || version !== state.summaryVersion) return;
+      panel.textContent = summary.suppressed
+        ? "Reportes ciudadanos: agregado insuficiente (grupos menores de tres reportes aprobados no se publican). Suministro desconocido."
+        : `Reportes ciudadanos en 24 horas: ${summary.approved_reports} aprobados; ${summary.outage_reports} de falta de luz, ${summary.restoration_reports} de retorno observado. No prueban independencia ni cortes en todo el sector.`;
+      panel.append(document.createTextNode(` Consulta: ${date(summary.generated_at)}.`));
+    } catch { if (state.areaId === area.id && version === state.summaryVersion) panel.textContent = "No se pudo consultar el agregado ciudadano. Suministro desconocido."; }
+    finally { clearTimeout(timeout); }
+  }
   function eventCard(event) {
     const article = node("article", undefined, "event-card");
     const title = node("h3", event.area_name || "Área sin referencia");
@@ -138,6 +156,7 @@
   }
   async function loadEvents({ append = false, clear = false } = {}) {
     const version = ++state.eventVersion;
+    if (!append) loadReportSummary();
     if (clear) {
       state.events = []; $("event-list").replaceChildren();
       if (state.map) state.map.update([]);

@@ -17,6 +17,7 @@ import { buildAssessment } from "./assessment.js";
 import { readFeatureFlags } from "./feature-flags.js";
 import { isPublicV1Request, registerPublicV1 } from "./api/public-v1.js";
 import { emptyReader } from "./storage/public-reader.js";
+import { isCitizenReportRequest } from "./api/citizen-reports.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const localIP = (ip) => ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(ip);
@@ -36,6 +37,7 @@ export async function createApp({
   now = () => new Date(),
   mac = process.env.AMBIENT_MAC,
   flags = readFeatureFlags(),
+  reportsOrigin = process.env.REPORTS_ORIGIN,
   openV5Store = async () => {
     const { openStore } = await import("./storage/sqlite-store.js");
     return openStore({ now });
@@ -45,6 +47,14 @@ export async function createApp({
   if (features.BLACKOUT_MAP && !features.PUBLIC_API_V1) throw new Error("BLACKOUT_MAP requiere PUBLIC_API_V1");
   if (features.BLACKOUT_DEMO && (!features.BLACKOUT_MAP || features.SQLITE_STORAGE)) {
     throw new Error("BLACKOUT_DEMO requiere BLACKOUT_MAP y SQLITE_STORAGE apagado; demo aislada en memoria");
+  }
+  if (features.CITIZEN_REPORTS && (!features.BLACKOUT_MAP || !features.BLACKOUT_DEMO && !features.SQLITE_STORAGE)) {
+    throw new Error("CITIZEN_REPORTS requiere mapa y SQLite live o demo aislada");
+  }
+  if (features.CITIZEN_REPORTS && !features.BLACKOUT_DEMO) {
+    let valid = false;
+    try { const url = new URL(reportsOrigin); valid = url.origin === reportsOrigin && url.protocol === "https:"; } catch { /* Fail closed. */ }
+    if (!valid) throw new Error("Configurar REPORTS_ORIGIN como origen HTTPS canónico antes de habilitar reportes live");
   }
   const app = Fastify({ logger: false });
   await app.register(rateLimit, {
@@ -56,6 +66,7 @@ export async function createApp({
   app.addHook("onRequest", async (req, reply) => {
     const endpoint = req.url.split("?")[0];
     if (features.PUBLIC_API_V1 && isPublicV1Request(req)) return;
+    if (features.CITIZEN_REPORTS && isCitizenReportRequest(req)) return;
     if (!endpoint.startsWith("/api/") || localIP(req.ip)) return;
     if (endpoint === "/api/status") {
       const host = originHost(req.headers.host || "");
@@ -72,12 +83,14 @@ export async function createApp({
       .send({ error: "Acceso al panorama desde el dashboard" });
   });
   let publicReader = emptyReader;
+  let reportStore;
   if (features.SQLITE_STORAGE) {
     // Optional storage is never used in place of the v4 HistoryStore.
     const v5Store = await openV5Store();
     app.decorate("v5Store", v5Store);
     app.addHook("onClose", async () => v5Store.close());
     publicReader = v5Store.publicReader || emptyReader;
+    reportStore = v5Store;
   }
   if (features.BLACKOUT_DEMO) {
     const { openStore } = await import("./storage/sqlite-store.js");
@@ -87,8 +100,11 @@ export async function createApp({
     } catch (error) { demoStore.close(); throw error; }
     app.addHook("onClose", async () => demoStore.close());
     publicReader = demoStore.publicReader;
+    reportStore = demoStore;
   }
-  if (features.PUBLIC_API_V1) await registerPublicV1(app, { now, blackout: features.BLACKOUT_MAP, reader: publicReader });
+  if (features.PUBLIC_API_V1) await registerPublicV1(app, { now, blackout: features.BLACKOUT_MAP, reader: publicReader,
+    reporting: features.CITIZEN_REPORTS ? { store: reportStore, origin: reportsOrigin } : null,
+  });
   const caches = new Map();
   const inflight = new Map();
   const getText = async (url, options) => {
@@ -182,7 +198,14 @@ export async function createApp({
     .header("Cache-Control", "no-store")
     .header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
     .header("Referrer-Policy", "no-referrer")
-    .type("text/html").send(fs.readFileSync(path.join(directory, "public/blackout.html"))));
+    .type("text/html").send(fs.readFileSync(path.join(directory, "public/blackout.html"), "utf8").replace("<!-- reports-link -->",
+      features.CITIZEN_REPORTS ? '<a id="reports-link" class="secondary report-link" href="/report">Reportar o gestionar un reporte →</a>' : "")
+      .replace("<!-- report-availability -->", features.CITIZEN_REPORTS
+        ? "Los reportes requieren revisión y solo se consultan agregados por sector. Las notificaciones aún no están habilitadas."
+        : "Reportar, suscribirse y recibir notificaciones se habilitarán en etapas posteriores.")));
+  if (features.CITIZEN_REPORTS) app.get("/report", (_, reply) => reply.header("Cache-Control", "no-store")
+    .header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
+    .header("Referrer-Policy", "no-referrer").type("text/html").send(fs.readFileSync(path.join(directory, "public/report.html"))));
   const assets = {
     "app.js": "text/javascript",
     "style.css": "text/css",
@@ -193,6 +216,7 @@ export async function createApp({
     "blackout.js": "text/javascript", "blackout.css": "text/css", "blackout-map.js": "text/javascript",
     "map/ecuador.geojson": "application/geo+json",
   });
+  if (features.CITIZEN_REPORTS) Object.assign(assets, { "report.js": "text/javascript", "report.css": "text/css" });
   for (const [file, type] of Object.entries(assets))
     app.get(`/assets/${file}`, (_, reply) => {
       const asset = path.join(directory, "public", file);

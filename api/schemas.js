@@ -58,7 +58,7 @@ export const scheduleSchema = object({
 });
 
 export const errorSchema = object({ error: object({
-  code: enumeration("INVALID_REQUEST", "NOT_FOUND", "RATE_LIMITED", "INTERNAL_ERROR"),
+  code: enumeration("INVALID_REQUEST", "NOT_FOUND", "RATE_LIMITED", "INTERNAL_ERROR", "CONFLICT", "FORBIDDEN", "VERIFICATION_REQUIRED", "PAYLOAD_TOO_LARGE"),
   message: text,
 }) });
 

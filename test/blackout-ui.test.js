@@ -7,11 +7,11 @@ import { HistoryStore } from "../history.js";
 
 const html = fs.readFileSync(new URL("../public/blackout.html", import.meta.url), "utf8");
 const script = fs.readFileSync(new URL("../public/blackout.js", import.meta.url), "utf8");
-async function setup(t, { live = false, transform = value => value } = {}) {
+async function setup(t, { live = false, reporting = false, transform = value => value } = {}) {
   const app = await createApp({ store: new HistoryStore(), flags: {
-    PUBLIC_API_V1: true, BLACKOUT_MAP: true, BLACKOUT_DEMO: !live,
+    PUBLIC_API_V1: true, BLACKOUT_MAP: true, BLACKOUT_DEMO: !live, CITIZEN_REPORTS: reporting,
   } });
-  const dom = new JSDOM(html, { url: "http://localhost/map", runScripts: "outside-only" });
+  const dom = new JSDOM(reporting ? (await app.inject("/map")).body : html, { url: "http://localhost/map", runScripts: "outside-only" });
   const window = dom.window;
   const calls = [];
   let offline = false;
@@ -108,4 +108,19 @@ test("external titles and evidence remain text, never executable HTML", async t 
   await until(() => document.querySelectorAll(".evidence-list li").length === 2);
   assert.equal(document.querySelectorAll(".event-card img,.event-card svg,.event-card script").length, 0);
   assert.match(document.querySelector(".evidence-list").textContent, /<svg/);
+});
+
+test("map shows moderated citizen aggregate separately without adding incidents or loading household pins", async t => {
+  const page = await setup(t, { reporting: true, transform(body, url) {
+    if (url.includes("report-summary")) return { ...body, suppressed: false, approved_reports: 3, outage_reports: 2, restoration_reports: 1 };
+    return body;
+  } });
+  page.document.getElementById("area-search").value = "Pallatanga";
+  await page.window.AegisBlackout.search();
+  [...page.document.querySelectorAll("#area-options button")].find(button => button.textContent.includes("ejemplo A")).click();
+  await until(() => page.document.querySelectorAll(".event-card").length === 1 && page.document.getElementById("citizen-summary").textContent.includes("3 aprobados"));
+  assert.match(page.document.getElementById("citizen-summary").textContent, /No prueban independencia/);
+  assert.match(page.document.getElementById("citizen-summary").textContent, /Consulta:/);
+  assert.equal(page.calls.some(url => url.includes("geojson")), false);
+  assert.ok(page.document.querySelector('a[href="/report"]'));
 });

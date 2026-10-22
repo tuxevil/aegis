@@ -5,6 +5,7 @@ import { inspectDatabase, migrate, MIGRATIONS } from "./migrations.js";
 import { createRepositories } from "./repositories.js";
 import { snapshot, verifyDatabase, pruneDailySnapshots } from "./backups.js";
 import { createPublicReader } from "./public-reader.js";
+import { createCitizenReports } from "./citizen-reports.js";
 
 export async function openStore({
   directory = process.env.DB_DIR || ".data/v5",
@@ -13,6 +14,7 @@ export async function openStore({
   maxBytes = Number(process.env.DB_MAX_BYTES || 64 * 1024 * 1024),
   migrations = MIGRATIONS,
   takeSnapshot = snapshot,
+  allowMigrations = true,
 } = {}) {
   if (typeof synthetic !== "boolean" || !Number.isSafeInteger(maxBytes) || maxBytes < 65536) throw new Error("Configuración SQLite inválida");
   if (directory !== ":memory:") fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
@@ -22,6 +24,7 @@ export async function openStore({
   try {
     const applied = inspectDatabase(db, migrations);
     const pending = applied.length < migrations.length;
+    if (pending && !allowMigrations) throw new Error("Migración pendiente; ejecutar init explícitamente antes de operar");
     const pageSize = db.prepare("PRAGMA page_size").get().page_size;
     const maxPages = Math.floor(maxBytes / pageSize);
     if (db.prepare("PRAGMA page_count").get().page_count > maxPages) throw new Error("Base excede límite; no se recorta historial");
@@ -66,6 +69,7 @@ export async function openStore({
     const store = {
       repositories,
       publicReader: createPublicReader(db, { synthetic, available }),
+      reports: createCitizenReports(db, { synthetic, available, transaction: work => store.transaction(work), now }),
       transaction(work) {
         available();
         if (writing || typeof work !== "function" || work.constructor.name === "AsyncFunction") throw new Error("Transacción síncrona, sin anidación");

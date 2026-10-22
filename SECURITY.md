@@ -50,5 +50,27 @@ bypass of the localhost restriction, or injection via scraped sources.
   with credentials, query or fragment are withheld. Demo lives only in memory
   and refuses enabling live SQLite concurrently. The optional local map never
   uses household coordinates or external tile requests. `/map` has a local-only
-  CSP; user/source text uses textContent. No writes, report receipts or Push
-  endpoints are exposed by these routes.
+  CSP; user/source text uses textContent. These read routes expose no writes,
+  report receipts or Push endpoints.
+
+- PR-04 registers explicit citizen-report methods only with CITIZEN_REPORTS.
+  A canonical HTTPS REPORTS_ORIGIN is mandatory for live reception; JSON, custom
+  request header and browser-origin/fetch-metadata checks mitigate CSRF, never
+  substitute for receipt authorization. Management requires a 256-bit bearer
+  secret generated with browser CSPRNG; only its SHA256 is stored. No token in
+  URL, localStorage, public output or screenshots. Logger stays disabled.
+- Citizen inputs are closed enums/sector IDs/optional dates, without free text,
+  household coordinates, contact data or uploads. All create/correct operations
+  go to moderation. Local CLI approves an exact revision; no admin HTTP route.
+  Aggregates suppress fewer than three approved reports per sector/24 h and do
+  not assert independent sources, blackout confirmation or restoration.
+- Report abuse state uses per-process ephemeral keyed IP fingerprints in bounded
+  RAM, expires within an hour plus a minute sweep, and never enters SQLite or
+  backups. Quotas reset on restart and are not shared across replicas. Progressive
+  textual arithmetic/honeypot are friction for a controlled pilot, not robust
+  human verification against adaptive bots. Keep the flag OFF pending source,
+  moderation, infrastructure/privacy review for the intended reception volume.
+- Report rows logically expire after 30 days (withdrawn/rejected after seven);
+  old revisions/reviews cascade on pruning. Snapshots can retain prior values:
+  daily backups and pre-migration snapshots have distinct operational retention.
+  Preserve current volumes on rollback and audit logging at any external proxy.
