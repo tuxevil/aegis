@@ -57,9 +57,10 @@ export function createPublicReader(db, { synthetic, available, now = () => new D
   const visibilityValues = [...modes, ...modes];
   return Object.freeze({
     synthetic,
-    listAreas({ q = "", parent_id = null, type = null, limit = 21, offset = 0 } = {}) {
+    listAreas({ id = null, q = "", parent_id = null, type = null, limit = 21, offset = 0 } = {}) {
       available();
       const conditions = ["areas.synthetic=?"], values = [mode];
+      if(id){conditions.push("areas.id=?");values.push(id);}
       if (q) {
         conditions.push(`EXISTS(SELECT 1 FROM tree t JOIN areas ancestor ON ancestor.id=t.root
           WHERE t.id=areas.id AND public_search(ancestor.name) LIKE ? ESCAPE '\\')`);

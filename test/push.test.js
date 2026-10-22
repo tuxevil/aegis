@@ -587,3 +587,10 @@ test("receive proof cannot revive revoked ownership or an unattempted job", asyn
   store.subscriptions.revoke(first.owner.id, first.payload.management_token);
   assert.equal(store.subscriptions.validateDelivery(proof).current, false);
 });
+
+test('remapped sector receives new schedule without another areas predecessor hours',async t=>{
+ const {store,schedule,create}=await setupPush(t);schedule('v1');store.schedules.ingest({provider_id:'eeasa-maintenance',body:document('v2')});const row=store.schedules.queue().find(r=>r.type==='maintenance');
+ store.schedules.bind({provider_id:'eeasa-maintenance',sector_label:row.sector_label,area_id:'sector-2',reference_url:'https://www.eeasa.com.ec/trabajos-programadas/',review_reason:'Synthetic corrected sector',expected_binding:1});
+ store.schedules.review({revision_id:row.id,decision:'reviewed',rights_reviewed:true,review_reason:'Synthetic new area review'});
+ create({areas:[{area_id:'sector-2',alias:'Synthetic corrected sector'}]});store.subscriptions.enqueue();const job=store.subscriptions.claim();assert.ok(job);assert.ok(!job.payload.body.includes('Antes:'));assert.match(job.payload.title,/programación/);
+});
