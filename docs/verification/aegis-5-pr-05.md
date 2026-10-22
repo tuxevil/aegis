@@ -85,3 +85,20 @@ La revisión de PR #13 detectó que una sustitución después retirada/rechazada
 fuente deshabilitada seguía suprimiendo al predecesor. El cálculo ahora aplica
 `replaces` solo desde entradas publicables, conservando la cadena completa en la
 auditoría. Regresión para los tres casos: suite de correlación 18/18 aprobada.
+
+## Revalidación 2026-10-22
+
+Se incorporó PR-04 actualizado (`ac34312`) a la rama de trabajo, manteniendo
+los PR abiertos y main intacto. `npm ci` correcto (cero vulnerabilidades),
+`npm run check` correcto y **109/109** tests en Node v24.21.0; **109/109**
+también en Node 22.16 Alpine sin red y con el repositorio en solo lectura.
+`git diff --check` limpio. Se conserva la corrección `51172ea` y su prueba de
+replacements retirados/rechazados o con fuente deshabilitada, sin borrar auditoría.
+
+Sin cambios de runtime adicionales ni dependencias nuevas. No se repitió
+verificación visual: HTML/CSS/JS de producto no cambian frente a PR-04; las
+regresiones DOM de consola, mapa y reportes pasan en la suite completa.
+No se repitió build Docker en esta revalidación; la evidencia anterior se
+mantiene identificada como tal. Sin datos live, acceso a volúmenes reales,
+merge de PR ni deploy. Flags siguen OFF y limitaciones operativas vigentes.
+Próximo bloque: PR-06, tras revisión de dependencias; fuera de este cambio.
