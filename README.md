@@ -183,3 +183,5 @@ PR-08: [feeds y revisión de noticias](docs/architecture/aegis-5-feeds.md), sin 
 PR-09: [decisión NO-GO para redes sociales](docs/research/aegis-5-social-feasibility.md); sin acceso, gasto o scraping habilitado. No bloquea el replay histórico.
 
 PR-10: [Time Machine y exportaciones](docs/architecture/aegis-5-timeline.md), /history/ y API paginada bajo TIME_MACHINE=false. Distingue tiempo del hecho y conocimiento, sin inventar historia.
+
+PR-11: [explorador educativo de infraestructura](docs/architecture/aegis-5-explorer.md), EXPLORER_3D=false. Cota y fechas separadas de una geometría ilustrativa; sin DEM/batimetría ni reserva energética calculada.

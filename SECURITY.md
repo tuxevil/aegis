@@ -126,3 +126,5 @@ bypass of the localhost restriction, or injection via scraped sources.
 - PR-08 fetch uses fixed HTTPS feed/robots registry, bounded bodies and timeout, no redirects or arbitrary URL fetch. XML DTD rejected, no article/script/image execution. Persistent permission record and per-item human rights/geography review gate publication; lexical classification never confirms incidents. Source permission expiry/revocation hides feed evidence while preserving audit. Local CLI only, OSINT_NEWS OFF.
 
 - PR-10 replay applies current publication/privacy gates and safety holds, never resurrects withdrawn evidence via old known_at. Public projection excludes audit reasons/inputs and private identities. CSV formula prefixes neutralized. TIME_MACHINE OFF; fixed public GET and local-only UI CSP, bounded range/pages/evidence.
+
+- PR-11 narrow infrastructure GET projects only public cota/date/history from v4 cached loader, never station MAC or raw errors. Illustrative mesh is local and optional, no external terrain/scripts, DOM textContent/CSP. No volume/reserve/prediction claim; source TLS limitation inherited from v4 remains explicit.
