@@ -76,7 +76,7 @@ export async function openStore({
       repositories,
       timeline: createTimeline(db,{synthetic,available,now,getReader:()=>store.publicReader}),
       feeds: createFeeds(db, { synthetic, now, available, transaction: work => store.transaction(work), getRepositories: () => repositories }),
-      publicReader: createPublicReader(db, { synthetic, available, now }),
+      publicReader: createPublicReader(db, { synthetic, available, now, projectEvent: id => store.correlation.project(id) }),
       reports: createCitizenReports(db, { synthetic, available, transaction: work => store.transaction(work), now }),
       subscriptions: createSubscriptions(db, { synthetic, available, transaction: work => store.transaction(work), now, key: pushStorageKey, getSchedules: () => store.schedules }),
       schedules: createSchedules(db, { synthetic, available, transaction: work => store.transaction(work), now }),

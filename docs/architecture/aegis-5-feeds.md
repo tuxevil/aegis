@@ -32,8 +32,9 @@ evidence_url HTTPS sin credenciales/query/fragmento y reason de revisión. Máxi
 180 días; usar rechazo explícito al revocar, conservando decisiones anteriores.
 OSINT_RIGHTS_REVIEWED es confirmación adicional; no sustituye el registro vigente.
 Estado de permiso revocado/expirado oculta la evidencia en lector público sin borrar
-artículos/observaciones. Cambios de licencia requieren recalcular casos existentes
-mediante PR-05, especialmente si mezclan otras fuentes todavía publicables.
+artículos/observaciones. La proyección pública recalcula afirmaciones con permisos vigentes, también en
+casos mixtos. PR-05 permite persistir explícitamente ese recálculo como revisión
+auditable; no modifica snapshots anteriores.
 
 ## Recolección y parseo
 

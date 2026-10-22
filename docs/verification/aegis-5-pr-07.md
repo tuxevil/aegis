@@ -87,3 +87,9 @@ recifrado automático o recuperación sin código privado.
 Rollback: flags OFF y reiniciar, conservar ambos stores y claves. Código anterior
 usa SQLite OFF o snapshot pre-005 en otro directorio, preservando datos nuevos.
 Próximo bloque PR-08: feeds legales, clasificación y revisión de ambigüedad.
+
+Revisión automática corregida: cuotas separadas de alta (30 intentos/h), gestión
+(600/h) y validación de recepción (6000/h), manteniendo rate limit de ruta.
+Predecesor de horario exige misma área revisada. Deep link consulta sector exacto
+por filtro público id sin cambiar selección/preferencias privadas. Tres regresiones
+nuevas; npm ci audit0, check y **160/160** tras correcciones.

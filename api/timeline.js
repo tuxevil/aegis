@@ -163,7 +163,7 @@ export function registerTimeline(app, { store, now }) {
             "Content-Disposition",
             'attachment; filename="aegis-timeline.csv"',
           );
-        return timelineCsv(result.data);
+        return timelineCsv(result.data, result);
       }
       const { data, ...meta } = result;
       return {

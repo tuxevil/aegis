@@ -77,3 +77,7 @@ TIME_MACHINE=false y reiniciar oculta UI/API, conserva ambos stores y revisiones
 Sin migración de esquema en PR-10; nunca restaurar sobre base activa o inventar
 registro histórico para llenar una pantalla. Próximo PR-11: explorador ilustrativo
 2D/3D progresivo con fuentes/límites geográficos/documentales.
+
+Corrección de revisión: rango se aplica después de redacción; fechas ocultas se
+comparan como desconocidas, evitando un oráculo por consultas estrechas. CSV añade
+evidence_json con procedencia/relaciones/fechas, bases y known_at/from/to.

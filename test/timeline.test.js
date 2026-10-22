@@ -137,3 +137,12 @@ test('duration is reported only after sufficient independent restoration evidenc
  set('2026-10-22T12:10:00Z');add('restore-one','restored',one.event.id);assert.equal(store.timeline.list(query()).data[0].duration_seconds,null);
  set('2026-10-22T12:20:00Z');add('restore-two','restored',one.event.id);const row=store.timeline.list(query()).data[0];assert.equal(row.status,'ended');assert.equal(row.duration_seconds,3600);assert.equal(row.end_at,'2026-10-22T11:00:00.000Z');
 });
+
+test('redacted time is matched as unknown before range filtering, preventing a hidden-interval oracle',async t=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'aegis-redacted-time-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));const {store,add,set,query}=await setupTimeline(t,{directory});add('hidden');set('2026-10-22T12:10:00Z');add('visible');const db=new DatabaseSync(path.join(directory,'aegis-v5.sqlite'));t.after(()=>db.close());db.exec("UPDATE sources SET enabled=0 WHERE id='source_hidden'");
+ const current=store.timeline.list(query()).data,earlier=store.timeline.list({...query(),from:'2024-01-01T00:00:00Z',to:'2024-01-02T00:00:00Z'}).data;assert.equal(current.length,1);assert.equal(earlier.length,1);assert.equal(earlier[0].redacted,true);assert.equal(earlier[0].start_at,null);assert.equal(earlier[0].event_id,current[0].event_id);
+});
+test('CSV retains evidence relation/publication/ingestion even when a URL is withheld',()=>{
+ const value=timelineCsv([{event_id:'event',area_name:'public',type:'unplanned',status:'unknown',start_at:null,end_at:null,recorded_at:'2026-10-22T12:00:00Z',revision:2,duration_seconds:null,synthetic:true,evidence:[{source_url:null,source_name:'Reviewed source',relation:'retraction',source_published_at:'2026-10-21T12:00:00Z',ingested_at:'2026-10-22T12:00:00Z'}]}],{known_at:'2026-10-23T00:00:00Z'});
+ assert.match(value,/Reviewed source/);assert.match(value,/retraction/);assert.match(value,/2026-10-21T12:00:00Z/);assert.match(value,/2026-10-23T00:00:00Z/);
+});
