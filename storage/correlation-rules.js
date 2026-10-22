@@ -39,7 +39,7 @@ export function independentGroups(claims) {
 }
 
 export function deriveEvent(event, claims) {
-  const groups = independentGroups(claims), removed = new Set(claims.map(c => c.replaces).filter(Boolean));
+  const groups = independentGroups(claims), removed = new Set(claims.filter(c => c.publishable).map(c => c.replaces).filter(Boolean));
   const groupByObservation = new Map(claims.map((c,i) => [c.observation_id,groups[i]]));
   const active = claims.filter(c => !removed.has(c.observation_id) && c.signal !== "retraction" && c.publishable);
   const activeIds = new Set(active.map(c => c.observation_id));

@@ -78,3 +78,10 @@ BLACKOUT_MAP=false suspende esa publicación. No se tocó producción.
 Próximo, tras revisar esta cadena de PRs: **PR-06**, investigar proveedor oficial
 viable/licencia/formatos y añadir captura versionada de cronogramas con fixtures
 y asignación verificable de zona. No se implementó PR-06 en esta entrega.
+
+## Corrección de revisión posterior
+
+La revisión de PR #13 detectó que una sustitución después retirada/rechazada o de
+fuente deshabilitada seguía suprimiendo al predecesor. El cálculo ahora aplica
+`replaces` solo desde entradas publicables, conservando la cadena completa en la
+auditoría. Regresión para los tres casos: suite de correlación 18/18 aprobada.

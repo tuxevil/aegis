@@ -264,3 +264,18 @@ test("live pre-engine elevated claims are downgraded at publication without rewr
     competence:{area_id:"demo-area",from:"2026-10-22T00:00:00Z",to:"2026-10-23T00:00:00Z"},review_reason:"Fixture local de documento competente"});
   assert.equal(store.publicReader.getEvent(reviewed.event.id).status,"official");
 });
+
+test("non-public replacements stop suppressing their predecessor while retaining audit history", async t => {
+  const directory=temporary(t), {store,submit}=await setup(t,{directory});
+  const first=submit({id:"review-base-one"});submit({id:"review-base-two"});
+  submit({id:"review-withdrawal",signal:"retraction",replaces:"review-base-two"});
+  const db=new DatabaseSync(path.join(directory,"aegis-v5.sqlite"));t.after(()=>db.close());
+  for(const state of ["withdrawn","rejected"]) {
+    db.prepare("UPDATE observations SET moderation_state=? WHERE id='review-withdrawal'").run(state);
+    const result=store.correlation.recalculate(first.event.id);
+    assert.equal(result.event.status,"corroborated");assert.deepEqual(result.facts.retracted_observations,[]);
+  }
+  db.exec("UPDATE observations SET moderation_state='approved' WHERE id='review-withdrawal'; UPDATE sources SET enabled=0 WHERE id='s_review-withdrawal'");
+  assert.equal(store.correlation.recalculate(first.event.id).event.status,"corroborated");
+  assert.equal(store.correlation.decisions(first.event.id).length,3);
+});
