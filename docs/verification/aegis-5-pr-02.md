@@ -106,3 +106,14 @@ Seguimiento de revisión durante PR-03:
 - P2: engines.node en package.json y package-lock.json se alinean a >=22.16.
 - Nueva suite: 55 tests (14 de storage). Las notas anteriores describen la primera
   entrega; este seguimiento documenta las correcciones de revisión.
+
+## Revalidación 2026-10-22
+
+En worktree aislado sobre `344c08c`: `npm ci` correcto (cero vulnerabilidades),
+`npm run check` correcto y `npm test` **55/55** en Node v24.21.0.
+Suite completa **55/55** también en `node:22.16.0-alpine`, sin red y con
+el repositorio montado en solo lectura. `git diff --check` limpio.
+Se corrigió la errata del README «22.16.16» a «22.16», coherente con engines.
+Sin cambios de runtime, nuevas dependencias, acceso a DATA_DIR real ni despliegue.
+Las limitaciones de SQLite síncrono, WAL y backups no programados siguen vigentes.
+Próximo bloque: PR-03, una vez revisadas las dependencias; no incluido aquí.
