@@ -35,6 +35,10 @@ export async function createApp({
   now = () => new Date(),
   mac = process.env.AMBIENT_MAC,
   flags = readFeatureFlags(),
+  openV5Store = async () => {
+    const { openStore } = await import("./storage/sqlite-store.js");
+    return openStore({ now });
+  },
 } = {}) {
   const features = readFeatureFlags(flags);
   const app = Fastify({ logger: false });
@@ -63,6 +67,12 @@ export async function createApp({
       .send({ error: "Acceso al panorama desde el dashboard" });
   });
   if (features.PUBLIC_API_V1) await registerPublicV1(app, { now });
+  if (features.SQLITE_STORAGE) {
+    // Optional storage is never used in place of the v4 HistoryStore.
+    const v5Store = await openV5Store();
+    app.decorate("v5Store", v5Store);
+    app.addHook("onClose", async () => v5Store.close());
+  }
   const caches = new Map();
   const inflight = new Map();
   const getText = async (url, options) => {
