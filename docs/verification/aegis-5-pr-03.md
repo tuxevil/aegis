@@ -124,3 +124,19 @@ productiva y cambio de inicio requieren su revisión. Sin formulario, recibo,
 moderación nueva, suscripciones, ingesta OSINT, timeline o 3D en esta entrega.
 Rollback: BLACKOUT_MAP=false y BLACKOUT_DEMO=false, reiniciar sin tocar stores.
 Próximo tras revisión/dependencias: PR-04, reportes con consentimiento y antiabuso.
+
+## Revalidación 2026-10-22
+
+Se incorporó la actualización documental de PR-02 (`ad85d8b`) a esta rama,
+sin cambiar main ni fusionar PRs. `npm ci` correcto (cero vulnerabilidades),
+`npm run check` y `npm test` **71/71** en Node v24.21.0. Suite completa
+**71/71** en Node 22.16.0 Alpine, sin red y con repositorio en solo lectura.
+
+Se repitió el script de Chromium en 320/390/768/1440 px: sin overflow,
+sin errores JS ni solicitudes externas; teclado, filtros, mapa y correcciones OK.
+Fallos inyectados de cartografía/API conservan la lista y señalan antigüedad.
+Recorrido local: 44.326 bytes por viewport, incluidas interacciones.
+Capturas móvil/escritorio inspeccionadas; artefactos en artifacts/ fuera de Git.
+No se probaron dispositivo físico ni lector de pantalla. Flags siguen OFF;
+sin datos live, migraciones adicionales, despliegue ni activación productiva.
+Próximo bloque: PR-04 tras revisión de dependencias, fuera de esta entrega.

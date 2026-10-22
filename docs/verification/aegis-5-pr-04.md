@@ -118,3 +118,21 @@ otro directorio con código compatible; conservar v2 con todos los reportes nuev
 Nunca sobrescribir ni borrar la base nueva para volver a la anterior.
 Próximo tras revisión/dependencias: PR-05, correlación de eventos/evidencia;
 no se empezó correlación, Push, fuentes oficiales nuevas u OSINT.
+
+## Revalidación 2026-10-22
+
+Rama actualizada con la documentación de PR-03 (`7e00437`), sin integrar PRs.
+`npm ci` correcto (cero vulnerabilidades), check correcto y **91/91** tests
+en Node v24.21.0; **91/91** en Node 22.16 Alpine sin red y montaje de solo lectura.
+
+El primer recorrido Chromium falló: el script de QA consultaba la visibilidad
+de la pregunta progresiva antes de completar la carga del challenge. Se cambió
+el orden para esperar la habilitación del envío antes de leer la pregunta.
+No se relajó la validación del formulario ni los controles del servidor.
+Repetición completa aprobada en 320/390/768/1440 px: alta, consulta con código,
+corrección y retiro, consentimiento inicialmente desmarcado, sin overflow,
+errores JS, tráfico externo ni recibos en URL/capturas. Check repetido correcto.
+Capturas/reporte permanecen en artifacts/ ignorado por Git. Sin pruebas en
+teléfono físico o lector de pantalla, sin captación real, merge de PR ni deploy.
+Siguen vigentes las limitaciones del guard de un proceso y borrado en backups.
+Próximo: PR-05 tras revisión de dependencias; fuera de este cambio.
