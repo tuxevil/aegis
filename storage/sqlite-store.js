@@ -1,3 +1,4 @@
+import { createTimeline } from "./timeline.js";
 import { createFeeds } from "./feeds.js";
 import fs from "node:fs";
 import path from "node:path";
@@ -73,6 +74,7 @@ export async function openStore({
     }, onWriteFailure: error => { writeFailure = error; } });
     const store = {
       repositories,
+      timeline: createTimeline(db,{synthetic,available,now,getReader:()=>store.publicReader}),
       feeds: createFeeds(db, { synthetic, now, available, transaction: work => store.transaction(work), getRepositories: () => repositories }),
       publicReader: createPublicReader(db, { synthetic, available, now }),
       reports: createCitizenReports(db, { synthetic, available, transaction: work => store.transaction(work), now }),
