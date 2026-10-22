@@ -290,3 +290,16 @@ test('migration 005 to 006 snapshots old history and restores old schema into a 
  const restoredDirectory=path.join(root,'restored');await restoreSnapshot(path.join(directory,'backups',snapshot),restoredDirectory);
  const restored=await openStore({directory:restoredDirectory,synthetic:true,migrations:MIGRATIONS.slice(0,5)});assert.equal(restored.info().version,5);restored.close();
 });
+
+test('different URLs with the same undated copied title preserve both artifact URLs through approval',async t=>{
+ const store=await setup(t),xml=Buffer.from('<rss><channel><item><title>Copiado sintético</title><link>https://www.celec.gob.ec/copy-a</link></item><item><title>Copiado sintético</title><link>https://www.celec.gob.ec/copy-b</link></item></channel></rss>');store.feeds.ingest('celec-news',xml);
+ for(const item of store.feeds.queue())store.feeds.review({item_id:item.id,decision:'approved',rights_reviewed:true,area_id:'area',summary:'Resumen propio '+item.url,reason:'Synthetic distinct URL review'});
+ assert.equal(store.repositories.artifacts.list().length,2);assert.equal(new Set(store.repositories.artifacts.list().map(a=>a.source_url)).size,2);
+});
+test('expired permission removes certainty from mixed-origin event projection and recalculation',async t=>{
+ let time=Date.parse('2026-10-22T14:00:00Z');const store=await setup(t,true,()=>new Date(time));store.feeds.ingest('celec-news',body);const item=store.feeds.queue()[0];const approved=store.feeds.review({item_id:item.id,decision:'approved',rights_reviewed:true,area_id:'area',occurred_at:'2026-10-22T12:00:00Z',summary:'Synthetic feed observation',reason:'Synthetic reviewed metadata'});
+ const fixture=JSON.parse(fs.readFileSync(new URL('./fixtures/storage-v1.json',import.meta.url)));store.writeBatch({sources:[{...fixture.sources[0],id:'independent',kind:'news',official:false,enabled:true,access_policy:'public'}],artifacts:[{...fixture.artifacts[0],id:'independent-artifact',source_id:'independent',sha256:'a'.repeat(64),source_url:'https://example.invalid/independent',extraction_status:'parsed'}],observations:[{...fixture.observations[0],id:'independent-observation',source_id:'independent',artifact_id:'independent-artifact',area_id:'area',dedupe_key:'independent',kind:item.category,occurred_at:'2026-10-22T12:00:00Z',temporal_confidence:'exact',moderation_state:'approved',summary:'Independent synthetic observation'}]});
+ const first=store.correlation.submit({observation_id:approved.observation_id,signal:'outage',type:'unplanned',origin_key:'reviewed-celec-news',origin_reviewed:true,review_reason:'Synthetic reviewed origin'});
+ store.correlation.submit({observation_id:'independent-observation',signal:'outage',type:'unplanned',origin_key:'independent-publisher',origin_reviewed:true,review_reason:'Independent reviewed origin'});assert.equal(store.publicReader.getEvent(first.event.id).status,'corroborated');
+ time=Date.parse('2026-11-02T00:00:00Z');assert.equal(store.publicReader.getEvent(first.event.id).status,'reported');assert.equal(store.repositories.events.get(first.event.id).status,'corroborated');assert.equal(store.correlation.recalculate(first.event.id).event.status,'reported');assert.equal(store.publicReader.listEvidence(first.event.id).length,1);
+});

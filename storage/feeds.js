@@ -225,7 +225,7 @@ export function createFeeds(
             source_url: item.url,
             source_published_at: item.published_at,
             fetched_at: item.first_seen_at,
-            sha256: item.revision_hash,
+            sha256: hash(JSON.stringify([item.url,item.revision_hash])),
             media_type: "application/xml",
             stored_ref: null,
             parse_version: "feed-1",
@@ -272,4 +272,11 @@ export function createFeeds(
         .all(item_id);
     },
   };
+}
+
+export function feedSourceAllowed(db,sourceId,now){
+ const provider=["celec-news","ministry-news"].find(id=>sourceId===`news_${id}`);if(!provider)return true;
+ if(!db.prepare("SELECT 1 FROM sqlite_master WHERE name='feed_permissions' AND type='table'").get())return false;
+ const permission=db.prepare("SELECT decision,valid_until FROM feed_permissions WHERE provider_id=? ORDER BY id DESC LIMIT 1").get(provider);
+ return Boolean(permission&&permission.decision==="approved"&&permission.valid_until>now().toISOString());
 }

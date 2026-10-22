@@ -19,7 +19,7 @@ export const emptyReader = Object.freeze({
   synthetic: false, listAreas: () => [], listEvents: () => [], listEvidence: () => [], getEvent: () => null,
 });
 
-export function createPublicReader(db, { synthetic, available, now = () => new Date() }) {
+export function createPublicReader(db, { synthetic, available, now = () => new Date(), projectEvent = () => null }) {
   db.function("public_search", { deterministic: true }, normalize);
   db.function("public_clock", () => now().toISOString());
   const feedsSchema = db.prepare("SELECT 1 FROM sqlite_master WHERE name='feed_permissions' AND type='table'").get();
@@ -35,6 +35,7 @@ export function createPublicReader(db, { synthetic, available, now = () => new D
     source_url: safePublicUrl(row.source_url),
   }));
   const publishEvent = row => {
+    const projected=projectEvent(row.id);if(projected)row={...row,...projected};
     // Imported/manual pre-engine claims retain their history, but live publication
     // cannot confer corroboration, official scope or a full end without an audit.
     if (!synthetic && ["corroborated", "official", "ended"].includes(row.status)) {
@@ -56,9 +57,10 @@ export function createPublicReader(db, { synthetic, available, now = () => new D
   const visibilityValues = [...modes, ...modes];
   return Object.freeze({
     synthetic,
-    listAreas({ q = "", parent_id = null, type = null, limit = 21, offset = 0 } = {}) {
+    listAreas({ id = null, q = "", parent_id = null, type = null, limit = 21, offset = 0 } = {}) {
       available();
       const conditions = ["areas.synthetic=?"], values = [mode];
+      if(id){conditions.push("areas.id=?");values.push(id);}
       if (q) {
         conditions.push(`EXISTS(SELECT 1 FROM tree t JOIN areas ancestor ON ancestor.id=t.root
           WHERE t.id=areas.id AND public_search(ancestor.name) LIKE ? ESCAPE '\\')`);

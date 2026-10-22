@@ -40,3 +40,8 @@ exploración social y decisión go/no-go, sin bloquear PR-10.
 Comprobación final: **166/166** también en Node 22.16 Alpine sin red, repo read-only.
 Docker aegis-pr08-review construido; **9/9** pruebas de feeds usando el código
 empaquetado y solo fixtures montados, sin red. Sin cambios visuales.
+
+Revisión corregida: identidad de artefacto incluye URL+revisión, preservando
+dos copias sin fecha con enlaces distintos. Correlación/proyección pública evalúan
+permiso vigente: un evento mixto pierde corroboración cuando vence su feed, sin
+reescribir auditoría. Dos regresiones nuevas. npm ci audit0/check y **168/168**.

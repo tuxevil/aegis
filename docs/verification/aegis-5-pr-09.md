@@ -24,3 +24,8 @@ de la investigación sin contactos ni credenciales. Sin merge/deploy.
 
 Rollback documental: revertir este commit, sin afectar stores o v4. Próximo PR-10:
 consulta temporal/replay/export con fixtures, no reconstrucción ficticia de 2024.
+
+Revalidación requerida por revisión automática: se integraron fixes revisados
+de PR07/08 y se ejecutaron aquí npm ci (audit0), npm run check y npm test:
+**171/171**. Esta ejecución sustituye la limitación de resultados heredados
+de la entrega documental inicial; sin acceso a APIs sociales ni gasto.
