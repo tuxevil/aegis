@@ -74,3 +74,19 @@ bypass of the localhost restriction, or injection via scraped sources.
   old revisions/reviews cascade on pruning. Snapshots can retain prior values:
   daily backups and pre-migration snapshots have distinct operational retention.
   Preserve current volumes on rollback and audit logging at any external proxy.
+
+- PR-05 correlation mutations are local operator CLI actions gated by explicit
+  EVENT_CORRELATION=true, never public HTTP. Closed inputs, bounded stdin/candidate
+  queries/per-event evidence and SQLite transactions preserve audit history.
+  Origin independence and authority competence/period are reviewed institutional
+  assertions, never receipt counts or automatic trust of an authority flag.
+  Raw citizen sources/receipt-linked observations are rejected. Source privacy
+  review remains mandatory; no new external requests or executable source text.
+- Live elevated claims without engine audit are projected unknown; originals and
+  explicit synthetic demo scenarios are preserved. Correction/retraction appends
+  evidence and revisions, never erases the original. A sticky local safety hold
+  can suspend even a saturated event; recalculate cannot silently reactivate it.
+  CLI audit is filesystem-private and contains institutional provenance/reviewer
+  reasons, not bearer receipts. Keep private personal details out of those reasons.
+  See `docs/architecture/aegis-5-correlation.md` for limits and non-destructive
+  rollback. No official-source ingest or alert delivery is enabled in PR-05.

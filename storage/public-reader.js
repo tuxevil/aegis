@@ -31,12 +31,22 @@ export function createPublicReader(db, { synthetic, available }) {
   `).all(...modes, eventId, limit, offset).map(row => ({ ...row, synthetic: Boolean(row.synthetic),
     source_url: safePublicUrl(row.source_url),
   }));
-  const publishEvent = row => ({ ...row,
+  const publishEvent = row => {
+    // Imported/manual pre-engine claims retain their history, but live publication
+    // cannot confer corroboration, official scope or a full end without an audit.
+    if (!synthetic && ["corroborated", "official", "ended"].includes(row.status)) {
+      const schema = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='correlation_revisions'").get();
+      const reviewed = schema && db.prepare("SELECT 1 FROM correlation_revisions WHERE event_id=? LIMIT 1").get(row.id);
+      if (!reviewed) row = { ...row, status: "unknown", start_at: null, end_at: null, start_basis: "unknown", end_basis: "unknown",
+        confidence_explanation: "Afirmación histórica pendiente de correlación y revisión de procedencia, ámbito y vigencia; no confirma corte ni reposición." };
+    }
+    return ({ ...row,
     ...db.prepare(`${ancestry} SELECT areas.name AS area_name,
       CASE WHEN ${reference} THEN 'pallatanga-canton' ELSE NULL END AS map_ref FROM areas WHERE id=?`).get(row.area_id),
     synthetic: Boolean(row.synthetic),
     evidence_ids: publicLinks(row.id, { limit: 100 }).map(link => link.id),
-  });
+    });
+  };
   const eventVisibility = `EXISTS(SELECT 1 ${visible} AND l.event_id=e.id)
     AND (e.status!='official' OR EXISTS(SELECT 1 ${visible} AND l.event_id=e.id
       AND l.relation='support' AND s.kind='authority' AND s.official=1))`;

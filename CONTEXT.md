@@ -32,6 +32,18 @@ IP-based guard is bounded/ephemeral in RAM, single process, with documented limi
 See `docs/architecture/aegis-5-citizen-reports.md` for consent, retention, moderation,
 antiabuse, migration/rollback and prerequisites before live reception.
 
+PR-05 adds deterministic local `store.correlation` and migration 003. CLI mutations
+require EVENT_CORRELATION=true (OFF), no background ingest/admin HTTP. Matching
+uses exact area/type/semantic kind and a fixed ±60 min anchor; ambiguous time or
+multiple candidates stays separate. Reviewed origin components deduplicate source,
+owner, article URL, hash and copied summary. Official needs reviewed documentary
+competence/period; partial restoration never closes an entire area. Corrections
+append evidence and immutable audit snapshots. Private citizen receipts remain
+aggregated only. Live elevated pre-engine claims project unknown without rewriting
+history; synthetic demos remain explicit. Bounded 500 claims/event, local sticky
+safety hold available even at capacity. See `docs/architecture/aegis-5-correlation.md`
+and `docs/verification/aegis-5-pr-05.md`. No PR-06 ingestion or production changes.
+
 Public dashboard with equal emphasis on Ecuadorian energy and Pallatanga weather. Research with dated primary sources lives in `docs/research/`; these reports are background, never live data feeds.
 
 The small module interfaces are `createApp({fetchUrl, store, now, mac})`, source parsers/loaders and `buildAssessment(data, now)`. Tests and production use these same interfaces. Sources are independently cached and failures preserve original measurement dates. `HistoryStore` supports an in-memory adapter for tests and atomic persisted observations for production.
