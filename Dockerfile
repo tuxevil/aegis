@@ -11,6 +11,7 @@ COPY backend.js celec.js mazar.js history.js sources.js assessment.js feature-fl
 COPY api/ ./api/
 COPY storage/ ./storage/
 COPY reports/ ./reports/
+COPY schedules/ ./schedules/
 COPY scripts/ ./scripts/
 COPY demo/ ./demo/
 COPY public/ ./public/

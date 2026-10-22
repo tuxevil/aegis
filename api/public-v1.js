@@ -1,3 +1,4 @@
+import { registerSchedulesApi } from "./schedules.js";
 import { errorSchema } from "./schemas.js";
 import { registerBlackoutApi } from "./blackout.js";
 import { registerCitizenReports } from "./citizen-reports.js";
@@ -7,7 +8,7 @@ export function isPublicV1Request(req) {
   return req.method === "GET" && req.routeOptions.config.publicApiV1 === true;
 }
 
-export async function registerPublicV1(app, { now, blackout = false, reader, reporting = null }) {
+export async function registerPublicV1(app, { now, blackout = false, reader, reporting = null, schedules = null }) {
   await app.register(async (publicApi) => {
     publicApi.setErrorHandler((error, req, reply) => {
       const status = error.validation || error.statusCode === 400 ? 400 : error.statusCode === 404 ? 404 : error.statusCode === 429 ? 429 : 500;
@@ -44,6 +45,7 @@ export async function registerPublicV1(app, { now, blackout = false, reader, rep
     }, async () => ({
       api_version: "1", status: "foundation", timestamp: now().toISOString(), coverage: "unknown",
     }));
+    if (schedules) registerSchedulesApi(publicApi, { store:schedules, now });
     if (blackout) registerBlackoutApi(publicApi, { reader, now });
     if (reporting) await registerCitizenReports(publicApi, { ...reporting, now });
   });
