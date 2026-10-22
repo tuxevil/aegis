@@ -218,3 +218,9 @@ test("receive eligibility uses native endpoint/key proof without exposing manage
     { current: false },
   );
 });
+
+test('receive validation does not consume enrollment or owner quota behind one shared IP',async t=>{
+ const {enroll,send,store}=await apiSetup(t),{body,response}=await enroll();store.subscriptions.requestTest(response.json().id,body.management_token,crypto.randomUUID());const job=store.subscriptions.claim();
+ for(let i=0;i<40;i++)assert.equal((await send('POST','/api/v1/push/validate',{browser:body.browser,job_ids:job.payload.job_ids})).statusCode,200);
+ const owner=await send('GET','/api/v1/subscriptions/'+response.json().id,undefined,{authorization:'Bearer '+body.management_token});assert.equal(owner.statusCode,200,owner.body);
+});

@@ -579,9 +579,9 @@ export function createSubscriptions(
                   continue;
                 const previous = db
                   .prepare(
-                    `SELECT r.* FROM schedule_revisions r JOIN schedule_reviews v ON v.revision_id=r.id WHERE r.entry_id=? AND r.revision_no<? AND r.row_present=1 AND r.type IN ('maintenance','residential') AND v.decision='reviewed' AND v.rights_reviewed=1 AND v.review_no=(SELECT MAX(w.review_no) FROM schedule_reviews w WHERE w.revision_id=r.id) ORDER BY r.revision_no DESC LIMIT 1`,
+                    `SELECT r.* FROM schedule_revisions r JOIN schedule_reviews v ON v.revision_id=r.id WHERE r.entry_id=? AND r.revision_no<? AND v.area_id=? AND r.row_present=1 AND r.type IN ('maintenance','residential') AND v.decision='reviewed' AND v.rights_reviewed=1 AND v.review_no=(SELECT MAX(w.review_no) FROM schedule_reviews w WHERE w.revision_id=r.id) ORDER BY r.revision_no DESC LIMIT 1`,
                   )
-                  .get(row.entry_id, row.revision_no);
+                  .get(row.entry_id, row.revision_no, row.area_id);
                 const kind =
                   row.effective_status === "cancelled"
                     ? "cancellation"

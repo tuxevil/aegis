@@ -1,3 +1,4 @@
+import {feedSourceAllowed} from "./feeds.js";
 import { createHash } from "node:crypto";
 import { utcDate } from "./repositories.js";
 import { RULE_VERSION, WINDOW_MS, MAX_CLAIMS, canonicalUrl, eventTime, deriveEvent } from "./correlation-rules.js";
@@ -24,7 +25,7 @@ export function createCorrelation(db, { synthetic, available, transaction, now }
     WHERE c.event_id=? ORDER BY c.recorded_at,c.observation_id LIMIT ?`).all(eventId, MAX_CLAIMS + 1).map(c => {
       const exact = eventTime(c);
       return { ...c, article_url: c.artifact_url ? canonicalUrl(c.artifact_url) : null,
-        publishable: c.moderation_state === "approved" && c.enabled === 1 && c.access_policy === "public"
+        publishable: feedSourceAllowed(db,c.source_id,now) && c.moderation_state === "approved" && c.enabled === 1 && c.access_policy === "public"
           && c.synthetic === mode && c.source_synthetic === mode && (c.artifact_id === null || c.artifact_synthetic === mode),
         competent: c.source_kind === "authority" && c.official === 1 && c.artifact_id !== null
           && c.extraction_status === "parsed" && exact !== null && c.competence_area !== null
@@ -62,6 +63,14 @@ export function createCorrelation(db, { synthetic, available, transaction, now }
   }
   return Object.freeze({
     revisions,
+    project(eventId){
+      available();if(!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='correlation_cases'").get())return null;
+      const event=getCase(eventId);if(!event)return null;
+      const claims=load(eventId),{facts,...state}=deriveEvent(event,claims);
+      state.last_evidence_at=claims.filter(c=>c.publishable).map(c=>c.ingested_at).sort().at(-1)||null;
+      if(event.review_hold)Object.assign(state,{status:"unknown",start_at:null,end_at:null,start_basis:"unknown",end_basis:"unknown",confidence_explanation:"Publicación suspendida por revisión; evidencia e historia conservadas."});
+      return state;
+    },
     decisions(eventId, limit = 50, offset = 0) {
       available();
       if (!id(eventId) || !Number.isInteger(limit) || limit < 1 || limit > 100 || !Number.isInteger(offset) || offset < 0 || offset > 100000) throw new Error("Paginación de decisiones inválida");
