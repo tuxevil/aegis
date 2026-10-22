@@ -16,6 +16,7 @@ import {
 import { buildAssessment } from "./assessment.js";
 import { readFeatureFlags } from "./feature-flags.js";
 import { isPublicV1Request, registerPublicV1 } from "./api/public-v1.js";
+import { emptyReader } from "./storage/public-reader.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const localIP = (ip) => ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(ip);
@@ -41,6 +42,10 @@ export async function createApp({
   },
 } = {}) {
   const features = readFeatureFlags(flags);
+  if (features.BLACKOUT_MAP && !features.PUBLIC_API_V1) throw new Error("BLACKOUT_MAP requiere PUBLIC_API_V1");
+  if (features.BLACKOUT_DEMO && (!features.BLACKOUT_MAP || features.SQLITE_STORAGE)) {
+    throw new Error("BLACKOUT_DEMO requiere BLACKOUT_MAP y SQLITE_STORAGE apagado; demo aislada en memoria");
+  }
   const app = Fastify({ logger: false });
   await app.register(rateLimit, {
     max: 200,
@@ -66,13 +71,24 @@ export async function createApp({
       .code(403)
       .send({ error: "Acceso al panorama desde el dashboard" });
   });
-  if (features.PUBLIC_API_V1) await registerPublicV1(app, { now });
+  let publicReader = emptyReader;
   if (features.SQLITE_STORAGE) {
     // Optional storage is never used in place of the v4 HistoryStore.
     const v5Store = await openV5Store();
     app.decorate("v5Store", v5Store);
     app.addHook("onClose", async () => v5Store.close());
+    publicReader = v5Store.publicReader || emptyReader;
   }
+  if (features.BLACKOUT_DEMO) {
+    const { openStore } = await import("./storage/sqlite-store.js");
+    const demoStore = await openStore({ directory: ":memory:", synthetic: true, now });
+    try {
+      demoStore.writeBatch(JSON.parse(fs.readFileSync(path.join(directory, "demo/blackout.json"), "utf8")));
+    } catch (error) { demoStore.close(); throw error; }
+    app.addHook("onClose", async () => demoStore.close());
+    publicReader = demoStore.publicReader;
+  }
+  if (features.PUBLIC_API_V1) await registerPublicV1(app, { now, blackout: features.BLACKOUT_MAP, reader: publicReader });
   const caches = new Map();
   const inflight = new Map();
   const getText = async (url, options) => {
@@ -162,12 +178,21 @@ export async function createApp({
       .send(fs.readFileSync(path.join(directory, "frontend.html")));
   app.get("/", serveUI);
   app.get("/ui", serveUI);
+  if (features.BLACKOUT_MAP) app.get("/map", (_, reply) => reply
+    .header("Cache-Control", "no-store")
+    .header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
+    .header("Referrer-Policy", "no-referrer")
+    .type("text/html").send(fs.readFileSync(path.join(directory, "public/blackout.html"))));
   const assets = {
     "app.js": "text/javascript",
     "style.css": "text/css",
     "social.png": "image/png",
     "favicon.svg": "image/svg+xml",
   };
+  if (features.BLACKOUT_MAP) Object.assign(assets, {
+    "blackout.js": "text/javascript", "blackout.css": "text/css", "blackout-map.js": "text/javascript",
+    "map/ecuador.geojson": "application/geo+json",
+  });
   for (const [file, type] of Object.entries(assets))
     app.get(`/assets/${file}`, (_, reply) => {
       const asset = path.join(directory, "public", file);

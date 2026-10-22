@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Consulta evidencias de interrupciones eléctricas por área. Reportado no equivale a confirmado; ausencia de datos no significa suministro normal.">
+  <title>AEGIS · Interrupciones en Ecuador</title>
+  <link rel="icon" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="/assets/blackout.css">
+  <script src="/assets/blackout.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#results">Saltar a los resultados</a>
+<header class="site-header">
+  <a class="brand" href="/map" aria-label="AEGIS, inicio de interrupciones"><span class="brand-mark" aria-hidden="true">A</span><strong>AEGIS</strong><span class="brand-context">ECUADOR / OBSERVATORIO PÚBLICO</span></a>
+  <a class="console-link" href="/ui">Consola de energía y clima <span aria-hidden="true">↗</span></a>
+</header>
+<main>
+  <div id="mode-banner" class="mode-banner" role="status">Comprobando el modo y la procedencia de los datos…</div>
+  <section class="intro" aria-labelledby="page-title">
+    <p class="eyebrow">INTERRUPCIONES ELÉCTRICAS · CONSULTA POR ÁREA</p>
+    <h1 id="page-title">¿Qué se sabe<br>de tu sector?</h1>
+    <p class="lead">Busca una localidad y consulta qué evidencia existe, de dónde viene y cuándo se actualizó.</p>
+    <p class="coverage-note"><span aria-hidden="true">ⓘ</span> Sin información no significa «sin cortes». AEGIS no opera la red ni garantiza horarios de reposición.</p>
+  </section>
+  <form id="search-form" role="search" class="search-form">
+    <label for="area-search">Provincia, cantón, parroquia o sector</label>
+    <div class="search-row"><input id="area-search" name="q" type="search" maxlength="100" placeholder="Por ejemplo, Pallatanga" autocomplete="off" aria-describedby="search-help"><button type="submit">Buscar área <span aria-hidden="true">→</span></button></div>
+    <p id="search-help" class="muted">Elige el área para filtrar. Los sectores de ejemplo son ficticios; no representan circuitos eléctricos.</p>
+  </form>
+  <section id="area-results" class="area-results" aria-label="Áreas encontradas" hidden>
+    <p id="area-message" role="status"></p><div id="area-options" class="area-options"></div>
+    <button type="button" id="more-areas" class="secondary" hidden>Más áreas</button>
+  </section>
+  <div class="workspace">
+    <section id="results" tabindex="-1" aria-labelledby="results-title">
+      <div class="section-heading"><div><p class="eyebrow">EVIDENCIAS, NO PREDICCIONES</p><h2 id="results-title">Últimas fichas</h2><p id="selected-area" class="muted">Todas las áreas disponibles</p></div><button type="button" id="refresh" class="secondary">Actualizar</button></div>
+      <div class="filters"><label for="layer">Tipo de fuente</label><select id="layer"><option value="">Todas las fuentes</option><option value="official">Avisos de entidades</option><option value="citizen">Reportes ciudadanos</option><option value="osint">Prensa y OSINT</option></select><button type="button" id="clear-area" class="text-button" hidden>Quitar filtro de área</button></div>
+      <p id="request-status" class="request-status" role="status" aria-live="polite">Consultando información…</p>
+      <div id="event-list" class="event-list" aria-busy="true"></div>
+      <button type="button" id="more-events" class="secondary wide" hidden>Ver más fichas</button>
+      <p id="fetched-at" class="muted"></p>
+    </section>
+    <aside class="map-aside" aria-label="Mapa y guía de lectura">
+      <section class="map-panel">
+        <div class="section-heading"><h2>Referencia territorial</h2><span class="small-label">2D / OPCIONAL</span></div>
+        <p>Ubicación aproximada de las referencias cantonales, sin direcciones ni zonas pintadas como apagadas.</p>
+        <button type="button" id="toggle-map" class="secondary wide" aria-expanded="false" aria-controls="map-frame">Cargar mapa ligero</button>
+        <p id="map-status" class="muted" role="status">La lista funciona sin cargar cartografía.</p>
+        <div id="map-frame" hidden><div id="map-canvas"></div><div class="map-controls"><button type="button" id="map-zoom-in" class="text-button" aria-label="Acercar mapa">＋</button><button type="button" id="map-zoom-out" class="text-button" aria-label="Alejar mapa">−</button><button type="button" id="map-reset" class="text-button">Restablecer vista</button></div></div>
+        <p class="map-credit">Contorno continental simplificado: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener noreferrer">Natural Earth</a>, dominio público. No delimita sectores o circuitos. Galápagos y áreas sin referencia se consultan en la lista cuando haya datos.</p>
+      </section>
+      <section class="reading-guide" aria-labelledby="legend-title"><p class="eyebrow">CÓMO LEER LAS FICHAS</p><h2 id="legend-title">La fuente importa</h2>
+        <ul class="legend"><li><span class="badge reported">Reportado</span><span>Declaración aún sin corroboración.</span></li><li><span class="badge corroborated">Corroborado</span><span>Evidencias de orígenes independientes.</span></li><li><span class="badge official">Oficial</span><span>Documento de una entidad competente.</span></li><li><span class="badge unknown">Desconocido / corregido</span><span>No permite afirmar un corte vigente.</span></li></ul>
+        <p class="muted">Una programación no demuestra que el corte ocurrió. El silencio no confirma reposición. Cada ficha conserva las fechas de su evidencia.</p>
+      </section>
+    </aside>
+  </div>
+  <section class="method-note"><h2>Una consulta con límites claros</h2><p>La cobertura es parcial y puede estar desactualizada. No se infieren cortes de las cotas de los embalses ni se calcula una probabilidad de apagón. Reportar, suscribirse y recibir notificaciones se habilitarán en etapas posteriores.</p></section>
+</main>
+<footer><strong>AEGIS</strong><span>Procedencia antes que certeza.</span><a href="/ui">Observatorio técnico v4 →</a></footer>
+<noscript><p class="mode-banner">Esta consulta interactiva necesita JavaScript. La consola técnica está disponible en <a href="/ui">/ui</a> y la API pública de áreas en <a href="/api/v1/areas">/api/v1/areas</a>.</p></noscript>
+</body>
+</html>

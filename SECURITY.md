@@ -42,3 +42,13 @@ bypass of the localhost restriction, or injection via scraped sources.
   persistent volume. Demo databases refuse live records and vice versa. Backups
   are operator CLI actions, not public HTTP routes; restoration refuses existing
   destinations. See `docs/architecture/aegis-5-storage.md` for limits and recovery.
+- PR-03 exposes only explicit GET areas/outages/event/evidence DTO routes when
+  BLACKOUT_MAP + PUBLIC_API_V1 are enabled. Publication requires approved
+  observations, reviewed evidence links, enabled public sources and matching
+  demo/live mode. Source text still needs human privacy review before approval;
+  a schema cannot detect personal details embedded in a summary. Source URLs
+  with credentials, query or fragment are withheld. Demo lives only in memory
+  and refuses enabling live SQLite concurrently. The optional local map never
+  uses household coordinates or external tile requests. `/map` has a local-only
+  CSP; user/source text uses textContent. No writes, report receipts or Push
+  endpoints are exposed by these routes.
