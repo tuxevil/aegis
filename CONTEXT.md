@@ -91,3 +91,5 @@ PR-09 is a documented social NO-GO: no access/budget/validated coverage/deletion
 PR-10 adds TIME_MACHINE (OFF), /history/ and GET timeline using immutable PR05 revisions. Separates occurrence from known_at; current privacy/permissions/hold override replay. No fabricated 2024, no new migration. See docs/architecture/aegis-5-timeline.md.
 
 PR-11 adds EXPLORER_3D (OFF), /explorer/ 2D measured Mazar cota and explicit illustrative optional isometric mesh (no real DEM/bathymetry). Narrow public projection reuses v4 cache/history. 2115 safety !=2098 design, no volume/energy model. See docs/architecture/aegis-5-explorer.md.
+
+PR-12 is NO-GO for real cota-volume/energy model: no validated licensed current curve/datum/uncertainty. Keep volume_model unavailable and height-only observations. See docs/research/aegis-5-volume-decision.md; no invented linear reserve.
