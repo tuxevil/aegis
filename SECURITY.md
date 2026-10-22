@@ -90,3 +90,19 @@ bypass of the localhost restriction, or injection via scraped sources.
   reasons, not bearer receipts. Keep private personal details out of those reasons.
   See `docs/architecture/aegis-5-correlation.md` for limits and non-destructive
   rollback. No official-source ingest or alert delivery is enabled in PR-05.
+
+- PR-06 schedules use a fixed registered HTTPS EEASA URL with standard TLS,
+  redirects rejected, no cookies/subresources, 10 s timeout, 256 KiB stream cap,
+  up to 100 cards and a persistent per-provider 15-minute attempt reservation.
+  No network on startup or scheduled polling. Original HTML stays in private
+  SQLite/backups, never static assets or public HTTP. JSDOM parsing executes no
+  remote scripts. CLI mutations require OFFICIAL_SCHEDULES=true and an existing
+  schema; all HTTP mutations remain closed. No additional dependencies.
+- Schedule publication requires exact reviewed geography, strict extraction and
+  explicit per-version rights review. Unknown/industrial classifications cannot
+  become residential alerts automatically. Bindings/reviews/revisions preserve
+  audit history; changing a binding suppresses the prior area until re-reviewed.
+  Local import does not assert a successful live network check. Missing/failed/
+  stale source data is unverified, never inferred cancellation or restoration.
+  Source reuse permissions and operational catalog remain pending before public
+  operation. See `docs/architecture/aegis-5-schedules.md`; flags remain OFF.

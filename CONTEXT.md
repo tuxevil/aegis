@@ -44,6 +44,18 @@ history; synthetic demos remain explicit. Bounded 500 claims/event, local sticky
 safety hold available even at capacity. See `docs/architecture/aegis-5-correlation.md`
 and `docs/verification/aegis-5-pr-05.md`. No PR-06 ingestion or production changes.
 
+PR-06 adds manually triggered EEASA HTML schedule capture and migration 004,
+original bytes in private SQLite BLOBs, hashes/versioned semantic revisions,
+reviewed exact sector bindings and append-only publication decisions. Public
+GET /api/v1/schedules requires OFFICIAL_SCHEDULES (OFF), PUBLIC_API_V1 and SQLite
+without BLACKOUT_DEMO. No network at startup; no PDF/OCR/new deps/Push. Fixed
+HTTPS source, no redirects/cookies, timeout/256 KiB/cooldown; source failure or
+missing row never implies cancellation. Unreviewed geography/rights stay private.
+Local import does not assert a new live source check. Source permissions/catalog
+remain pending before live. See `docs/architecture/aegis-5-schedules.md`, research
+and `docs/verification/aegis-5-pr-06.md`. Prior PR-05 review fix (51172ea) restores
+predecessor evidence when its replacement stops being public; baseline 109 tests.
+
 Public dashboard with equal emphasis on Ecuadorian energy and Pallatanga weather. Research with dated primary sources lives in `docs/research/`; these reports are background, never live data feeds.
 
 The small module interfaces are `createApp({fetchUrl, store, now, mac})`, source parsers/loaders and `buildAssessment(data, now)`. Tests and production use these same interfaces. Sources are independently cached and failures preserve original measurement dates. `HistoryStore` supports an in-memory adapter for tests and atomic persisted observations for production.

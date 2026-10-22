@@ -205,7 +205,8 @@ test("demo/live isolation persists, private fields rejected, writes require sync
 });
 
 test("size limit rejects growth atomically without deleting historical rows", async t => {
-  const store = await memory(t, { maxBytes: 256 * 1024 });
+  // Allow the current schema itself, then force FULL with a single growing batch.
+  const store = await memory(t, { maxBytes: 512 * 1024 });
   store.writeBatch(demoBatch());
   const rows = Array.from({ length: 200 }, (_, i) => ({ ...demoBatch().observations[0],
     id: `growth-${i}`, dedupe_key: `growth-${i}`, summary: "x".repeat(2000) }));

@@ -44,6 +44,7 @@ export async function createApp({
   },
 } = {}) {
   const features = readFeatureFlags(flags);
+  if (features.OFFICIAL_SCHEDULES && (!features.PUBLIC_API_V1 || !features.SQLITE_STORAGE || features.BLACKOUT_DEMO)) throw new Error("OFFICIAL_SCHEDULES requiere API pública y SQLite sin demo de mapa");
   if (features.BLACKOUT_MAP && !features.PUBLIC_API_V1) throw new Error("BLACKOUT_MAP requiere PUBLIC_API_V1");
   if (features.BLACKOUT_DEMO && (!features.BLACKOUT_MAP || features.SQLITE_STORAGE)) {
     throw new Error("BLACKOUT_DEMO requiere BLACKOUT_MAP y SQLITE_STORAGE apagado; demo aislada en memoria");
@@ -103,6 +104,7 @@ export async function createApp({
     reportStore = demoStore;
   }
   if (features.PUBLIC_API_V1) await registerPublicV1(app, { now, blackout: features.BLACKOUT_MAP, reader: publicReader,
+    schedules: features.OFFICIAL_SCHEDULES ? reportStore : null,
     reporting: features.CITIZEN_REPORTS ? { store: reportStore, origin: reportsOrigin } : null,
   });
   const caches = new Map();
