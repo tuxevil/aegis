@@ -166,3 +166,9 @@ test("explorer loads no 3D until gesture, preserves accessible unknown/stale rea
   assert.equal($("three").hidden, true);
   assert.equal(window.localStorage.length, 0);
 });
+
+test('failed CELEC refresh is explicit with a recent retained reading and does not alter v4 JSON fields',async t=>{
+ const history=new HistoryStore();history.record('30031',[{valueedit:2120,loctimestamp:'2026-10-22T11:30:00Z'}],now());const app=await createApp({store:history,now,mac:null,fetchUrl:async()=>{throw Error('unreachable fixture');},flags:{PUBLIC_API_V1:true,EXPLORER_3D:true}});t.after(()=>app.close());
+ const result=(await app.inject({url:'/api/v1/infrastructure'})).json();assert.equal(result.measurement.state,'failed');assert.equal(result.measurement.value_m,2120);assert.equal(result.measurement.observed_at,'2026-10-22T11:30:00Z');
+ const v4=await app.inject('/api/dams');assert.ok(!v4.body.includes('refresh-failure'));assert.ok(!v4.body.includes('CELEC_REFRESH_FAILURE'));const html=(await app.inject('/explorer/')).body;assert.ok(!html.includes('href="/map"'));
+});
