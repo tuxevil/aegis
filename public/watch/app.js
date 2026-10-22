@@ -2,6 +2,7 @@
 (() => {
   const $ = (id) => document.getElementById(id),
     selected = new Map();
+  let linkedArea=null;
   let config,
     registration,
     challenge,
@@ -445,7 +446,7 @@
   window.addEventListener("pagehide", clear);
   $("query").addEventListener("click", async () => {
     try {
-      if (!selected.size) throw Error("Elige un sector para consultar.");
+      if (!selected.size && !linkedArea) throw Error("Elige un sector para consultar.");
       const date = $("query-date").value;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
         throw Error("Elige una fecha válida.");
@@ -453,7 +454,7 @@
       next.setUTCDate(next.getUTCDate() + 1);
       const to = next.toISOString().slice(0, 10);
       $("schedules").replaceChildren();
-      for (const [id, area] of selected) {
+      for (const [id, area] of linkedArea ? [[linkedArea.id,linkedArea]] : selected) {
         const query = new URLSearchParams({
             area_id: id,
             from: `${date}T00:00:00-05:00`,
@@ -487,12 +488,16 @@
       message(error.message);
     }
   });
-  navigator.serviceWorker?.addEventListener?.("message", (event) => {
-    if (event.data?.type === "schedule-update")
-      message(
-        "Llegó un aviso. Consulta la programación actual sin perder tus preferencias pendientes.",
-      );
-  });
+  async function previewLink(value){
+    let url;try{url=new URL(value,location.origin);}catch{return;}
+    const id=url.searchParams.get("area_id");
+    if(url.origin!==location.origin||url.pathname!=="/watch/"||!id||!/^[A-Za-z0-9_-]{1,128}$/.test(id)||[...url.searchParams.keys()].some(k=>k!=="area_id"))return;
+    try{const response=await request("/api/v1/areas?id="+encodeURIComponent(id)+"&limit=1"),area=response.data.find(a=>a.id===id&&a.type==="sector");if(!area)throw Error("Sector del aviso no disponible; consulta el catálogo.");linkedArea=area;
+      let context=$("linked-sector");if(!context){context=document.createElement("p");context.id="linked-sector";$("query").before(context);}context.replaceChildren(document.createTextNode("Aviso para "+area.name+". No cambia tus preferencias. "));
+      const reset=document.createElement("button");reset.type="button";reset.textContent="Consultar mis sectores";reset.onclick=()=>{linkedArea=null;context.replaceChildren();$("query").click();};context.append(reset);$("query").click();
+    }catch(error){message(error.message);}
+  }
+  navigator.serviceWorker?.addEventListener?.("message",event=>{if(event.data?.type==="schedule-update")previewLink(event.data.url);});
   async function init() {
     $("query-date").value = new Date(Date.now() - 5 * 3600000)
       .toISOString()
@@ -532,6 +537,7 @@
         $("platform").textContent =
           "Push no está disponible aquí. Puedes consultar en la web sin permisos.";
       await renew();
+      await previewLink(location.href);
     } catch (error) {
       message(error.message);
       $("availability").textContent =

@@ -17,7 +17,7 @@ const wait = async (predicate) => {
   }
   throw Error("UI condition timeout");
 };
-async function page(t, { push = false, lost = false } = {}) {
+async function page(t, { push = false, lost = false, link = false, select = true } = {}) {
   const ctx = await setupPush(t),
     { store, config, now } = ctx;
   const app = await createApp({
@@ -39,7 +39,7 @@ async function page(t, { push = false, lost = false } = {}) {
   });
   const html = (await app.inject("/watch/")).body,
     dom = new JSDOM(html, {
-      url: config.origin + "/watch/",
+      url: config.origin + "/watch/" + (link ? "?area_id=sector-0" : ""),
       runScripts: "outside-only",
     }),
     window = dom.window,
@@ -102,10 +102,12 @@ async function page(t, { push = false, lost = false } = {}) {
   });
   const $ = (id) => window.document.getElementById(id);
   await wait(() => $("verification-status").textContent.includes("preparada"));
+  if(select){
   $("search-button").click();
   await wait(() => $("results").querySelector("button"));
   $("results").querySelector("button").click();
   await wait(() => !$("save-web").disabled);
+  }
   return {
     ...ctx,
     dom,
@@ -323,4 +325,8 @@ test("stale notification omits hours and clicking a live watch preserves its pri
   await pending;
   assert.equal(focused, true);
   assert.equal(message.type, "schedule-update");
+});
+
+test('notification deep link queries its public sector without changing private saved selections',async t=>{
+ const {$,requests}=await page(t,{link:true,select:false});await wait(()=>$('schedules').textContent.includes('Synthetic area 0'));assert.equal($('selected').children.length,0);assert.match($('linked-sector').textContent,/No cambia tus preferencias/);assert.ok(requests.some(r=>r.url.startsWith('/api/v1/areas?id=sector-0')));
 });

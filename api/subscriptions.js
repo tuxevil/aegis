@@ -73,12 +73,14 @@ export const isSubscriptionRequest = (req) =>
 export async function registerSubscriptionsApi(app, { store, config, now }) {
   await app.register(async (api) => {
     const repository = store.subscriptions,
-      guard = createReportGuard({ now });
-    const sweep = setInterval(() => guard.prune(), 60000);
+      guard = createReportGuard({ now }),
+      managementGuard=createReportGuard({now,maxAttempts:600}),
+      deliveryGuard=createReportGuard({now,maxAttempts:6000});
+    const sweep = setInterval(() => {guard.prune();managementGuard.prune();deliveryGuard.prune();}, 60000);
     sweep.unref();
     api.addHook("onClose", async () => {
       clearInterval(sweep);
-      guard.close();
+      guard.close();managementGuard.close();deliveryGuard.close();
     });
     api.setErrorHandler((error, req, reply) => {
       let status = error.statusCode || 500;
@@ -125,7 +127,8 @@ export async function registerSubscriptionsApi(app, { store, config, now }) {
         !/^application\/json(?:\s*;|$)/i.test(req.headers["content-type"] || "")
       )
         throw pushError("INVALID_REQUEST");
-      guard.attempt(req.ip);
+      const url=req.routeOptions.url;
+      (url === "/api/v1/push/validate" ? deliveryGuard : ["/api/v1/subscriptions","/api/v1/subscription-challenges"].includes(url) ? guard : managementGuard).attempt(req.ip);
     });
     function route(
       method,

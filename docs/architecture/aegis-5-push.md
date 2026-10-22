@@ -138,3 +138,8 @@ PUSH_ALERTS=false y PUSH_DELIVERY=false, reiniciar sin borrar DB_DIR/DATA_DIR.
 Código anterior: SQLite OFF o snapshot pre-005 en otro DB_DIR, conservar base v5
 con datos posteriores. No sobrescribir historial ni claves. Próximo PR-08: feeds
 legales y clasificación; no implementados como parte de PR-07.
+
+Revisión: alta conserva cuota30/h, gestión600/h y recepción6000/h en guards
+separados; límites por ruta siguen. /areas admite id exacto para contexto de aviso.
+Enlace de Push consulta el sector sin modificar preferencias; volver a mis sectores
+quita ese contexto. Antes/ahora exige predecesor de la misma área revisada.
