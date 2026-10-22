@@ -46,3 +46,8 @@ viewports aprobados. Sin nueva migración ni dependencia.
 
 Imagen empaquetada sin red: **6/6** pruebas timeline, con helpers/fixtures
 montados y código de producto dentro de la imagen.
+
+Revisión: redacción/privacidad se aplica antes del filtro de fechas para evitar
+inferir intervalos ocultos por presencia de filas. CSV conserva metadata completa
+de evidencia (nombre, relación, publicación, ingesta incluso sin URL), bases y
+corte/rango. Dos regresiones nuevas; npm ci audit0/check y **175/175**.

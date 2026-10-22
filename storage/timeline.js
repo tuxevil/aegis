@@ -38,8 +38,6 @@ export function createTimeline(db, { synthetic, available, now, getReader }) {
  JOIN events e ON e.id=r.event_id JOIN areas a ON a.id=e.area_id
  WHERE e.synthetic=? AND e.area_id=? AND r.recorded_at<=?
  AND r.revision=(SELECT MAX(p.revision) FROM correlation_revisions p WHERE p.event_id=r.event_id AND p.recorded_at<=?)
- AND (json_extract(r.snapshot_json,'$.event.start_at') IS NULL OR
- (json_extract(r.snapshot_json,'$.event.start_at')<? AND (json_extract(r.snapshot_json,'$.event.end_at') IS NULL OR json_extract(r.snapshot_json,'$.event.end_at')>=?)))
  ORDER BY r.recorded_at DESC,r.event_id LIMIT ? OFFSET ?`,
           )
           .all(
@@ -47,8 +45,6 @@ export function createTimeline(db, { synthetic, available, now, getReader }) {
             area_id,
             known,
             known,
-            upper,
-            lower,
             limit,
             offset,
           );
@@ -108,6 +104,7 @@ export function createTimeline(db, { synthetic, available, now, getReader }) {
             ingested_at: e.ingested_at,
             relation: e.relation,
           }));
+        if(state.start_at && (state.start_at>=upper || state.end_at && state.end_at<lower))continue;
         const duration =
           state.type !== "scheduled" &&
           state.status === "ended" &&
@@ -152,7 +149,7 @@ export function createTimeline(db, { synthetic, available, now, getReader }) {
     },
   };
 }
-export function timelineCsv(rows) {
+export function timelineCsv(rows, context = {}) {
   const columns = [
     "event_id",
     "area_name",
@@ -165,6 +162,7 @@ export function timelineCsv(rows) {
     "duration_seconds",
     "synthetic",
     "sources",
+    "start_basis", "end_basis", "known_at", "from", "to", "evidence_json",
   ];
   const cell = (value) => {
     let s = value === null || value === undefined ? "" : String(value);
@@ -179,7 +177,7 @@ export function timelineCsv(rows) {
         columns
           .map((key) =>
             cell(
-              key === "sources"
+              key === "evidence_json" ? JSON.stringify(row.evidence) : ["known_at","from","to"].includes(key) ? context[key] : key === "sources"
                 ? row.evidence
                     .map((e) => e.source_url)
                     .filter(Boolean)
