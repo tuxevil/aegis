@@ -695,3 +695,13 @@ test("a new local document cannot borrow a recent HTTPS validation of a differen
   assert.equal(list().data[0].source_status, "stale");
   assert.equal(list().data[0].effective_status, "unverified");
 });
+
+test("a running or crashed fetch retains the last completed validation and its original freshness", async t => {
+  const {store,advance,bind,review,list}=await setup(t,{synthetic:false});
+  await captureSchedule(store,EEASA.id,{fetchImpl:async()=>new Response(file("eeasa-v1"),{headers:{"content-type":"text/html"}})});
+  const row=store.schedules.queue().find(r=>r.type==="maintenance");bind(row.sector_label,"sector-a");review(row.id);
+  const original=list().data[0];advance(16*60000);store.schedules.claimFetch(EEASA.id);
+  assert.equal(list().data[0].source_status,"current");assert.equal(list().data[0].last_checked_at,original.last_checked_at);
+  advance(20*60000);assert.equal(list().data[0].source_status,"current");assert.equal(list().data[0].fetched_at,original.fetched_at);
+  advance(6*3600000);assert.equal(list().data[0].source_status,"stale");assert.equal(list().data[0].last_checked_at,original.last_checked_at);
+});

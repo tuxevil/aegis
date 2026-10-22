@@ -105,3 +105,11 @@ en otro directorio. Nunca sobrescribir la base con nuevos artefactos o auditorí
 Próximo tras revisar dependencias y gates de fuente: **PR-07**, suscripciones
 anónimas/PWA/Web Push opt-in; no enviar avisos sin derechos, geografía y versión
 fiable. Ninguno de esos mecanismos se implementó o activó aquí.
+
+## Corrección de revisión posterior
+
+Una reserva de captura running limpiaba la validación visible anterior. Ahora se
+consulta el último resultado completado del historial mientras existe una reserva,
+conservando hora y frescura originales incluso si el proceso se interrumpe. No se
+rejuvenece la evidencia; después del TTL real pasa a stale. Regresión añadida.
+Check y suite completa tras el fix: **130/130** en Node 24.21.0.

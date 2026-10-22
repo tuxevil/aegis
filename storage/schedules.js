@@ -85,20 +85,18 @@ export function createSchedules(
       fetch = db
         .prepare("SELECT * FROM schedule_fetch_state WHERE provider_id=?")
         .get(p);
-    const checked =
-      [synthetic ? capture?.captured_at : null, fetch?.completed_at]
-        .filter(Boolean)
-        .sort()
-        .at(-1) ?? null;
-    const failed = Boolean(capture?.parse_error || fetch?.outcome === "failed");
+    // A reservation is not a completed observation. Retain the last completed
+    // check across a running/crashed fetch, including its original timestamp.
+    const completed = fetch?.outcome === "running"
+      ? db.prepare("SELECT * FROM schedule_fetch_history WHERE provider_id=? ORDER BY completed_at DESC,rowid DESC LIMIT 1").get(p)
+      : fetch;
+    const checked = [synthetic ? capture?.captured_at : null, completed?.completed_at].filter(Boolean).sort().at(-1) ?? null;
+    const failed = Boolean(capture?.parse_error || completed?.outcome === "failed");
     // A prior successful request cannot validate a different locally imported
     // document, nor can a failed attempt rejuvenate source evidence.
-    const validatedAt = synthetic
-      ? capture?.captured_at
-      : ["ok", "not_modified"].includes(fetch?.outcome) &&
-          fetch.artifact_id === capture?.artifact_id
-        ? fetch.completed_at
-        : null;
+    const validatedAt = synthetic ? capture?.captured_at
+      : ["ok", "not_modified"].includes(completed?.outcome) && completed.artifact_id === capture?.artifact_id
+        ? completed.completed_at : null;
     return {
       capture,
       fetch,
