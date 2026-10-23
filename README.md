@@ -185,3 +185,5 @@ PR-09: [decisión NO-GO para redes sociales](docs/research/aegis-5-social-feasib
 PR-10: [Time Machine y exportaciones](docs/architecture/aegis-5-timeline.md), /history/ y API paginada bajo TIME_MACHINE=false. Distingue tiempo del hecho y conocimiento, sin inventar historia.
 
 PR-11: [explorador educativo de infraestructura](docs/architecture/aegis-5-explorer.md), EXPLORER_3D=false. Cota y fechas separadas de una geometría ilustrativa; sin DEM/batimetría ni reserva energética calculada.
+
+PR-12: [NO-GO de volumen útil/reserva a partir de cota](docs/research/aegis-5-volume-decision.md). Se conserva cota e ilustración, sin conversión lineal ni tabla no validada.
