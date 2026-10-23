@@ -9,6 +9,29 @@ const { chromium } = await import(
   clean = [];
 const context = await setupTimeline({ after: (fn) => clean.push(fn) }),
   one = context.add("original");
+context.store.schedules.ingest({
+  provider_id: "eeasa-maintenance",
+  body: fs.readFileSync(
+    new URL("../test/fixtures/schedules/eeasa-v1.html", import.meta.url),
+  ),
+});
+for (const row of context.store.schedules
+  .queue()
+  .filter((r) => r.type === "maintenance")) {
+  context.store.schedules.bind({
+    provider_id: "eeasa-maintenance",
+    sector_label: row.sector_label,
+    area_id: "area",
+    reference_url: "https://www.eeasa.com.ec/trabajos-programadas/",
+    review_reason: "Synthetic exact geography",
+  });
+  context.store.schedules.review({
+    revision_id: row.id,
+    decision: "reviewed",
+    rights_reviewed: true,
+    review_reason: "Synthetic source rights review",
+  });
+}
 context.set("2026-10-22T12:10:00Z");
 context.add("correction", "retraction", one.event.id, "original");
 const app = await createApp({
@@ -20,6 +43,7 @@ const app = await createApp({
     BLACKOUT_MAP: true,
     SQLITE_STORAGE: true,
     TIME_MACHINE: true,
+    OFFICIAL_SCHEDULES: true,
   },
   openV5Store: async () => context.store,
 });
@@ -64,6 +88,10 @@ try {
     await page.getByRole("button", { name: "Consultar revisión" }).click();
     await page
       .getByText("Estado registrado: Desconocido · revisión 2", { exact: true })
+      .waitFor();
+    await page.locator("#compare-planned").click();
+    await page
+      .getByText("No acredita duración efectiva.", { exact: false })
       .waitFor();
     assert.equal(
       await page.evaluate(

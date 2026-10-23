@@ -69,7 +69,10 @@ export const timelineItemSchema = {
     },
   },
 };
-export function registerTimeline(app, { store, now }) {
+export function registerTimeline(
+  app,
+  { store, now, includeSchedules = false },
+) {
   const properties = {
     area_id: id,
     from: date,
@@ -177,4 +180,126 @@ export function registerTimeline(app, { store, now }) {
       };
     },
   );
+  if (includeSchedules) {
+    const scheduled = {
+      type: "object",
+      additionalProperties: false,
+      required: [
+        "entry_id",
+        "artifact_id",
+        "sha256",
+        "area_id",
+        "area_name",
+        "revision_no",
+        "type",
+        "start_at",
+        "end_at",
+        "reviewed_at",
+        "source_url",
+        "source_published_at",
+        "fetched_at",
+        "status",
+        "duration_seconds",
+        "synthetic",
+      ],
+      properties: {
+        entry_id: id,
+        artifact_id: id,
+        sha256: { type: "string", pattern: "^[a-f0-9]{64}$" },
+        area_id: id,
+        area_name: text,
+        revision_no: { type: "integer" },
+        type: {
+          type: "string",
+          enum: ["maintenance", "industrial", "residential", "unknown"],
+        },
+        start_at: date,
+        end_at: date,
+        reviewed_at: date,
+        source_url: {
+          type: "string",
+          const: "https://www.eeasa.com.ec/trabajos-programadas/",
+        },
+        source_published_at: nullable,
+        fetched_at: date,
+        status: {
+          type: "string",
+          enum: ["historical_scheduled", "historical_cancelled"],
+        },
+        duration_seconds: { type: "null" },
+        synthetic: { type: "boolean" },
+      },
+    };
+    const queries = { ...properties };
+    delete queries.format;
+    app.get(
+      "/api/v1/timeline/schedules",
+      {
+        config: {
+          publicApiV1: true,
+          rateLimit: { max: 60, timeWindow: "1 minute" },
+        },
+        preValidation: async (req) => {
+          if (Object.keys(req.query).some((k) => !Object.hasOwn(queries, k))) {
+            const e = Error();
+            e.statusCode = 400;
+            throw e;
+          }
+        },
+        schema: {
+          querystring: {
+            type: "object",
+            additionalProperties: false,
+            required: ["area_id", "from", "to"],
+            properties: queries,
+          },
+          response: {
+            200: {
+              type: "object",
+              additionalProperties: false,
+              required: ["data", "meta"],
+              properties: {
+                data: { type: "array", maxItems: 50, items: scheduled },
+                meta: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: [
+                    "known_at",
+                    "from",
+                    "to",
+                    "next_offset",
+                    "synthetic",
+                    "coverage",
+                    "nature",
+                  ],
+                  properties: {
+                    known_at: date,
+                    from: date,
+                    to: date,
+                    next_offset: { type: ["integer", "null"] },
+                    synthetic: { type: "boolean" },
+                    coverage: { type: "string", const: "unknown" },
+                    nature: { type: "string", const: "scheduled-not-observed" },
+                  },
+                },
+              },
+            },
+            400: errorSchema,
+            429: errorSchema,
+            500: errorSchema,
+          },
+        },
+      },
+      async (req, reply) => {
+        reply.header("Cache-Control", "no-store");
+        try {
+          return store.timeline.listSchedules(req.query);
+        } catch {
+          const e = Error();
+          e.statusCode = 400;
+          throw e;
+        }
+      },
+    );
+  }
 }
