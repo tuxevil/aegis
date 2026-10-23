@@ -87,3 +87,5 @@ production sends; see docs/architecture/aegis-5-push.md and verification PR-07.
 PR-08 adds permission-gated manual RSS/Atom metadata ingestion, immutable reviews and migration006. OSINT_NEWS stays OFF, no automatic ingestion/events/Push. See docs/architecture/aegis-5-feeds.md.
 
 PR-09 is a documented social NO-GO: no access/budget/validated coverage/deletion policy. OSINT_X remains OFF and no social adapter exists. See docs/research/aegis-5-social-feasibility.md. PR-10 is independent.
+
+PR-10 adds TIME_MACHINE (OFF), /history/ and GET timeline using immutable PR05 revisions. Separates occurrence from known_at; current privacy/permissions/hold override replay. No fabricated 2024, no new migration. See docs/architecture/aegis-5-timeline.md.

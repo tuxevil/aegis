@@ -47,6 +47,7 @@ export async function createApp({
   },
 } = {}) {
   const features = readFeatureFlags(flags);
+  if(features.TIME_MACHINE && (!features.PUBLIC_API_V1 || !features.BLACKOUT_MAP || !features.SQLITE_STORAGE && !features.BLACKOUT_DEMO)) throw new Error("TIME_MACHINE requiere API, mapa y almacenamiento");
   if (features.PUSH_ALERTS && (!features.PUBLIC_API_V1 || !features.SQLITE_STORAGE || !features.OFFICIAL_SCHEDULES || !features.BLACKOUT_MAP || features.BLACKOUT_DEMO)) throw new Error("PUSH_ALERTS requiere API, SQLite, cronogramas y catálogo de mapa sin demo");
   const watchConfig = features.PUSH_ALERTS ? pushConfig || readPushConfig() : null;
   if (features.OFFICIAL_SCHEDULES && (!features.PUBLIC_API_V1 || !features.SQLITE_STORAGE || features.BLACKOUT_DEMO)) throw new Error("OFFICIAL_SCHEDULES requiere API pública y SQLite sin demo de mapa");
@@ -111,6 +112,7 @@ export async function createApp({
     reportStore = demoStore;
   }
   if (features.PUBLIC_API_V1) await registerPublicV1(app, { now, blackout: features.BLACKOUT_MAP, reader: publicReader,
+    timeline: features.TIME_MACHINE ? reportStore : null,
     subscriptions: features.PUSH_ALERTS ? { store: reportStore, config: watchConfig } : null,
     schedules: features.OFFICIAL_SCHEDULES ? reportStore : null,
     reporting: features.CITIZEN_REPORTS ? { store: reportStore, origin: reportsOrigin } : null,
@@ -214,12 +216,17 @@ export async function createApp({
     .header("Referrer-Policy", "no-referrer")
     .type("text/html").send(fs.readFileSync(path.join(directory, "public/blackout.html"), "utf8").replace("<!-- reports-link -->",
       features.CITIZEN_REPORTS ? '<a id="reports-link" class="secondary report-link" href="/report">Reportar o gestionar un reporte →</a>' : "")
+      .replace("</header>", features.TIME_MACHINE ? '<a href="/history/">Historial y replay →</a></header>' : "</header>")
       .replace("<!-- report-availability -->", features.CITIZEN_REPORTS
         ? "Los reportes requieren revisión y solo se consultan agregados por sector. Las notificaciones aún no están habilitadas."
         : "Reportar, suscribirse y recibir notificaciones se habilitarán en etapas posteriores.")));
   if (features.CITIZEN_REPORTS) app.get("/report", (_, reply) => reply.header("Cache-Control", "no-store")
     .header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
     .header("Referrer-Policy", "no-referrer").type("text/html").send(fs.readFileSync(path.join(directory, "public/report.html"))));
+  if(features.TIME_MACHINE){
+    app.get("/history",(_,reply)=>reply.redirect("/history/"));
+    for(const [file,type] of Object.entries({"":"text/html; charset=utf-8","app.js":"text/javascript","style.css":"text/css"}))app.get(`/history/${file}`,(_,reply)=>reply.header("Cache-Control","no-store").header("Referrer-Policy","no-referrer").header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'").type(type).send(file ? fs.readFileSync(path.join(directory,"public/history",file)) : fs.readFileSync(path.join(directory,"public/history/index.html"),"utf8").replace("<!-- schedule-comparison -->",features.OFFICIAL_SCHEDULES ? '<button id="compare-planned" type="button">Comparar con programación conocida entonces</button>' : "")));
+  }
   if (features.PUSH_ALERTS) {
     const watchCsp="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; img-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
     app.get("/watch",(_,reply)=>reply.redirect("/watch/"));
