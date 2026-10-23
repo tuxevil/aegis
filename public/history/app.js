@@ -118,6 +118,7 @@
   async function load(parameters) {
     if (state.busy) return;
     state.busy = true;
+    state.query=null;state.next=null;
     state.generation = (state.generation || 0) + 1;
     note("Consultando…");
     $("results").replaceChildren();
@@ -189,7 +190,7 @@
       $("planned").replaceChildren();
       const heading = document.createElement("h2");
       heading.textContent =
-        "Programación conocida entonces · no observación de corte";
+        `Programación conocida hasta ${format(value.meta.known_at)} · no observación de corte`;
       $("planned").append(heading);
       for (const row of value.data) {
         const p = document.createElement("p"),

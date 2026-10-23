@@ -61,3 +61,8 @@ Comparación Chromium repetida a 320/390/768/1440 con programación en panel
 separado: fechas/artefacto/revisión bajo mismo corte, sin duración efectiva,
 sin overflow/errores/requests externos. Se corrigió el parent_id ausente del
 fixture de área antes de enlazar programación. Once tests dirigidos pasan.
+
+Regresión adicional de recuperación: consulta fallida ya no conserva el rango
+anterior para comparar programación. La prueba falló antes del fix (22 frente
+a01de octubre) y pasa al limpiar query/paginación al iniciar consulta; el harness
+espera completar la comparación antes de cerrar DOM. Once pruebas dirigidas pasan.
