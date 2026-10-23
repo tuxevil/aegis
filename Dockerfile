@@ -12,6 +12,7 @@ COPY api/ ./api/
 COPY storage/ ./storage/
 COPY reports/ ./reports/
 COPY schedules/ ./schedules/
+COPY push/ ./push/
 COPY scripts/ ./scripts/
 COPY demo/ ./demo/
 COPY public/ ./public/

@@ -65,7 +65,7 @@ export function registerBlackoutApi(app, { reader, now }) {
       return envelope(result.slice(0, query.limit), query, result.length > query.limit);
     });
   }
-  register("/api/v1/areas", { ...pagination, q: { type: "string", maxLength: 100 }, parent_id: id,
+  register("/api/v1/areas", { ...pagination, id, q: { type: "string", maxLength: 100 }, parent_id: id,
     type: { type: "string", enum: ["province", "canton", "parish", "sector"] } }, areaView,
   (_, query) => reader.listAreas(query));
   register("/api/v1/outages", { ...pagination, area_id: id, from: date, to: date,

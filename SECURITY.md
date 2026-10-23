@@ -106,3 +106,19 @@ bypass of the localhost restriction, or injection via scraped sources.
   stale source data is unverified, never inferred cancellation or restoration.
   Source reuse permissions and operational catalog remain pending before public
   operation. See `docs/architecture/aegis-5-schedules.md`; flags remain OFF.
+
+- PR-07 management uses a client CSPRNG 256-bit bearer secret, only SHA256 stored;
+  origin/custom headers mitigate CSRF and do not authenticate ownership. Separate
+  consent is mandatory for Push, and browser permission requires a user gesture.
+  Endpoints/keys/aliases/payloads are AES-256-GCM encrypted with per-row AAD;
+  PUSH_STORAGE_KEY and VAPID private key stay outside git/logs/screenshots.
+- Native Push endpoints are closed HTTPS vendor allowlists; transport rejects
+  redirects/private DNS and bounds time/body/TTL/retries. No citizen-supplied
+  arbitrary fetch. Only reviewed fresh current source versions generate notices;
+  cancellations require explicit documentary quote and immutable operator review.
+- Receive eligibility uses native subscription endpoint+keys as private proof,
+  never a management token persisted in a service worker. Revoked/expired/changed
+  notices show only generic consultation text. Provider acceptance is not delivery.
+- The /watch/ service worker caches static shell only, never API/receipts/v4.
+  Logical expiry and deletion do not erase old WAL/snapshots; protect those copies.
+  PUSH_DELIVERY is a separate OFF gate; no real Push was sent in development.
