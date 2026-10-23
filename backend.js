@@ -1,3 +1,4 @@
+import { CELEC_REFRESH_FAILURE } from "./celec.js";
 import Fastify from "fastify";
 import rateLimit from "@fastify/rate-limit";
 import fs from "node:fs";
@@ -176,7 +177,8 @@ export async function createApp({
     const pending = (async () => {
       try {
         const data = await loader(date);
-        sourceQuality.last_success_at=date.toISOString();
+        if(data?.retrievalFailed || data?.[CELEC_REFRESH_FAILURE]) sourceQuality.failures++;
+        else sourceQuality.last_success_at=date.toISOString();
         caches.set(name, { at: date.getTime(), data });
         return data;
       } catch {

@@ -22,8 +22,8 @@ no inversores, Proxmox, enchufes, apagados o sistemas reales bajo ningún flag.
 
 ## Evidencia
 
-npm ci con cero vulnerabilidades reportadas, check y suite completa **191/191** Node 24 y **191/191** Node 22.16
-Alpine sin red, repositorio solo lectura. Cuatro tests nuevos de OpenAPI/rutas
+npm ci con cero vulnerabilidades reportadas, check y suite completa **193/193** Node 24 y **193/193** Node 22.16
+Alpine sin red, repositorio solo lectura. Seis tests nuevos de OpenAPI/rutas
 privadas/flags/reproducibilidad, telemetría de validación/429/5xx y fallos de loader
 sin datos privados. Regresión dirigida adicional de contrato/resumen:18/18.
 Schema OpenAPI validado formalmente con openapi-spec-validator instalado solo en
@@ -56,9 +56,14 @@ metadata; no borrar stores o claves. Revertir PR-13 no cambia esquema ni histori
 Siguiente paso: revisión humana de la cadena y gates operativos, sin merge/deploy
 automáticos. [Matriz de entregas](../roadmap/aegis-5-delivery.md).
 
-Cierre final tras regresión de recuperación: check, **191/191** Node 24,
-**191/191** Node 22.16 sin red y **191/191** contra imagen aegis-final-review
+Cierre final tras regresión de recuperación: check, **193/193** Node 24,
+**193/193** Node 22.16 sin red y **193/193** contra imagen aegis-final-review
 (solo tests/fixtures/catálogo montados, producto empaquetado). Cinco recorridos
 de navegador a 320/390/768/1440 px repetidos; historial repetido después del
 último fix, sin overflow, errores JS o solicitudes externas. Artefactos en
 artifacts/, sin datos privados. Main confirmado local/remoto en 0339762.
+
+Corrección de revisión de PR21: lecturas fallback con marcas de fallo ya no
+registran éxito. Dos regresiones explícitas de CELEC con lectura retenida/recuperación
+y clima con retrievalFailed. npm ci (audit0), check, **193/193** Node24,
+**193/193** Node22.16 y **193/193** contra imagen sin red, tras el fix.

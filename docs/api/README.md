@@ -58,7 +58,7 @@ Contadores por proceso, reinician en restart; requests excluye la solicitud qual
 aún no completada. onResponse cuenta solo rutas registradas GET públicas; no
 incluye propietarios, abuso de privados o endpoints desconocidos. sources cuenta
 invocaciones del loader v4 al vencer caché, no cada HTTP subrequest, ni porcentaje
-de cobertura. Fallo de un parser interno que devuelve dato ausente sin lanzar no
+de cobertura. Fallo de un parser interno que devuelve dato ausente sin lanzar ni marcar fallo no
 se presenta como error de loader. Timestamp de último éxito global no acredita
 que todas las fuentes estén vigentes: consultar metadata/frescura de cada dato.
 No logs de cuerpos, Authorization, endpointPush o IP. Observabilidad privada de
@@ -75,3 +75,7 @@ La obligatoriedad de area_id en report-summary se declara ahora también en sche
 OpenAPI se validó formalmente con openapi-spec-validator temporal fuera de las
 dependencias del proyecto. PyYAML/Jinja2 temporales validan ejemplo HA mediante
 scripts/verify-ha-example.py; no se ejecutó una instancia HA ni acciones reales.
+
+Las marcas retrievalFailed y CELEC_REFRESH_FAILURE cuentan como fallo aunque el
+loader resuelva con una lectura conservada: no avanzan last_success_at. Recuperar
+una fuente válida sí avanza éxito, sin cambiar valores/fechas históricas de v4.

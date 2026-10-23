@@ -58,7 +58,7 @@ activación productiva. Rollback por flags OFF conserva JSON/SQLite/keys; esquem
 anterior siempre con SQLite OFF o snapshot en otro DB_DIR, sin sobrescribir historia.
 
 Verificación final de la cadena: npm ci (cero vulnerabilidades reportadas),
-npm run check y **191/191** en Node 24 / Node 22.16; **191/191** también en
+npm run check y **193/193** en Node 24 / Node 22.16; **193/193** también en
 la imagen empaquetada sin red. OpenAPI 3.1 validado formalmente, 14 GETs.
 Plantillas HA verificadas sin instancia real. Navegador para cinco vistas en
 cuatro tamaños, con fallback y datos sintéticos; historial incluye comparación

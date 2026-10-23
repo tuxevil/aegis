@@ -108,3 +108,17 @@ test('telemetry reports loader failures and public 5xx without disclosing source
  await app.inject('/api/status');broken=true;assert.equal((await app.inject({...remote,url:'/api/v1/health/public'})).statusCode,500);broken=false;
  const response=await app.inject({...remote,url:'/api/v1/health/quality'});assert.equal(response.statusCode,200);const result=response.json();assert.ok(result.errors_5xx>=1);assert.ok(result.sources.attempts>=1);assert.ok(result.sources.failures>=1);assert.equal(result.sources.last_attempt_at,'2026-10-22T12:00:00.000Z');assert.ok(!response.body.includes('private-fixture'));
 });
+
+test('retained CELEC readings count as refresh failure until a genuine successful load',async t=>{
+ let clock=Date.parse('2026-10-22T12:00:00Z'),failed=true;const now=()=>new Date(clock),store=new HistoryStore();store.record('30031',[{valueedit:2120,loctimestamp:'2026-10-22T11:30:00Z'}],now());
+ const fetchUrl=async()=>{if(failed)throw Error('synthetic source failure');return {status:200,data:JSON.stringify({items:[{valueedit:2121,loctimestamp:now().toISOString()}]})};};
+ const app=await createApp({store,now,mac:null,fetchUrl,flags:{PUBLIC_API_V1:true,EXPLORER_3D:true}});t.after(()=>app.close());
+ assert.equal((await app.inject('/api/v1/infrastructure')).json().measurement.state,'failed');const first=(await app.inject('/api/v1/health/quality')).json();assert.equal(first.sources.attempts,1);assert.equal(first.sources.failures,1);assert.equal(first.sources.last_success_at,null);
+ failed=false;clock+=11*60000;assert.equal((await app.inject('/api/v1/infrastructure')).json().measurement.state,'current');const restored=(await app.inject('/api/v1/health/quality')).json();assert.equal(restored.sources.attempts,2);assert.equal(restored.sources.failures,1);assert.equal(restored.sources.last_success_at,now().toISOString());
+});
+
+test('weather fallback marker increments failures without advancing source success',async t=>{
+ const now=()=>new Date('2026-10-22T12:00:00Z'),store=new HistoryStore();store.record('weather',[{loctimestamp:'2026-10-22T11:30:00Z',tempC:18,rainRateMmHr:0,rainDailyMm:0,humidity:60,windGustKmh:0,pressureHpa:1000,uvIndex:0,solarRadiation:0}],now());
+ const app=await createApp({store,now,mac:'synthetic-not-a-station',fetchUrl:async()=>({status:503,data:''}),flags:{PUBLIC_API_V1:true}});t.after(()=>app.close());
+ const weather=(await app.inject('/api/weather')).json();assert.equal(weather.retrievalFailed,true);assert.equal(weather.tempC,18);const response=await app.inject('/api/v1/health/quality'),quality=response.json();assert.equal(quality.sources.failures,1);assert.equal(quality.sources.last_success_at,null);assert.ok(!response.body.includes('synthetic-not-a-station'));
+});
