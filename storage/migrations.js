@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { createHash } from "node:crypto";
 
-export const MIGRATIONS = Object.freeze(["001-foundations.sql", "002-citizen-reports.sql", "003-correlation.sql", "004-schedules.sql", "005-push.sql"].map((file, index) => {
+export const MIGRATIONS = Object.freeze(["001-foundations.sql", "002-citizen-reports.sql", "003-correlation.sql", "004-schedules.sql", "005-push.sql", "006-feeds.sql"].map((file, index) => {
   const sql = fs.readFileSync(new URL(`./migrations/${file}`, import.meta.url), "utf8");
   return Object.freeze({ version: index + 1, sql, checksum: createHash("sha256").update(sql).digest("hex") });
 }));

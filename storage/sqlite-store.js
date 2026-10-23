@@ -1,3 +1,4 @@
+import { createFeeds } from "./feeds.js";
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -72,7 +73,8 @@ export async function openStore({
     }, onWriteFailure: error => { writeFailure = error; } });
     const store = {
       repositories,
-      publicReader: createPublicReader(db, { synthetic, available }),
+      feeds: createFeeds(db, { synthetic, now, available, transaction: work => store.transaction(work), getRepositories: () => repositories }),
+      publicReader: createPublicReader(db, { synthetic, available, now, projectEvent: id => store.correlation.project(id) }),
       reports: createCitizenReports(db, { synthetic, available, transaction: work => store.transaction(work), now }),
       subscriptions: createSubscriptions(db, { synthetic, available, transaction: work => store.transaction(work), now, key: pushStorageKey, getSchedules: () => store.schedules }),
       schedules: createSchedules(db, { synthetic, available, transaction: work => store.transaction(work), now }),

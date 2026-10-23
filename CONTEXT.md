@@ -83,3 +83,5 @@ keys, aliases and outbox payloads with a persistent private PUSH_STORAGE_KEY.
 Reviewed fresh official schedules only; explicit documentary cancellation, never
 missing rows. Before-send and receive validation suppress stale details. No
 production sends; see docs/architecture/aegis-5-push.md and verification PR-07.
+
+PR-08 adds permission-gated manual RSS/Atom metadata ingestion, immutable reviews and migration006. OSINT_NEWS stays OFF, no automatic ingestion/events/Push. See docs/architecture/aegis-5-feeds.md.

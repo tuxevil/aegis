@@ -1,0 +1,16 @@
+CREATE TABLE feed_state(provider_id TEXT PRIMARY KEY, attempted_at TEXT NOT NULL,next_allowed_at TEXT NOT NULL,status TEXT NOT NULL,etag TEXT,last_modified TEXT,document_hash TEXT) STRICT;
+CREATE TABLE feed_documents(id TEXT PRIMARY KEY,provider_id TEXT NOT NULL,sha256 TEXT NOT NULL,first_seen_at TEXT NOT NULL,synthetic INTEGER NOT NULL,UNIQUE(provider_id,sha256)) STRICT;
+CREATE TABLE feed_items(id TEXT PRIMARY KEY,provider_id TEXT NOT NULL,url TEXT NOT NULL,title TEXT NOT NULL,published_at TEXT,first_seen_at TEXT NOT NULL,document_id TEXT NOT NULL REFERENCES feed_documents(id),category TEXT NOT NULL,temporal_state TEXT NOT NULL,content_hash TEXT NOT NULL,revision_hash TEXT NOT NULL,synthetic INTEGER NOT NULL,UNIQUE(provider_id,url,revision_hash)) STRICT;
+CREATE INDEX feed_items_content ON feed_items(content_hash,id);
+CREATE INDEX feed_items_url ON feed_items(provider_id,url,first_seen_at);
+CREATE TABLE feed_reviews(id TEXT PRIMARY KEY,item_id TEXT NOT NULL REFERENCES feed_items(id),decision TEXT NOT NULL CHECK(decision IN ('rejected','approved')),reviewed_at TEXT NOT NULL,reason TEXT NOT NULL,observation_id TEXT REFERENCES observations(id),UNIQUE(item_id)) STRICT;
+CREATE TRIGGER feed_documents_immutable BEFORE UPDATE ON feed_documents BEGIN SELECT RAISE(ABORT,'immutable'); END;
+CREATE TRIGGER feed_items_immutable BEFORE UPDATE ON feed_items BEGIN SELECT RAISE(ABORT,'immutable'); END;
+CREATE TRIGGER feed_reviews_immutable BEFORE UPDATE ON feed_reviews BEGIN SELECT RAISE(ABORT,'immutable'); END;
+CREATE TRIGGER feed_documents_no_delete BEFORE DELETE ON feed_documents BEGIN SELECT RAISE(ABORT,'immutable'); END;
+CREATE TRIGGER feed_items_no_delete BEFORE DELETE ON feed_items BEGIN SELECT RAISE(ABORT,'immutable'); END;
+CREATE TRIGGER feed_reviews_no_delete BEFORE DELETE ON feed_reviews BEGIN SELECT RAISE(ABORT,'immutable'); END;
+CREATE TABLE feed_permissions(id INTEGER PRIMARY KEY,provider_id TEXT NOT NULL,decision TEXT NOT NULL CHECK(decision IN ('approved','rejected')),valid_until TEXT NOT NULL,evidence_url TEXT NOT NULL,reason TEXT NOT NULL,reviewed_at TEXT NOT NULL) STRICT;
+CREATE INDEX feed_permissions_latest ON feed_permissions(provider_id,id DESC);
+CREATE TRIGGER feed_permissions_immutable BEFORE UPDATE ON feed_permissions BEGIN SELECT RAISE(ABORT,'immutable'); END;
+CREATE TRIGGER feed_permissions_no_delete BEFORE DELETE ON feed_permissions BEGIN SELECT RAISE(ABORT,'immutable'); END;
