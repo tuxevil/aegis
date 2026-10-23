@@ -49,7 +49,7 @@ export async function registerPublicV1(app, { now, blackout = false, reader, rep
       api_version: "1", status: "foundation", timestamp: now().toISOString(), coverage: "unknown",
     }));
     if (infrastructure) registerInfrastructure(publicApi, infrastructure);
-    if (timeline) registerTimeline(publicApi, { store: timeline, now });
+    if (timeline) registerTimeline(publicApi, { store: timeline, now, includeSchedules: Boolean(schedules) });
     if (subscriptions) await registerSubscriptionsApi(publicApi, { ...subscriptions, now });
     if (schedules) registerSchedulesApi(publicApi, { store:schedules, now });
     if (blackout) registerBlackoutApi(publicApi, { reader, now });

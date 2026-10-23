@@ -51,3 +51,13 @@ Revisión: redacción/privacidad se aplica antes del filtro de fechas para evita
 inferir intervalos ocultos por presencia de filas. CSV conserva metadata completa
 de evidencia (nombre, relación, publicación, ingesta incluso sin URL), bases y
 corte/rango. Dos regresiones nuevas; npm ci audit0/check y **175/175**.
+
+Auditoría de aceptación amplió comparación: endpoint histórico de programación
+separado y panel UI usan mismo corte temporal, fuente/artefacto/SHA y derechos
+vigentes. No duración efectiva desde horario. Dos pruebas nuevas validan cambio
+de versión y revocación sobre snapshot antiguo; suite de rama **182/182**.
+
+Comparación Chromium repetida a 320/390/768/1440 con programación en panel
+separado: fechas/artefacto/revisión bajo mismo corte, sin duración efectiva,
+sin overflow/errores/requests externos. Se corrigió el parent_id ausente del
+fixture de área antes de enlazar programación. Once tests dirigidos pasan.

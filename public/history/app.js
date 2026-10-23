@@ -1,7 +1,16 @@
 (() => {
   const $ = (id) => document.getElementById(id),
     state = { area: null, next: null, query: null, busy: false };
-  const labels={reported:"Reportado",corroborated:"Corroborado",official:"Oficial",ended:"Finalizado con evidencia",unknown:"Desconocido",support:"Respaldo",refute:"Refutación",retraction:"Corrección / retractación"};
+  const labels = {
+    reported: "Reportado",
+    corroborated: "Corroborado",
+    official: "Oficial",
+    ended: "Finalizado con evidencia",
+    unknown: "Desconocido",
+    support: "Respaldo",
+    refute: "Refutación",
+    retraction: "Corrección / retractación",
+  };
   const local = (date) =>
       new Date(date.getTime() - 5 * 3600000).toISOString().slice(0, 16),
     format = (value) =>
@@ -64,6 +73,7 @@
   }
   function render(value) {
     $("results").replaceChildren();
+    $("planned")?.replaceChildren();
     for (const row of value.data) {
       const card = document.createElement("article"),
         title = document.createElement("h2");
@@ -108,8 +118,10 @@
   async function load(parameters) {
     if (state.busy) return;
     state.busy = true;
+    state.generation = (state.generation || 0) + 1;
     note("Consultando…");
     $("results").replaceChildren();
+    $("planned")?.replaceChildren();
     $("json").disabled = $("csv").disabled = $("next").disabled = true;
     try {
       const value = await (
@@ -165,4 +177,42 @@
         note(error.message);
       }
     };
+  $("compare-planned")?.addEventListener("click", async () => {
+    if (state.busy) return;
+    const generation = state.generation;
+    try {
+      const params = state.query || query();
+      const value = await (
+        await request("/api/v1/timeline/schedules?" + params)
+      ).json();
+      if (generation !== state.generation) return;
+      $("planned").replaceChildren();
+      const heading = document.createElement("h2");
+      heading.textContent =
+        "Programación conocida entonces · no observación de corte";
+      $("planned").append(heading);
+      for (const row of value.data) {
+        const p = document.createElement("p"),
+          link = document.createElement("a");
+        p.textContent = `${row.synthetic ? "DATOS SINTÉTICOS · " : ""}${row.area_name}: planificado ${format(row.start_at)} a ${format(row.end_at)} · revisión ${row.revision_no} · ${row.status === "historical_cancelled" ? "cancelación documentada" : "programación histórica revisada"}. Revisada ${format(row.reviewed_at)}. No acredita duración efectiva. `;
+        link.href = row.source_url;
+        link.textContent = "Documento oficial";
+        link.rel = "noopener noreferrer";
+        p.append(link);
+        $("planned").append(p);
+      }
+      if (!value.data.length) {
+        const p = document.createElement("p");
+        p.textContent =
+          "Sin programación histórica publicable en esta página. No significa ausencia de cortes.";
+        $("planned").append(p);
+      }
+      note(
+        "Comparación del mismo corte temporal. Programado y reportado permanecen separados; más páginas se consultan por API.",
+      );
+    } catch (error) {
+      $("planned").replaceChildren();
+      note(error.message);
+    }
+  });
 })();

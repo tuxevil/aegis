@@ -16,7 +16,14 @@ export async function setupTimeline(t, options = {}) {
   t.after(() => store.close());
   store.writeBatch({
     areas: [
-      { ...fixture.areas[0], id: "area", name: "Área sintética de replay" },
+      {
+        ...fixture.areas[0],
+        id: "canton",
+        name: "Cantón sintético",
+        type: "canton",
+        location_precision: "administrative_area",
+      },
+      { ...fixture.areas[0], id: "area", name: "Área sintética de replay", parent_id: "canton" },
     ],
   });
   const add = (id, signal = "outage", event_id = null, replaces = null) => {
@@ -53,7 +60,10 @@ export async function setupTimeline(t, options = {}) {
           area_id: "area",
           dedupe_key: id,
           summary: `Evidencia sintética ${id}`,
-          occurred_at: signal === "restored" ? "2026-10-22T11:00:00.000Z" : "2026-10-22T10:00:00.000Z",
+          occurred_at:
+            signal === "restored"
+              ? "2026-10-22T11:00:00.000Z"
+              : "2026-10-22T10:00:00.000Z",
           observed_at: null,
           reported_start_at: null,
           ingested_at: now().toISOString(),

@@ -60,8 +60,8 @@ cero con next_offset todavía disponible. Iterar hasta null, no inferir fin por 
 Paginación eventual ante cambio de permisos, no snapshot de permisos entre requests.
 
 Por consulta examina máximo 50 eventos y 500 evidencias/evento (límite PR-05), sin
-escanear todo el historial. No importación histórica automática, schedules históricos
-sin ledger de motor o cuerpos RSS/HTML descargables. Los cronogramas reales PR-06
+escanear todo el historial. No importación histórica automática, programaciones sin revisión
+en su ledger o cuerpos RSS/HTML descargables. Los cronogramas reales PR-06
 siguen su API y revisión propias; no se convierten automáticamente en eventos de
 replay. El demo de mapa sin revisiones puede dar timeline vacío de manera honesta.
 
@@ -81,3 +81,10 @@ registro histórico para llenar una pantalla. Próximo PR-11: explorador ilustra
 Corrección de revisión: rango se aplica después de redacción; fechas ocultas se
 comparan como desconocidas, evitando un oráculo por consultas estrechas. CSV añade
 evidence_json con procedencia/relaciones/fechas, bases y known_at/from/to.
+
+Comparación histórica: con OFFICIAL_SCHEDULES también se registra GET
+/api/v1/timeline/schedules con mismo corte/rango/área y paginación. Proyecta última
+revisión importada y revisada entonces, exige derechos actuales y binding actual
+a la misma área; revocación no resucita con known_at antiguo. Horas planificadas
+siempre separadas de ocurrencia y duration_seconds=null. UI muestra panel propio;
+no acredita vigencia en tiempo real ni convierte ausencia en cancelación.
