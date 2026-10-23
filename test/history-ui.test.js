@@ -18,7 +18,7 @@ const wait = async (condition) => {
   throw Error("UI timeout");
 };
 test("history UI exposes unknown durations and sources as inert text, clears stale results on failure and requires chosen area", async (t) => {
-  const dom = new JSDOM(html, {
+  const dom = new JSDOM(html.replace("<!-- schedule-comparison -->", '<button id="compare-planned">Comparar</button>'), {
       url: "https://example.invalid/history/",
       runScripts: "outside-only",
     }),
@@ -79,9 +79,15 @@ test("history UI exposes unknown durations and sources as inert text, clears sta
     "https://example.invalid/source",
   );
   assert.equal(window.localStorage.length, 0);
+  const previousFetch=window.fetch,requests=[];
+  window.fetch=async url=>{requests.push(url);if(url.startsWith("/api/v1/timeline/schedules"))return {ok:true,json:async()=>({data:[],meta:{known_at:"2026-10-22T12:10:00Z"}})};return previousFetch(url);};
+  $("from").value="2026-10-01";
   failed = true;
   $("filters").dispatchEvent(new window.Event("submit", { cancelable: true }));
   await wait(() => $("status").textContent.includes("no disponible"));
   assert.equal($("results").children.length, 0);
   assert.equal($("csv").disabled, true);
+  failed=false;$("compare-planned").click();await wait(()=>requests.some(url=>url.startsWith("/api/v1/timeline/schedules")));
+  await wait(()=>$("planned").textContent.includes("Sin programación histórica"));
+  assert.equal(new URL(requests.find(url=>url.startsWith("/api/v1/timeline/schedules")),"https://example.invalid").searchParams.get("from"),"2026-10-01T05:00:00.000Z");
 });
