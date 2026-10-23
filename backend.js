@@ -47,6 +47,7 @@ export async function createApp({
   },
 } = {}) {
   const features = readFeatureFlags(flags);
+  if(features.EXPLORER_3D && !features.PUBLIC_API_V1) throw new Error("EXPLORER_3D requiere API pública");
   if(features.TIME_MACHINE && (!features.PUBLIC_API_V1 || !features.BLACKOUT_MAP || !features.SQLITE_STORAGE && !features.BLACKOUT_DEMO)) throw new Error("TIME_MACHINE requiere API, mapa y almacenamiento");
   if (features.PUSH_ALERTS && (!features.PUBLIC_API_V1 || !features.SQLITE_STORAGE || !features.OFFICIAL_SCHEDULES || !features.BLACKOUT_MAP || features.BLACKOUT_DEMO)) throw new Error("PUSH_ALERTS requiere API, SQLite, cronogramas y catálogo de mapa sin demo");
   const watchConfig = features.PUSH_ALERTS ? pushConfig || readPushConfig() : null;
@@ -112,6 +113,7 @@ export async function createApp({
     reportStore = demoStore;
   }
   if (features.PUBLIC_API_V1) await registerPublicV1(app, { now, blackout: features.BLACKOUT_MAP, reader: publicReader,
+    infrastructure: features.EXPLORER_3D ? { loadDams: () => load("dams"), history: store, now } : null,
     timeline: features.TIME_MACHINE ? reportStore : null,
     subscriptions: features.PUSH_ALERTS ? { store: reportStore, config: watchConfig } : null,
     schedules: features.OFFICIAL_SCHEDULES ? reportStore : null,
@@ -223,6 +225,10 @@ export async function createApp({
   if (features.CITIZEN_REPORTS) app.get("/report", (_, reply) => reply.header("Cache-Control", "no-store")
     .header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
     .header("Referrer-Policy", "no-referrer").type("text/html").send(fs.readFileSync(path.join(directory, "public/report.html"))));
+  if(features.EXPLORER_3D){
+    app.get("/explorer",(_,reply)=>reply.redirect("/explorer/"));
+    for(const [file,type] of Object.entries({"":"text/html; charset=utf-8","app.js":"text/javascript","scene.js":"text/javascript","style.css":"text/css"}))app.get(`/explorer/${file}`,(_,reply)=>reply.header("Cache-Control","no-store").header("Referrer-Policy","no-referrer").header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'").type(type).send(file ? fs.readFileSync(path.join(directory,"public/explorer",file)) : fs.readFileSync(path.join(directory,"public/explorer/index.html"),"utf8").replace("<!-- map-link -->",features.BLACKOUT_MAP ? ' · <a href="/map">Mapa ciudadano</a>' : "")));
+  }
   if(features.TIME_MACHINE){
     app.get("/history",(_,reply)=>reply.redirect("/history/"));
     for(const [file,type] of Object.entries({"":"text/html; charset=utf-8","app.js":"text/javascript","style.css":"text/css"}))app.get(`/history/${file}`,(_,reply)=>reply.header("Cache-Control","no-store").header("Referrer-Policy","no-referrer").header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'").type(type).send(file ? fs.readFileSync(path.join(directory,"public/history",file)) : fs.readFileSync(path.join(directory,"public/history/index.html"),"utf8").replace("<!-- schedule-comparison -->",features.OFFICIAL_SCHEDULES ? '<button id="compare-planned" type="button">Comparar con programación conocida entonces</button>' : "")));

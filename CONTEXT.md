@@ -89,3 +89,5 @@ PR-08 adds permission-gated manual RSS/Atom metadata ingestion, immutable review
 PR-09 is a documented social NO-GO: no access/budget/validated coverage/deletion policy. OSINT_X remains OFF and no social adapter exists. See docs/research/aegis-5-social-feasibility.md. PR-10 is independent.
 
 PR-10 adds TIME_MACHINE (OFF), /history/ and GET timeline using immutable PR05 revisions. Separates occurrence from known_at; current privacy/permissions/hold override replay. No fabricated 2024, no new migration. See docs/architecture/aegis-5-timeline.md.
+
+PR-11 adds EXPLORER_3D (OFF), /explorer/ 2D measured Mazar cota and explicit illustrative optional isometric mesh (no real DEM/bathymetry). Narrow public projection reuses v4 cache/history. 2115 safety !=2098 design, no volume/energy model. See docs/architecture/aegis-5-explorer.md.

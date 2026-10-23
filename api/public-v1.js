@@ -1,3 +1,4 @@
+import { registerInfrastructure } from "./infrastructure.js";
 import { registerTimeline } from "./timeline.js";
 import { registerSubscriptionsApi } from "./subscriptions.js";
 import { registerSchedulesApi } from "./schedules.js";
@@ -10,7 +11,7 @@ export function isPublicV1Request(req) {
   return req.method === "GET" && req.routeOptions.config.publicApiV1 === true;
 }
 
-export async function registerPublicV1(app, { now, blackout = false, reader, reporting = null, schedules = null, subscriptions = null, timeline = null }) {
+export async function registerPublicV1(app, { now, blackout = false, reader, reporting = null, schedules = null, subscriptions = null, timeline = null, infrastructure = null }) {
   await app.register(async (publicApi) => {
     publicApi.setErrorHandler((error, req, reply) => {
       const status = error.validation || error.statusCode === 400 ? 400 : error.statusCode === 404 ? 404 : error.statusCode === 429 ? 429 : 500;
@@ -47,6 +48,7 @@ export async function registerPublicV1(app, { now, blackout = false, reader, rep
     }, async () => ({
       api_version: "1", status: "foundation", timestamp: now().toISOString(), coverage: "unknown",
     }));
+    if (infrastructure) registerInfrastructure(publicApi, infrastructure);
     if (timeline) registerTimeline(publicApi, { store: timeline, now, includeSchedules: Boolean(schedules) });
     if (subscriptions) await registerSubscriptionsApi(publicApi, { ...subscriptions, now });
     if (schedules) registerSchedulesApi(publicApi, { store:schedules, now });
