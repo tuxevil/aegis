@@ -1,0 +1,67 @@
+# EXAMPLE ONLY. Configure HA timezone America/Guayaquil and replace host/area.
+# Read-only; no physical actions. Do not copy management or Push secrets here.
+rest:
+  - resource_template: >-
+      https://example.invalid/api/v1/schedules?area_id=REPLACE_WITH_REVIEWED_SECTOR&from={{ now().replace(hour=0, minute=0, second=0, microsecond=0).isoformat() | urlencode }}&to={{ (now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)).isoformat() | urlencode }}&limit=20
+    method: GET
+    scan_interval: 900
+    timeout: 10
+    verify_ssl: true
+    sensor:
+      - name: AEGIS version programacion
+        unique_id: aegis_schedule_version_example
+        availability: >-
+          {{ value_json is defined and value_json is mapping and value_json.meta is defined and value_json.data is defined }}
+        value_template: >-
+          {% set rows = value_json.data | default([]) %}
+          {% set meta = value_json.meta | default({}) %}
+          {% set ns = namespace(version='desconocido') %}
+          {% if meta.synthetic | default(true) == false and meta.source_status | default('stale') == 'available' %}
+            {% if rows | length == 0 %}{% set ns.version = 'sin_programacion_verificada' %}{% endif %}
+            {% for row in rows %}
+              {% if ns.version == 'desconocido' and row.review_state == 'reviewed' and row.effective_status in ['published', 'revised'] and row.source_status == 'current' and row.revision_no == row.latest_revision_no and row.type in ['maintenance', 'residential'] %}
+                {% set ns.version = row.id ~ ':' ~ row.revision_no %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {{ ns.version }}
+        json_attributes:
+          - data
+          - meta
+
+# Both gates OFF after installation; user explicitly enables them after review.
+input_boolean:
+  aegis_schedule_notice_opt_in:
+    name: AEGIS avisos informativos opt-in
+    initial: false
+
+automation:
+  - id: aegis_schedule_notice_example
+    alias: AEGIS cambio de version revisada (ejemplo)
+    initial_state: false
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: sensor.aegis_version_programacion
+    conditions:
+      - condition: state
+        entity_id: input_boolean.aegis_schedule_notice_opt_in
+        state: "on"
+      - condition: template
+        value_template: >-
+          {{ trigger.from_state is not none and trigger.to_state is not none
+             and trigger.from_state.state != trigger.to_state.state
+             and trigger.from_state.state not in ['unknown', 'unavailable', 'desconocido']
+             and trigger.to_state.state not in ['unknown', 'unavailable', 'desconocido', 'sin_programacion_verificada']
+             and state_attr('sensor.aegis_version_programacion', 'meta') is mapping
+             and state_attr('sensor.aegis_version_programacion', 'meta').get('synthetic', true) == false
+             and state_attr('sensor.aegis_version_programacion', 'meta').get('source_status') == 'available' }}
+    actions:
+      - action: persistent_notification.create
+        data:
+          title: AEGIS · cambio de programación revisada
+          message: >-
+            Cambió una versión revisada para el sector configurado. Consulta fecha,
+            zona y documento original en AEGIS antes de actuar. Una programación
+            no confirma un corte ocurrido ni garantiza reposición. No se controló
+            ningún equipo desde este ejemplo.

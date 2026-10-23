@@ -1,3 +1,4 @@
+import { CELEC_REFRESH_FAILURE } from "./celec.js";
 import Fastify from "fastify";
 import rateLimit from "@fastify/rate-limit";
 import fs from "node:fs";
@@ -91,6 +92,7 @@ export async function createApp({
       .code(403)
       .send({ error: "Acceso al panorama desde el dashboard" });
   });
+  const sourceQuality={attempts:0,failures:0,last_attempt_at:null,last_success_at:null};
   let publicReader = emptyReader;
   let reportStore;
   let stopPushWorker;
@@ -113,6 +115,7 @@ export async function createApp({
     reportStore = demoStore;
   }
   if (features.PUBLIC_API_V1) await registerPublicV1(app, { now, blackout: features.BLACKOUT_MAP, reader: publicReader,
+    getSourceMetrics: () => ({ ...sourceQuality }),
     infrastructure: features.EXPLORER_3D ? { loadDams: () => load("dams"), history: store, now } : null,
     timeline: features.TIME_MACHINE ? reportStore : null,
     subscriptions: features.PUSH_ALERTS ? { store: reportStore, config: watchConfig } : null,
@@ -170,12 +173,16 @@ export async function createApp({
     if (cached && date.getTime() - cached.at < (cached.ttl ?? ttl))
       return cached.data;
     if (inflight.has(name)) return inflight.get(name);
+    sourceQuality.attempts++;sourceQuality.last_attempt_at=date.toISOString();
     const pending = (async () => {
       try {
         const data = await loader(date);
+        if(data?.retrievalFailed || data?.[CELEC_REFRESH_FAILURE]) sourceQuality.failures++;
+        else sourceQuality.last_success_at=date.toISOString();
         caches.set(name, { at: date.getTime(), data });
         return data;
       } catch {
+        sourceQuality.failures++;
         // Keep source dates intact, explicitly signal a failed refresh.
         const data = cached
           ? { ...cached.data, retrievalFailed: true }

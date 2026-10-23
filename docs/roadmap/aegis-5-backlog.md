@@ -1,6 +1,7 @@
 # AEGIS 5 — Backlog de implementación por PR
 
 Estado: tickets propuestos para Codex, no funcionalidades entregadas. Fecha: 2026-10-21.
+Estado de implementación por entrega: [matriz y gates de revisión](aegis-5-delivery.md). El texto siguiente conserva el plan base.
 Fuente de alcance: docs/roadmap/aegis-5-prd.md; arquitectura: docs/architecture/aegis-5-design.md.
 Orden obligatorio por dependencias; cada entrega es un PR independiente con screenshot/revisión cuando aplique y sin despliegue automático en producción.
 
