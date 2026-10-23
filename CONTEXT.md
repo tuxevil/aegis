@@ -85,3 +85,5 @@ missing rows. Before-send and receive validation suppress stale details. No
 production sends; see docs/architecture/aegis-5-push.md and verification PR-07.
 
 PR-08 adds permission-gated manual RSS/Atom metadata ingestion, immutable reviews and migration006. OSINT_NEWS stays OFF, no automatic ingestion/events/Push. See docs/architecture/aegis-5-feeds.md.
+
+PR-09 is a documented social NO-GO: no access/budget/validated coverage/deletion policy. OSINT_X remains OFF and no social adapter exists. See docs/research/aegis-5-social-feasibility.md. PR-10 is independent.
