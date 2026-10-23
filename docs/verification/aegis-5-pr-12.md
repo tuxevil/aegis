@@ -27,3 +27,7 @@ No despliegue, fuentes reales adicionales, pagos/contactos o activación de flag
 
 Rollback documental no afecta stores. Reabrir solo con evidencia validada/licencia
 revisada; siguiente PR-13 no depende de inventar el volumen y permanece read-only.
+
+Revalidación final de la rama tras correcciones previas: npm ci audit0,
+npm run check y **187/187** tests Node24. Esta ejecución nueva cierra el gate
+obligatorio de esta entrega documental, sin activar volumen ni tocar producción.
