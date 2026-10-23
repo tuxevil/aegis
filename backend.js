@@ -231,7 +231,7 @@ export async function createApp({
   }
   if(features.TIME_MACHINE){
     app.get("/history",(_,reply)=>reply.redirect("/history/"));
-    for(const [file,type] of Object.entries({"":"text/html; charset=utf-8","app.js":"text/javascript","style.css":"text/css"}))app.get(`/history/${file}`,(_,reply)=>reply.header("Cache-Control","no-store").header("Referrer-Policy","no-referrer").header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'").type(type).send(fs.readFileSync(path.join(directory,"public/history",file||"index.html"))));
+    for(const [file,type] of Object.entries({"":"text/html; charset=utf-8","app.js":"text/javascript","style.css":"text/css"}))app.get(`/history/${file}`,(_,reply)=>reply.header("Cache-Control","no-store").header("Referrer-Policy","no-referrer").header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'").type(type).send(file ? fs.readFileSync(path.join(directory,"public/history",file)) : fs.readFileSync(path.join(directory,"public/history/index.html"),"utf8").replace("<!-- schedule-comparison -->",features.OFFICIAL_SCHEDULES ? '<button id="compare-planned" type="button">Comparar con programación conocida entonces</button>' : "")));
   }
   if (features.PUSH_ALERTS) {
     const watchCsp="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; img-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
