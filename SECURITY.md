@@ -25,9 +25,9 @@ bypass of the localhost restriction, or injection via scraped sources.
   remotely; localhost retains the existing v4 exemption. Origin/Referer never
   unlock these private routes. See `docs/architecture/aegis-5-public-v1.md`.
 
-- `AMBIENT_MAC` is the only operational credential and must be injected via
+- V4 `AMBIENT_MAC` is a private station credential and must be injected via
   environment variable. Never commit `.env` or real station identifiers.
-- `/api/*` allows localhost only. `/api/status` additionally allows requests
+- V4 `/api/*` routes retain localhost restrictions; explicit v1 public methods are separate. `/api/status` additionally allows requests
   whose `Origin`/`Referer` host matches the server host. The `Referer` header
   is client-controlled, so treat this as scanner obfuscation, not
   authentication. Do not put sensitive data behind this API.
@@ -128,3 +128,5 @@ bypass of the localhost restriction, or injection via scraped sources.
 - PR-10 replay applies current publication/privacy gates and safety holds, never resurrects withdrawn evidence via old known_at. Public projection excludes audit reasons/inputs and private identities. CSV formula prefixes neutralized. TIME_MACHINE OFF; fixed public GET and local-only UI CSP, bounded range/pages/evidence.
 
 - PR-11 narrow infrastructure GET projects only public cota/date/history from v4 cached loader, never station MAC or raw errors. Illustrative mesh is local and optional, no external terrain/scripts, DOM textContent/CSP. No volume/reserve/prediction claim; source TLS limitation inherited from v4 remains explicit.
+
+- PR-13 publishes schemas for registered public GETs only; no owner/admin/mutation routes or generated key values enter OpenAPI. Aggregate counters exclude IPs, individual paths, bodies and tokens. HA sample uses HTTPS GET, current exact reviewed source versions, synthetic/stale/industrial exclusions, and two OFF opt-in gates; its sole action is a local informational notification, never device/inverter/host control.

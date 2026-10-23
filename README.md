@@ -2,9 +2,9 @@
 
 Un observatorio público para entender las señales de energía de Ecuador y las condiciones locales de Pallatanga, con igual protagonismo. Su objetivo es ayudar a anticiparse: explicar qué cambió, por qué importa y qué datos faltan. No anuncia horarios de cortes ni calcula probabilidades de apagón o deslave.
 
-## AEGIS 5.0 (planificado; no desplegado)
+## AEGIS 5.0 (en revisión; no desplegado)
 
-Estamos diseñando una evolución hacia **Blackout Map** (reportes ciudadanos y evidencia geográfica), **Sector Watch** (seguimiento de horarios oficiales y notificaciones opt-in), **Time Machine** (historial auditable), OSINT responsable e **Infrastructure Explorer** 2D/3D. Estas funciones **no están implementadas** en v4. La consola actual sigue operativa.
+Estamos diseñando una evolución hacia **Blackout Map** (reportes ciudadanos y evidencia geográfica), **Sector Watch** (seguimiento de horarios oficiales y notificaciones opt-in), **Time Machine** (historial auditable), OSINT responsable e **Infrastructure Explorer** 2D/3D. Las capacidades piloto están implementadas en PRs separados, con flags OFF; **no están desplegadas ni activadas en producción**. La consola v4 sigue operativa. Redes sociales y modelo real de volumen tienen decisiones NO-GO documentadas; la geometría del explorador es ilustrativa. [Estado de entregas y gates](docs/roadmap/aegis-5-delivery.md).
 
 - [Objetivos, experiencia y límites del producto](docs/roadmap/aegis-5-prd.md)
 - [Arquitectura, API, datos, seguridad y fuentes](docs/architecture/aegis-5-design.md)
@@ -187,3 +187,5 @@ PR-10: [Time Machine y exportaciones](docs/architecture/aegis-5-timeline.md), /h
 PR-11: [explorador educativo de infraestructura](docs/architecture/aegis-5-explorer.md), EXPLORER_3D=false. Cota y fechas separadas de una geometría ilustrativa; sin DEM/batimetría ni reserva energética calculada.
 
 PR-12: [NO-GO de volumen útil/reserva a partir de cota](docs/research/aegis-5-volume-decision.md). Se conserva cota e ilustración, sin conversión lineal ni tabla no validada.
+
+PR-13: [API pública OpenAPI y telemetría](docs/api/README.md), con [ejemplo Home Assistant read-only y opt-in](examples/home-assistant/README.md). Las rutas del documento en ejecución reflejan solo flags habilitados.

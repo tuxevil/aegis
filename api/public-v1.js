@@ -1,3 +1,4 @@
+import { registerDocumentation } from "./documentation.js";
 import { registerInfrastructure } from "./infrastructure.js";
 import { registerTimeline } from "./timeline.js";
 import { registerSubscriptionsApi } from "./subscriptions.js";
@@ -11,8 +12,9 @@ export function isPublicV1Request(req) {
   return req.method === "GET" && req.routeOptions.config.publicApiV1 === true;
 }
 
-export async function registerPublicV1(app, { now, blackout = false, reader, reporting = null, schedules = null, subscriptions = null, timeline = null, infrastructure = null }) {
+export async function registerPublicV1(app, { now, blackout = false, reader, reporting = null, schedules = null, subscriptions = null, timeline = null, infrastructure = null, getSourceMetrics }) {
   await app.register(async (publicApi) => {
+    registerDocumentation(publicApi, { now, getSourceMetrics });
     publicApi.setErrorHandler((error, req, reply) => {
       const status = error.validation || error.statusCode === 400 ? 400 : error.statusCode === 404 ? 404 : error.statusCode === 429 ? 429 : 500;
       reply.header("Cache-Control", "no-store").code(status).send({ error: {

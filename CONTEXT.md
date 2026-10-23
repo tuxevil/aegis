@@ -93,3 +93,5 @@ PR-10 adds TIME_MACHINE (OFF), /history/ and GET timeline using immutable PR05 r
 PR-11 adds EXPLORER_3D (OFF), /explorer/ 2D measured Mazar cota and explicit illustrative optional isometric mesh (no real DEM/bathymetry). Narrow public projection reuses v4 cache/history. 2115 safety !=2098 design, no volume/energy model. See docs/architecture/aegis-5-explorer.md.
 
 PR-12 is NO-GO for real cota-volume/energy model: no validated licensed current curve/datum/uncertainty. Keep volume_model unavailable and height-only observations. See docs/research/aegis-5-volume-decision.md; no invented linear reserve.
+
+PR-13 adds runtime OpenAPI for registered public GETs only, schema export without network, aggregate error/loader counters and read-only HA opt-in example. No physical controls. Delivery/gates matrix: docs/roadmap/aegis-5-delivery.md. All v5 defaults remain OFF, PRs open and main untouched; no production or real Push sends.

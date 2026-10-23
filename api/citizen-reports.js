@@ -51,7 +51,7 @@ export async function registerCitizenReports(app, { store, now, origin, guard = 
           if (req.body && Object.hasOwn(body?.properties || {}, "consent") && (req.body.consent !== true || req.body.area_confirmed !== true)) throw reportError("INVALID_REQUEST");
         },
         schema: {
-          ...(body ? { body } : {}), querystring: closed(query || {}, []),
+          ...(body ? { body } : {}), querystring: closed(query || {}, url === "/api/v1/report-summary" ? ["area_id"] : []),
           ...(url.includes(":id") ? { params: closed({ id }) } : {}),
           response: { [status]: response, 400: errorSchema, 403: errorSchema, 404: errorSchema, 409: errorSchema, 413: errorSchema, 429: errorSchema, 500: errorSchema },
         },
