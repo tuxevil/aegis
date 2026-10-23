@@ -18,7 +18,7 @@ defecto. Sin despliegue, merge de PR, control físico, compra de APIs o Push rea
 | PR-10 | [#18](https://github.com/tuxevil/aegis/pull/18) Time Machine/export | known_at frente al tiempo del hecho, privacidad/CSV, comparación planificado |
 | PR-11 | [#19](https://github.com/tuxevil/aegis/pull/19) cota 2D/prototipo 3D | observación/fecha, malla ilustrativa/fallback, sin batimetría |
 | PR-12 | [#20](https://github.com/tuxevil/aegis/pull/20) NO-GO volumen real | falta curva vigente/licenciable/datum/incertidumbre |
-| PR-13 | rama feat/aegis-5-pr-13, PR al cerrar checks | OpenAPI de GETs reales/telemetría/HA opt-in read-only |
+| PR-13 | [#21](https://github.com/tuxevil/aegis/pull/21) API pública y HA | OpenAPI de GETs reales/telemetría/HA opt-in read-only |
 
 Cada entrega tiene arquitectura/investigación cuando aplica y
 `docs/verification/aegis-5-pr-NN.md` con pruebas, límites, migración/rollback y
