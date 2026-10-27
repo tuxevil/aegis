@@ -5,6 +5,8 @@ on:
       - 'docs/contracts/**'
       - 'scripts/probe-aegis-sources.mjs'
       - 'scripts/probe-aegis-sources.test.mjs'
+      - 'scripts/probe-amaru.mjs'
+      - 'scripts/probe-amaru.test.mjs'
       - 'tests/test_source_envelope.py'
       - '.github/workflows/source-contracts.yml'
   push:
@@ -12,6 +14,8 @@ on:
       - 'docs/contracts/**'
       - 'scripts/probe-aegis-sources.mjs'
       - 'scripts/probe-aegis-sources.test.mjs'
+      - 'scripts/probe-amaru.mjs'
+      - 'scripts/probe-amaru.test.mjs'
       - 'tests/test_source_envelope.py'
       - '.github/workflows/source-contracts.yml'
 permissions:
@@ -31,4 +35,6 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_source_envelope.py' -v
       - run: node --check scripts/probe-aegis-sources.mjs
       - run: node --test scripts/probe-aegis-sources.test.mjs
+      - run: node --check scripts/probe-amaru.mjs
+      - run: node --test scripts/probe-amaru.test.mjs
       # Deliberately no --live flag; CI is not allowed to poll providers.
