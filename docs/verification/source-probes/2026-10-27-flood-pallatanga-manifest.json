@@ -1,0 +1,40 @@
+{
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "inspectionOnly": true,
+  "sourceId": "sngr.flood.layer",
+  "areaId": "pallatanga",
+  "dpaCode": "0608",
+  "idCount": 17,
+  "sourceCrs": 32717,
+  "maxRecordCount": 2000,
+  "supportsPagination": false,
+  "requestEvidence": [
+    {
+      "mode": "metadata",
+      "sourceUrl": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services/Susceptibilidad_de_Inundaciones/MapServer/0?f=json",
+      "retrievedAt": "2026-10-27T19:20:44.905Z",
+      "httpStatus": 200,
+      "elapsedMs": 1200,
+      "byteLength": 8792,
+      "sha256": "404c5a4574b796c7aa7b69d40a70b038a5b0936f0484089cf614cf3ea93e8d8d"
+    },
+    {
+      "mode": "ids",
+      "sourceUrl": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services/Susceptibilidad_de_Inundaciones/MapServer/0/query?where=dpa_canton%3D%270608%27&f=json&returnGeometry=false&returnIdsOnly=true",
+      "retrievedAt": "2026-10-27T19:20:46.406Z",
+      "httpStatus": 200,
+      "elapsedMs": 500,
+      "byteLength": 130,
+      "sha256": "395276d094c40db9248b4e76b89057a86eb39a8fde53b17f2aa46be0fe16aacd"
+    }
+  ],
+  "geometryDownloaded": false,
+  "licensing": {
+    "status": "pending",
+    "licenseId": null,
+    "attribution": "SNGR"
+  },
+  "publicationBlocked": true,
+  "producedAt": "2026-10-27T19:20:46.407Z"
+}

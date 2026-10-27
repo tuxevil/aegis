@@ -1,0 +1,23 @@
+{
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "inspectionOnly": true,
+  "inspectionKind": "count_only",
+  "sourceId": "sngr.multihazard.layer",
+  "areaId": "guayaquil",
+  "expectedCount": 40,
+  "sourceUrl": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services/Hosted/MULTIAMENAZAS_SGR/FeatureServer/0/query?where=dpa_canton%3D%270901%27&f=json&returnGeometry=false&returnCountOnly=true",
+  "retrievedAt": "2026-10-27T19:30:09.291Z",
+  "httpStatus": 200,
+  "elapsedMs": 338,
+  "byteLength": 12,
+  "sha256": "514aa02b33f0f3bd55a6720137352149f8a3ab2bfe5a74caf52e3b54b9d061cb",
+  "geometryDownloaded": false,
+  "licensing": {
+    "status": "pending",
+    "licenseId": null,
+    "attribution": "SNGR"
+  },
+  "publicationBlocked": true,
+  "producedAt": "2026-10-27T19:30:09.292Z"
+}

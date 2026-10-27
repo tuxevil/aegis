@@ -8,14 +8,22 @@ addFormats(ajv);
 const validate=ajv.compile(schema);
 const text={type:"string",minLength:1,maxLength:2000};
 const nullableText={type:["string","null"],maxLength:2000};
+const position={type:"array",minItems:2,maxItems:2,prefixItems:[{type:"number",minimum:-180,maximum:180},{type:"number",minimum:-90,maximum:90}],items:false};
+const ring={type:"array",minItems:4,maxItems:100000,items:position};
+const polygon={type:"array",minItems:1,maxItems:256,items:ring};
+const geometry={oneOf:[
+  {type:"object",additionalProperties:false,required:["type","coordinates"],properties:{type:{const:"Polygon"},coordinates:polygon}},
+  {type:"object",additionalProperties:false,required:["type","coordinates"],properties:{type:{const:"MultiPolygon"},coordinates:{type:"array",minItems:1,maxItems:256,items:polygon}}},
+]};
 const detailSchemas={
   official_warning:{type:"object",additionalProperties:false,required:["bulletinNumber","authority","sourceRiskLevel","phenomena","areasMentioned","mapReviewed"],properties:{
     bulletinNumber:{type:["integer","null"],minimum:1},authority:{const:"INAMHI"},sourceRiskLevel:nullableText,
     phenomena:{type:"array",items:text,maxItems:20},areasMentioned:{type:"array",items:text,maxItems:100},mapReviewed:{const:false}}},
   static_exposure:{type:"object",additionalProperties:false,required:["features","exceededTransferLimit","sourceCrs","geometryIncluded"],properties:{
     features:{type:"array",maxItems:2000,items:{type:"object",additionalProperties:false,required:["objectId","categoryRaw","cantonCode","cantonName","hazardRaw"],properties:{
-      objectId:{type:["integer","null"]},categoryRaw:nullableText,cantonCode:nullableText,cantonName:nullableText,hazardRaw:nullableText}}},
-    exceededTransferLimit:{type:["boolean","null"]},sourceCrs:{type:["integer","null"]},geometryIncluded:{const:false}}},
+      objectId:{type:["integer","null"]},categoryRaw:nullableText,cantonCode:nullableText,cantonName:nullableText,hazardRaw:nullableText,geometry}}},
+    exceededTransferLimit:{type:["boolean","null"]},sourceCrs:{type:["integer","null"]},geometryIncluded:{type:"boolean"},
+    captureRole:{enum:["metadata","count","ids","features"]},targetCrs:{const:4326},transformEngine:{const:"proj4@2.22.0"}}},
   forecast_run:{type:"object",additionalProperties:false,required:["providerModel","runInitializedAt","time","precipitationMm","unit"],properties:{
     providerModel:nullableText,runInitializedAt:{type:"string",format:"date-time"},unit:{const:"mm"},
     time:{type:"array",minItems:1,maxItems:240,items:{type:"string",format:"date-time"}},
@@ -25,6 +33,8 @@ const validators=Object.fromEntries(Object.entries(detailSchemas).map(([kind,s])
 export function validateEnvelope(envelope) {
   if(!validate(envelope) || !validators[envelope.kind]?.(envelope.details)) throw new Error("invalid_source_envelope");
   if(envelope.kind==="forecast_run" && envelope.details.time.length!==envelope.details.precipitationMm.length)
+    throw new Error("invalid_source_envelope");
+  if(envelope.kind==="static_exposure" && envelope.details.features.some(f=>Boolean(f.geometry)!==envelope.details.geometryIncluded))
     throw new Error("invalid_source_envelope");
   return envelope;
 }

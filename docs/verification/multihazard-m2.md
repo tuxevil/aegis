@@ -29,8 +29,10 @@ Normalización privada de polígonos/multipartes/huecos EPSG:32717→4326 con pr
 2.22.0, origen/transformación preservados. Rechaza líneas, anillos abiertos o
 degenerados, CRS distinto y presupuestos excedidos. Verificador de capa completa
 exige manifiesto de IDs sin duplicados, ausencia de transfer-limit y conjunto exacto.
-**No es todavía un descargador completo por lotes/paginación** ni certificación
-de topología cartográfica. Geometría de pilotos continúa `null`.
+El incremento inicial no incluía descargador completo. La [ampliación de
+adquisición](multihazard-m2-acquisition.md) añade lotes/páginas, conteos y manifiestos
+probados offline; aún no certifica topología cartográfica. Geometría de pilotos
+continúa `null`.
 
 Se refuerza M1: `Retry-After` y cooldown de errores se conservan en journal y se
 comprueban antes de red después de reiniciar CLI; las capturas nuevas registran
@@ -94,7 +96,7 @@ No se publicaron imágenes ni se arrancaron contenedores operativos.
 
 ## Pendiente para cerrar M2 y siguientes hitos
 
-Descargador completo SNGR sin truncamiento, validación/licencia de polígonos y
+Validación real completa del descargador SNGR sin truncamiento, validación/licencia de polígonos y
 códigos administrativos actuales, revisión contra fuente institucional y consulta
 real por cantón con evidencia publicada. El explorador mantiene fallback útil
 sin fingir esas capacidades. M3 (evaluaciones/corpus en sombra), M4 (editorial,

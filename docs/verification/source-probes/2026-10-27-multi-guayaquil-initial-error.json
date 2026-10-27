@@ -1,0 +1,7 @@
+{
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "status": "BLOCKED_EXTERNAL",
+  "errorCode": "provider_json_error",
+  "producedAt": "2026-10-27T19:20:49.702Z"
+}

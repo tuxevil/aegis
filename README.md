@@ -7,6 +7,8 @@ Un observatorio público para entender las señales de energía de Ecuador y las
 Avance multiamenaza en ramas de desarrollo: [auditoría M0](docs/research/source-validation-results.md),
 [ingesta y archivo M1](docs/verification/multihazard-m1.md) y
 [explorador M2 y gates territoriales](docs/verification/multihazard-m2.md).
+La [adquisición SNGR por cantón](docs/verification/multihazard-m2-acquisition.md)
+añade verificación por conteos/IDs y archivo privado de investigación; no publica capas.
 `HAZARDS_ENABLED=false` por defecto; `HAZARDS_ENABLED=true npm start` añade
 `/hazards/` y consultas GET `/api/hazards/{sources,areas,observations,bulletins,health}`.
 La activación de esa vista no inicia ingesta ni publica avisos. Las capturas de
