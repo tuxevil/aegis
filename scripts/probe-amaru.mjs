@@ -23,10 +23,10 @@ const safeFieldNames=o=>o&&typeof o==="object"&&!Array.isArray(o)
   ?Object.keys(o).filter(s=>/^[a-zA-Z_][a-zA-Z_0-9]{0,79}$/.test(s)&&
     !/(key|token|secret|password|authorization|credential)/i.test(s)).slice(0,60):[];
 const safeNumber=v=>typeof v==="number"&&Number.isFinite(v)?v:null;
-const safeText=v=>typeof v==="string"&&v.length<=70&&/^[\p{L}0-9 \t._\-]+$/u.test(v)?v:null;
+const safeText=(v,secret)=>typeof v==="string"&&v.length<=70&&/^[\p{L}0-9 \t._\-]+$/u.test(v)&&(!secret||!v.includes(secret))?v:null;
 const asRecord=v=>v&&typeof v==="object"&&!Array.isArray(v)?v:{};
 
-export function summarizeResponse(payload,{httpStatus=200}={}) {
+export function summarizeResponse(payload,{httpStatus=200,secret=null}={}) {
   const p=asRecord(payload);
   const risk=asRecord(p.riesgo);
   const climate=asRecord(p.clima);
@@ -45,8 +45,8 @@ export function summarizeResponse(payload,{httpStatus=200}={}) {
     },
     location:{lat:safeNumber(area.lat),lon:safeNumber(area.lon),elevationM:safeNumber(area.elevacion_m)},
     climate:{temperatureC:safeNumber(climate.temp_c),rainMmPerHour:safeNumber(climate.lluvia_mm),
-      intensity:safeText(climate.intensidad)},
-    risk:{index:safeNumber(risk.indice),level:safeText(risk.nivel)},
+      intensity:safeText(climate.intensidad,secret)},
+    risk:{index:safeNumber(risk.indice),level:safeText(risk.nivel,secret)},
     note:"Una muestra NO valida prediccion, exactitud geográfica, latencia ni permiso de redistribución. No es alerta oficial."
   };
 }
@@ -74,7 +74,7 @@ export async function probeAmaru({key,fetchImpl=fetch,location=GUAYAQUIL_SAMPLE,
     if(!payload||typeof payload!=="object"||Array.isArray(payload))throw new Error("invalid_json_shape");
     if("error" in payload||"erro" in payload)throw new Error("provider_reported_error");
     if(!("clima" in payload)&&!("riesgo" in payload))throw new Error("unexpected_response_shape");
-    return {...summarizeResponse(payload,{httpStatus:response.status}),
+    return {...summarizeResponse(payload,{httpStatus:response.status,secret:key}),
       queriedAt:new Date().toISOString(),queryLocation:location,
       elapsedMs:Date.now()-start,result:"sample_obtained"};
   } catch(err){
