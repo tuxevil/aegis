@@ -1,6 +1,6 @@
 # Evaluación de integración: API Amaru (27-10-2026)
 
-**Estado:** análisis de documentación y prueba sin clave; prueba autenticada **pendiente de ejecución desde el servidor del propietario**. La clave API privada fue entregada al asistente en conversación; **NO está ni debe estar en el repositorio, ejemplos, commits o logs**. No solicitar compartirla de nuevo por chat ni pegar en URLs.
+**Estado actualizado:** el propietario confirmó una consulta autenticada exitosa para Guayaquil. La prueba de la precisión y licencia de redistribución de sus valores sigue pendiente. La clave API privada fue entregada al asistente en conversación; **NO está ni debe estar en el repositorio, ejemplos, commits o logs**. No solicitar compartirla de nuevo por chat ni pegar en URLs.
 
 ## Por qué investigar Amaru
 
@@ -60,6 +60,16 @@ unset AMARU_API_KEY
 La sonda devuelve JSON **resumido y saneado**: HTTP status, nombres de campos, \`clima.temp_c\`, \`clima.lluvia_mm\` (si presentes), \`riesgo.indice\` y \`riesgo.nivel\`, y presencia de campos limitados. No imprime URL ni clave, y no hace reintentos. **No ejecutarla mediante CI ni en cron.** Conservar la clave como secret de servidor en cualquier integración posterior, nunca en el JS frontend.
 
 Si devuelve \`unauthorized_401\`, revisar estado de la cuenta/clave o dominio autorizado; si \`quota_or_rate_limit_429\`, detener pruebas y revisar la cuota. No intentar cambiar el origen, eludir 403 ni hacer scraping de endpoints del mapa para obtener campos Premium.
+
+## Resultado autenticado recibido del operador
+
+El 27/10/2026 a las 20:19:56.942Z, la sonda desde staging devolvió HTTP 200, `sample_obtained`, 974 ms, para Guayaquil (-2.17,-79.92): índice 60/«Alerta», temperatura 29.6 °C, lluvia 0.6 mm/h e intensidad «ligera», elevación 9 m. Esto confirma conectividad y acceso al plan Dev, **no** validación de la estimación ni causa del índice.
+
+La primera respuesta `provider_reported_error` probablemente fue un bug de nuestra sonda, porque se trataba la mera presencia de `error` como fallo aunque su valor pudiera ser nulo; el valor original no se conservó y no debe inventarse. En la nueva respuesta se observó la clave `error` junto a datos válidos.
+
+No se reciben los factores explicativos, ríos ni reportes cercanos dentro del plan Dev. Evitar deducir qué causó el nivel 60 y no consumir cuota de 200 llamadas mensuales innecesariamente.
+
+Ver también [metodología pública de Amaru y fuentes](amaru-methodology-open-sources-2026-10-27.md).
 
 ## Cómo modelarlo en AEGIS si resulta útil
 
