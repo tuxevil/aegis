@@ -42,7 +42,7 @@ export function selectKnownCaptures(records,asOf,{recordOrigin="captured_source"
     const knownAt=Math.max(retrieved,processed);
     if(knownAt>cutoff){reject("not_known_at_cutoff");continue;}
     if(e.kind==="forecast_run") {
-      const run=utcMillis(e.time.runInitializedAt),availability=utcMillis(e.time.availabilityVerifiedAt);
+      const run=utcMillis(e.time.runInitializedAt),availability=utcMillis(recordOrigin==="synthetic_fixture"?record.fixtureForecastAvailabilityAt:e.time.availabilityVerifiedAt);
       if(!Number.isFinite(run)||!Number.isFinite(availability)){reject("forecast_availability_unverified");continue;}
       if(run>availability||availability>retrieved){reject("incoherent_forecast_clock");continue;}
       if(run>cutoff||availability>cutoff){reject("forecast_unavailable_at_cutoff");continue;}

@@ -1,6 +1,8 @@
 # M3 — Avance de selección temporal en sombra
 
-Estado: **M3 parcial, no terminado**. Rama `feat/multiamenaza-m3` sobre M2.
+Estado: **M3 con gate histórico pendiente**. Rama `feat/multiamenaza-m3` sobre M2.
+Este documento conserva el fundamento temporal inicial. La [entrega de motor,
+integración y métricas](multihazard-m3-engine.md) amplía su implementación.
 La adquisición de capas sigue con gates externos; eso no autoriza publicarlas ni
 bloquea el desarrollo offline autorizado del motor en sombra.
 
@@ -34,10 +36,9 @@ Validación local del incremento: `npm run check`, **99/99 pruebas Node**,
 rechazó correctamente un fixture que usaba `dataStatus=partial`; se corrigió a
 `unknown`, como exige el contrato sintético. No se relajó la validación para hacerlo pasar.
 
-**Falta para cerrar M3:** `assessHazard` y reglas modulares de candidatos internos,
-integración del selector con ingesta/replay, corpus histórico con procedencia y
-brechas explícitas 21–27/10, distinción de clases, métricas con denominadores
-verificados y reporte de falsos positivos/omisiones. No hay todavía motor
-multiamenaza terminado ni corpus negativo validado; no se calcularon probabilidades.
+**Gate restante de M3:** validar el corpus positivo/negativo real y sus métricas.
+El motor, integración, clases y métricas están implementados en el incremento
+enlazado; las brechas históricas se conservan explícitas. No hay corpus negativo
+validado ni probabilidades operacionales calibradas.
 M4 (editorial/suscripciones/outbox en simulación) y M5 autorizado aparte siguen
 pendientes del objetivo general.

@@ -1,0 +1,38 @@
+{
+  "reportKind": "AEGIS_PRIVATE_FORECAST_ARCHIVE_VERIFICATION",
+  "sourceId": "openmeteo.singlerun.ecmwf",
+  "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-2.19&longitude=-79.88&run=2026-10-25T00%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+  "recordOrigin": "captured_source",
+  "retrievedAt": "2026-10-27T20:11:04.400Z",
+  "processedAt": "2026-10-27T20:11:04.415Z",
+  "sha256": "b7aed910ad42dff0d2bf40187ecf1dec26934c7aa3d623a4646f5b419c633c0b",
+  "byteLength": 1995,
+  "transport": {
+    "httpStatus": 200,
+    "elapsedMs": 1063
+  },
+  "providerModel": "ecmwf_ifs",
+  "modelIdentityBasis": "explicit_request",
+  "runInitializedAt": "2026-10-25T00:00:00.000Z",
+  "availabilityVerifiedAt": "2026-10-27T20:11:04.400Z",
+  "points": 72,
+  "quality": {
+    "dataStatus": "partial",
+    "warnings": [],
+    "blockers": [
+      "historical_availability_not_proven",
+      "missing_forecast_values",
+      "license_not_verified_for_publication"
+    ],
+    "parserVersion": "multihazard-1.0.0",
+    "completenessRatio": null
+  },
+  "licensing": {
+    "status": "restricted",
+    "licenseId": "CC-BY-4.0",
+    "attribution": "Open-Meteo"
+  },
+  "rawBytesPublished": false,
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN"
+}

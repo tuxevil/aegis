@@ -1,0 +1,25 @@
+{
+  "corpusKind": "AEGIS_DOCUMENTED_REFERENCE_CORPUS",
+  "id": "guayaquil-pallatanga-2026-10-21-27-v1",
+  "recordOrigin": "documented_reference",
+  "referenceCase": "guayaquil-2026-10-26.json",
+  "coverage": [
+    {"date": "2026-10-21", "areaId": "guayaquil", "status": "unknown", "outcome": null},
+    {"date": "2026-10-22", "areaId": "guayaquil", "status": "unknown", "outcome": null},
+    {"date": "2026-10-23", "areaId": "guayaquil", "status": "unknown", "outcome": null},
+    {"date": "2026-10-24", "areaId": "guayaquil", "status": "unknown", "outcome": null},
+    {"date": "2026-10-25", "areaId": "guayaquil", "status": "documented_warning_reference", "outcome": null, "references": ["inamhi-83-prensa-2510"]},
+    {"date": "2026-10-26", "areaId": "guayaquil", "status": "documented_impact_reference", "outcome": null, "references": ["segura-18puntos-prensa-2610", "lluvia-en-curso-prensa-2610"], "note": "Impact reference is not a verified classifier label for the general city or all flooding."},
+    {"date": "2026-10-27", "areaId": "guayaquil", "status": "current_research_capture_only", "outcome": null, "evidence": "docs/verification/multihazard-m1.md"},
+    {"date": "2026-10-21", "areaId": "pallatanga", "status": "unknown", "outcome": null},
+    {"date": "2026-10-22", "areaId": "pallatanga", "status": "unknown", "outcome": null},
+    {"date": "2026-10-23", "areaId": "pallatanga", "status": "unknown", "outcome": null},
+    {"date": "2026-10-24", "areaId": "pallatanga", "status": "unknown", "outcome": null},
+    {"date": "2026-10-25", "areaId": "pallatanga", "status": "unknown", "outcome": null},
+    {"date": "2026-10-26", "areaId": "pallatanga", "status": "unknown", "outcome": null},
+    {"date": "2026-10-27", "areaId": "pallatanga", "status": "unknown", "outcome": null}
+  ],
+  "licensing": "Original references are linked, not redistributed as a raw historical dataset.",
+  "negativeCasesVerified": 0,
+  "notOperationallyCalibrated": true
+}

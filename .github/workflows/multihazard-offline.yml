@@ -23,6 +23,7 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: node scripts/replay-guayaquil.mjs > /dev/null
+      - run: node scripts/replay-hazards.mjs > /dev/null
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

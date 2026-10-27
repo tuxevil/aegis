@@ -2,25 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {selectKnownCaptures} from "./knowledge-cutoff.js";
 import {utcMillis} from "./time.js";
-import {SourceRegistry} from "./registry.js";
-import {baseEnvelope} from "./adapters.js";
-
-// Pure synthetic representations of capture formats, not provider captures.
-function record({id="capture-1",retrievedAt="2026-10-27T18:00:00.000Z",processedAt="2026-10-27T18:01:00.000Z",kind="official_warning",origin="captured_source"}={}) {
-  const source=new SourceRegistry().get(kind==="forecast_run"?"openmeteo.singlerun.test":"inamhi.warning.pdf");
-  const sha256="a".repeat(64);
-  const e=baseEnvelope(source,{retrievedAt,mediaType:kind==="forecast_run"?"application/json":"application/pdf"},
-    {recordOrigin:origin,sha256,byteLength:30,storageKey:"raw/"+sha256,firstSeenAt:retrievedAt});
-  e.kind=kind;e.quality.dataStatus=origin==="synthetic_fixture"?"unknown":"partial";
-  if(kind==="official_warning") {
-    Object.assign(e.time,{issuedAt:"2026-10-25T19:00:00Z",validFrom:"2026-10-25T21:00:00Z",validTo:"2026-10-29T04:00:00Z"});
-    e.details={bulletinNumber:999,authority:"INAMHI",sourceRiskLevel:"SYNTHETIC TEST",phenomena:["synthetic rain"],areasMentioned:[],mapReviewed:false};
-  } else if(kind==="forecast_run") {
-    Object.assign(e.time,{runInitializedAt:"2026-10-25T00:00:00Z",availabilityVerifiedAt:origin==="captured_source"?retrievedAt:null});
-    e.details={providerModel:"synthetic-test-model",runInitializedAt:e.time.runInitializedAt,time:["2026-10-25T12:00:00Z"],precipitationMm:[null],unit:"mm"};
-  } else e.details={features:[],exceededTransferLimit:null,sourceCrs:null,geometryIncluded:false};
-  return {id,sequence:1,operation:"capture",sourceId:source.id,sha256,retrievedAt,processedAt,envelope:e};
-}
+import {captureRecord as record} from "./fixtures/captures.js";
 
 test("emisión del 25 no backdatea una captura/interpretación del 27",()=>{
   const capture=record();

@@ -19,16 +19,24 @@ const layers=[
   return {...sample,...layer,url:sample.url.split("?")[0],type:"arcgis-layer",internal:true,
     maxBytes:2_000_000,cooldownMs:1000,acquisitionCooldownMs:3600000};
 });
+const localSources=[{id:"grid.pallatanga.weather",type:"local-observation",internal:true,method:null,
+  url:"https://ambientweather.net/",owner:"Estación comunitaria Pallatanga / Ambient Weather",areaIds:["pallatanga"],
+  ttlMs:3600000,pollingEnabled:false,licensing:{status:"pending",licenseId:null,attribution:"Estación comunitaria de Pallatanga"}}];
+const modelUrl=new URL(entries.find(e=>e.type==="forecast").url);modelUrl.searchParams.set("models","ecmwf_ifs");
+const modelSources=[{...entries.find(e=>e.type==="forecast"),id:"openmeteo.singlerun.ecmwf",url:modelUrl.href,
+  title:"Corrida histórica ECMWF IFS · punto de Guayaquil",requestedModel:"ecmwf_ifs",modelSelectionVerified:true,
+  modelSelectionProof:"docs/verification/source-probes/2026-10-27-model-selection.json"}];
 export class SourceRegistry {
   get(id) {
-    const entry=[...entries,...layers].find(e=>e.id===id);
+    const entry=[...entries,...layers,...localSources,...modelSources].find(e=>e.id===id);
     if(!entry) throw new Error("unknown_source");
     return structuredClone(entry);
   }
-  list() { return structuredClone(entries); }
+  list() { return structuredClone([...entries.filter(e=>e.type!=="forecast"),...modelSources]); }
   layerSources() {return structuredClone(layers);}
   requestUrl(id,request) {
     const source=this.get(id);
+    if(source.type==="local-observation")throw new Error("non_network_source");
     if(!source.internal) {
       if(request!==undefined) throw new Error("invalid_source_request");
       return source.url;
