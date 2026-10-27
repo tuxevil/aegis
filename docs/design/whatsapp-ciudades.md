@@ -1,14 +1,16 @@
 # AEGIS: canales de WhatsApp por ciudad — diseño y precauciones
 
-Estado: **propuesta de implementación**, 27-10-2026. Ningún canal ha sido creado ni se han publicado mensajes desde AEGIS.
+Estado: **diseño de implementación**, 27-10-2026. El propietario definió el nombre del canal nacional como **«OpenAlert - Ecuador»**. No se ha confirmado su creación en el servicio de WhatsApp desde esta sesión ni se han publicado mensajes desde AEGIS.
 
 ## Decisión de producto
 
-Un canal opt-in por ciudad (ej.: `AEGIS Ecuador | Guayaquil`, `AEGIS Ecuador | Pallatanga`). El mensaje de cada canal incluirá **solo riesgos relevantes para su ámbito**, no boletines nacionales indiferenciados. AEGIS permanece como observatorio abierto e **independiente**, sin presentarse como autoridad pública.
+**Canal nacional:** `OpenAlert - Ecuador` (nombre decidido por el propietario). **Canales locales futuros, convención propuesta:** `OpenAlert - Guayaquil`, `OpenAlert - Pallatanga`. Empezar con un canal nacional de convocatoria y selector web de ciudades para estimar interés, no crear cientos de canales vacíos. Un canal opt-in por ciudad solo cuando exista demanda y capacidad de cobertura. El mensaje de cada canal incluirá **solo riesgos relevantes para su ámbito**, no boletines nacionales indiferenciados. AEGIS permanece como observatorio abierto e **independiente**, sin presentarse como autoridad pública.
 
 **Importante:** al seguir un canal, las notificaciones están **silenciadas por defecto**. El onboarding mostrará una instrucción explícita para tocar la campana. WhatsApp no sustituye PWA, web ni canales oficiales de emergencias.
 
-Guayaquil y Pallatanga serán los primeros pilotos propuestos. El catálogo admitirá todas las ciudades con identificador territorial estable; canales nuevos se provisionarán **bajo demanda y tras verificación humana**, no se crearán decenas o cientos automáticamente.
+Guayaquil y Pallatanga serán los primeros pilotos técnicos propuestos; no implica abrir ambos canales inmediatamente. El catálogo admitirá todas las ciudades con identificador territorial estable; canales nuevos se provisionarán **bajo demanda y tras verificación humana**, no se crearán decenas o cientos automáticamente.
+
+La estrategia de encuestas y selector por cantón, así como la distinción AEGIS (software) / OpenAlert (nombre de canal), están en [descubrimiento de ciudades](channel-discovery-proposal.md). El nombre OpenAlert se usa ya en otros proyectos tecnológicos; revisar disponibilidad jurídica si se decide registrarlo como marca comercial.
 
 ## Viabilidad WAHA
 
@@ -42,7 +44,7 @@ Nunca asignar una alerta regional a **todos** los municipios sin revisar geometr
 ## Modelo de mensaje
 
 ```text
-AEGIS ECUADOR | GUAYAQUIL
+OPENALERT - GUAYAQUIL
 PREVENCIÓN · LLUVIAS INTENSAS
 
 INAMHI advierte lluvias fuertes con posibles inundaciones
