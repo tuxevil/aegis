@@ -4,4 +4,6 @@ node_modules
 .env
 artifacts
 test
-docs
+docs/**
+!docs/contracts/
+!docs/contracts/source-envelope.v1.schema.json
