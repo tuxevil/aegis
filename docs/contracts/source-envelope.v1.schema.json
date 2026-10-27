@@ -1,0 +1,402 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tuxevil/aegis/blob/main/docs/contracts/source-envelope.v1.schema.json",
+  "title": "AEGIS source envelope v1",
+  "description": "Data transport contract. A captured_source requires persisted raw bytes; synthetic_fixture is never allowed to feed public alerts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordOrigin",
+    "sourceId",
+    "kind",
+    "sourceUrl",
+    "retrievedAt",
+    "raw",
+    "time",
+    "spatial",
+    "licensing",
+    "quality",
+    "details"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "recordOrigin": {
+      "enum": [
+        "synthetic_fixture",
+        "captured_source"
+      ]
+    },
+    "sourceId": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 100,
+      "pattern": "^[a-z0-9._-]+$"
+    },
+    "kind": {
+      "enum": [
+        "official_warning",
+        "static_exposure",
+        "forecast_run",
+        "observation",
+        "situation_report"
+      ]
+    },
+    "sourceUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "retrievedAt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "raw": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "byteLength",
+        "mediaType",
+        "storageKey"
+      ],
+      "properties": {
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "byteLength": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "mediaType": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        },
+        "storageKey": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 512
+        },
+        "etag": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lastModified": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "time": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "issuedAt",
+        "validFrom",
+        "validTo",
+        "firstSeenAt",
+        "runInitializedAt",
+        "availabilityVerifiedAt",
+        "sourceTimeZone"
+      ],
+      "properties": {
+        "issuedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "validFrom": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "validTo": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "firstSeenAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runInitializedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "availabilityVerifiedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceTimeZone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "originalTimeText": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 400
+        }
+      }
+    },
+    "spatial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "precision",
+        "areaNames",
+        "crs",
+        "geometryRef"
+      ],
+      "properties": {
+        "precision": {
+          "enum": [
+            "country",
+            "region",
+            "province",
+            "canton",
+            "parish",
+            "station",
+            "river_reach",
+            "polygon",
+            "point",
+            "unknown"
+          ]
+        },
+        "areaNames": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "crs": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1024
+        },
+        "geometryRef": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 512
+        },
+        "matchingMethod": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300
+        }
+      }
+    },
+    "licensing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "licenseId",
+        "attribution"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "verified",
+            "restricted",
+            "pending"
+          ]
+        },
+        "licenseId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        },
+        "attribution": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "sourceTermsUrl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataStatus",
+        "warnings",
+        "blockers"
+      ],
+      "properties": {
+        "dataStatus": {
+          "enum": [
+            "valid",
+            "partial",
+            "stale",
+            "invalid",
+            "unknown"
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30
+        },
+        "parserVersion": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 80
+        },
+        "completenessRatio": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "details": {
+      "type": "object",
+      "description": "Kind-specific payload. Must be validated by kind-specific adapter schema before use.",
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "recordOrigin": {
+            "const": "captured_source"
+          }
+        },
+        "required": [
+          "recordOrigin"
+        ]
+      },
+      "then": {
+        "properties": {
+          "retrievedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "raw": {
+            "properties": {
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "byteLength": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "mediaType": {
+                "type": "string"
+              },
+              "storageKey": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
