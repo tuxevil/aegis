@@ -2,6 +2,12 @@
 
 **Estado:** propuesta para revisión; no es una orden de implementación. Este documento precede el prompt de desarrollo. Referencia: [replay de Guayaquil](../research/guayaquil-2026-10-26-replay.md) y [diseño WhatsApp por ciudades](whatsapp-ciudades.md).
 
+## Actualización de investigación · 27-10-2026
+
+Consultar **[auditoría técnica de fuentes](../research/auditoria-fuentes-alertas-2026-10-27.md)** antes de especificar interfaces de ingestión. Se confirmó el PDF oficial INAMHI N.º 83 (**emitido 25-10 a las 14:00, vigencia 25-10 16:00 al 28-10 23:00**), con mapa; la disponibilidad web exacta sigue desconocida. El enlace al boletín Pallatanga retorna un PDF de **mayo de 2025** y evidencia por qué el control de vigencia es obligatorio. Capas SNGR ArcGIS legibles en metadatos, pero no ejecutadas desde el LXC; licencias SNGR/INEC pendientes. GEOGLOWS CC BY 4.0, Open-Meteo Free **exclusivamente no comercial**. El backtest debe atender al lapso entre inicialización y publicación de pronósticos, no solo comparar fechas de modelos.
+
+**No confundir:** fuente identificada / metadatos inspeccionados / request probado en staging / operacional validado. Solo la cuarta condición autoriza depender de ella para alertas públicas.
+
 ## 1. Misión y límite
 
 Convertir información pública *fechada y atribuible* sobre peligros en un registro abierto, territorialmente pertinente, comprensible y distribuible de avisos preventivos. AEGIS **no** reemplaza INAMHI, SNGR/COE, ECU 911, ni emite evacuaciones propias. Diferenciar siempre: (a) aviso oficial, (b) observación medida, (c) pronóstico de modelo, (d) reporte ciudadano sin verificar, (e) evaluación independiente AEGIS. Nunca presentar (e) como (a).
