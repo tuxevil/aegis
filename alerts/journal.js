@@ -9,12 +9,15 @@ const filename=sequence=>String(sequence).padStart(8,"0")+".json";
 // Private bounded immutable transactions. A crashed writer leaves a lock for an
 // operator to inspect; no automatic lock stealing or historical overwriting.
 export class AlertJournal {
-  constructor(dataDir,{origin="captured_source",kind="editorial",maxEvents=10000,maxBytes=64*1024*1024}={}) {
-    if(!["editorial","subscriptions"].includes(kind)||!dataDir||!["captured_source","synthetic_fixture"].includes(origin)||!Number.isSafeInteger(maxEvents)||maxEvents<1||maxEvents>99999999||!Number.isSafeInteger(maxBytes)||maxBytes<1)throw new Error("invalid_alert_store");
-    Object.assign(this,{origin,kind,maxEvents,maxBytes});
+  constructor(dataDir,{origin="captured_source",kind="editorial",readOnly=false,maxEvents=10000,maxBytes=64*1024*1024}={}) {
+    if(typeof readOnly!=="boolean"||!["editorial","subscriptions"].includes(kind)||!dataDir||!["captured_source","synthetic_fixture"].includes(origin)||!Number.isSafeInteger(maxEvents)||maxEvents<1||maxEvents>99999999||!Number.isSafeInteger(maxBytes)||maxBytes<1)throw new Error("invalid_alert_store");
+    Object.assign(this,{origin,kind,readOnly,maxEvents,maxBytes});
     this.root=path.join(path.resolve(dataDir),kind==="editorial"?"alerts":"subscriptions","v1",origin);
   }
-  async initialize() {await fs.mkdir(this.root,{recursive:true,mode:0o700});}
+  async initialize() {
+    if(this.readOnly) {if(!(await fs.stat(this.root)).isDirectory())throw new Error("invalid_alert_store_layout");}
+    else await fs.mkdir(this.root,{recursive:true,mode:0o700});
+  }
   async entries() {
     await this.initialize();
     const names=(await fs.readdir(this.root)).filter(n=>/^\d{8}\.json$/.test(n)).sort();
@@ -33,6 +36,7 @@ export class AlertJournal {
     return entries;
   }
   async transact({at,actor,action},update) {
+    if(this.readOnly)throw new Error("read_only_store");
     if(!Number.isFinite(utcMillis(at))||!actor||typeof actor.id!=="string"||!/^[a-zA-Z0-9._-]{1,80}$/.test(actor.id)||!["editor","approver"].includes(actor.role)||!/^[a-z_]{1,40}$/.test(action))throw new Error("invalid_alert_transaction");
     await this.initialize();let lock;
     try {lock=await fs.open(path.join(this.root,"writer.lock"),"wx",0o600);}

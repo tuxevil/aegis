@@ -41,4 +41,4 @@ jobs:
           --entrypoint node aegis-offline-ci --input-type=module -e
           'const {createApp}=await import("./backend.js"); const app=await createApp({hazardsEnabled:false,alertsAdminEnabled:false,zoneSubscriptionsEnabled:false}); const result=await app.inject("/ui"); if(result.statusCode!==200)throw new Error("grid_ui_failed"); await app.close();'
       - run: docker run --rm --network none --entrypoint node aegis-offline-ci scripts/ingest-hazards.mjs
-      - run: docker run --rm --network none --entrypoint node aegis-offline-ci --test hazards/*.test.js alerts/*.test.js
+      - run: docker run --rm --network none --entrypoint node aegis-offline-ci --test hazards/*.test.js alerts/*.test.js backup.test.js

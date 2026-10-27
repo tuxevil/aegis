@@ -7,7 +7,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
 # Copy application code
-COPY backend.js celec.js mazar.js history.js sources.js assessment.js frontend.html ./
+COPY backend.js celec.js mazar.js history.js sources.js assessment.js backup.js backup.test.js frontend.html ./
 COPY public/ ./public/
 COPY hazards/ ./hazards/
 COPY alerts/ ./alerts/

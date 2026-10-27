@@ -40,3 +40,9 @@ El catálogo limita URLs GET exactas, tamaño y timeout, y no sigue redireccione
 429 respeta Retry-After, 403 pausa; fallos repetidos abren circuito. Sin reintento
 automático inmediato: cada invocación posterior respeta el cooldown. No exponer
 mensajes remotos ni excepciones de red en logs.
+
+
+Respaldo integral posterior: [data-recovery](data-recovery.md) y
+[runbook](../runbooks/multihazard-recovery.md). `readOnly:true` en RawArtifactStore
+permite verificar formato/hashes sin crear carpetas ni reparar formato. Escrituras
+se rechazan en ese modo; el valor por defecto conserva el comportamiento existente.

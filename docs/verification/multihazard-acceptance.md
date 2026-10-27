@@ -24,7 +24,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M1 artefactos/versiones/capturas/reproceso | Probado: artifact-store, immutable-file, ingestion tests; PDF real M1 verificado | Archivo real de laboratorio en /tmp, no volumen resiliente |
 | M1 adaptadores/envelope discriminado | Probado: PDF.js worker y AJV; pruebas de null/unidades/tipos/modelo | OCR y formatos no observados no se adivinan |
 | M1 source_health/fallo parcial | Probado: ingestion.health y public-reader; degraded/stale/unknown | No monitorización de proveedor permanente |
-| M1 persistencia/backup/rollback | Parcial: restore a raíz nueva probado para archivo; diseño/runbooks de datos | Falta ensayo integral de recuperación con los journals nuevos |
+| M1 persistencia/backup/rollback | Probado local: backup.test recupera histórico, fuentes/capas y journals a raíz nueva; SHA-256 y lectores readOnly sin reparar | No ensayo sobre volumen Proxmox ni copia externa cifrada |
 | M2 pilotos/DPA/boundary version | Parcial: 0901/0608 documentados, geografía null y estado pendiente explícitos | Códigos actuales y polígonos INEC no certificados |
 | M2 CRS/polígonos/paginación/transfer-limit | Probado offline: geography y arcgis-acquirer; puntos contrastados con PROJ | Topología, licencia y descarga completa real no verificadas |
 | M2 consultas reales por cantón | Parcial: conteos/manifiestos IDs de ambos cantones y dos servicios | No se descargaron geometrías completas por falta de gates |
@@ -46,7 +46,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M4 templates y rectificación | Probado: español, autoridad/clase/fechas/vigencia/alcance; revisión posterior rotulada RECTIFICACIÓN | No afirma una publicación o entrega previa inexistente |
 | M4 extremo a extremo | Probado: PDF sintético → archivo → motor → revisión → simulación; publishedAt null | No es ensayo de entrega operacional con proveedor |
 | Preservación v4/flags/seguridad | Probado: suite completa y /ui 200 sin red/directorio experimental con flags OFF | Excepción TLS CELEC/CENACE heredada sigue documentada |
-| M5 redundancia/observabilidad/restauración | Pendiente: ADR prescribe alojamiento externo y revisión antes de operar | No infraestructura externa provisionada ni SLA ensayado |
+| M5 redundancia/observabilidad/restauración | Parcial: runbook de recuperación/incidentes y diseño de continuidad; restauración local sintética probada | No infraestructura externa provisionada, failover o SLA ensayados |
 | M5 WAHA/OWNER/ToS/Meta y beta | Pendiente: prohibición expresa de usar sesión/crear canales/enviar | Requiere autorización separada, no implícita por disponer de enlaces |
 | M5 publicación, retractación, entrega y kill switch | Parcial: bloqueo global incondicional y simulaciones locales | No beta pública ni controles de envío real implementados/activados |
 
@@ -66,11 +66,21 @@ de daño, disponibilidad de un proveedor, cumplimiento legal o entrega ciudadana
 
 ## Trabajo siguiente que sigue siendo ejecutable sin activar avisos
 
-1. Ensayar backup/restauración integral y documentar respuesta a incidentes,
-   publicación bloqueada, permisos/canales no verificados y fallos de infraestructura.
+1. Tras ensayo integral local correcto, revisar procedimientos con operador y
+   resolver infraestructura/retención antes de proponer simulacro operacional.
 2. Completar revisión de retención/seguridad del flujo público de preferencias;
    la QA Chromium de ambas vistas ya pasó con datos sintéticos y red externa bloqueada.
 3. Buscar evidencia institucional accesible para cartografía/códigos y completar
    el corpus solo con procedencia verificable; no eludir 403 ni inventar negativos.
 4. Proponer activación únicamente después de resolver gates y contar con revisión
    concreta. Esta auditoría no solicita ni concede aprobación de envío/despliegue.
+
+
+## Incremento de recuperación integral
+
+Añadidos backup.js/CLI seguro, lectores readOnly y runbook
+[multihazard-recovery](../runbooks/multihazard-recovery.md). La suite se amplía a
+**166/166** Node, **111/111** en Docker sin red y **6/6** Python, con npm ci sin
+vulnerabilidades, check/replays/diff-check correctos. Los ensayos no certifican
+hardware ni recuperación de producción. CI anterior 8a77905 pasó en Node 22/24 y
+contenedor (run 40597525877); la CI del nuevo commit se registra en el PR #28.

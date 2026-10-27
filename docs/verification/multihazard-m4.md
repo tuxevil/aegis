@@ -209,3 +209,17 @@ visible DATOS SINTÉTICOS, además del rótulo global DRY_RUN. Ensayo repetido c
 Los servicios editorial/outbox rechazan además un journal de suscripciones para
 impedir configuración cruzada. Node **157/157**, check/diff-check y Docker
 **102/102** sin red correctos tras estos cambios.
+
+
+## Recuperación integral ensayada
+
+[Procedimiento y límites](../runbooks/multihazard-recovery.md),
+[diseño](../architecture/data-recovery.md). El nuevo CLI offline verifica/copia
+DATA_DIR completo a snapshot nuevo y restaura exclusivamente a raíz inexistente;
+no arranca servicios ni activa la outbox. Lectores readOnly de archivo/journal
+permiten verificar sin inicializar o reparar. Prueba integral conserva histórico,
+fuentes, capas, editoriales, queued y secretos de gestión por hash. Origen intacto,
+permisos privados, rechazo de enlaces/locks/corrupción/traversal/cambios observados.
+Resultado: **166/166** Node, **111/111** Docker sin red, **6/6** Python y
+check/replays/diff-check; npm ci sin vulnerabilidades. No hay backup externo,
+cifrado o restauración de producción; la retención y operación siguen pendientes.
