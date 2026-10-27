@@ -1,0 +1,23 @@
+{
+  "probe": "bounded_object_id_1",
+  "url": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services/Susceptibilidad_de_Inundaciones/MapServer/0/query?where=1%3D1&outFields=FID%2Csui%2Cdpa_canton%2Cdpa_descan&returnGeometry=false&f=json&objectIds=1",
+  "sourceId": "sngr.flood.single",
+  "attemptedAt": "2026-10-27T19:01:48.991Z",
+  "readOnly": true,
+  "httpStatus": 200,
+  "observedContentType": "application/json; charset=UTF-8",
+  "lastModified": null,
+  "etag": "\"GIkjxHmWv9JKnNH0_1740173338\"",
+  "serverDate": "Tue, 27 Oct 2026 19:01:49 GMT",
+  "retryAfter": null,
+  "byteLength": 531,
+  "sha256": "87b4a3bc44e99583b2f2a0c68444fe5cb3bc7767d417e85c94f3f65de95f0315",
+  "status": "reachable",
+  "elapsedMs": 872,
+  "inspection": {
+    "contentKind": "arcgis_query",
+    "returnedCount": 1,
+    "attributeKeys": ["FID", "sui", "dpa_canton", "dpa_descan"],
+    "exceededTransferLimit": null
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "inspectionOnly": true,
+  "inspectionKind": "count_only",
+  "sourceId": "sngr.flood.layer",
+  "areaId": "guayaquil",
+  "expectedCount": 1138,
+  "sourceUrl": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services/Susceptibilidad_de_Inundaciones/MapServer/0/query?where=dpa_canton%3D%270901%27&f=json&returnGeometry=false&returnCountOnly=true",
+  "retrievedAt": "2026-10-27T19:30:06.334Z",
+  "httpStatus": 200,
+  "elapsedMs": 426,
+  "byteLength": 14,
+  "sha256": "4f356668d8aade760ef06bbad9e71ff3bb33167b0d93c47647947f4116db3326",
+  "geometryDownloaded": false,
+  "licensing": {
+    "status": "pending",
+    "licenseId": null,
+    "attribution": "SNGR"
+  },
+  "publicationBlocked": true,
+  "producedAt": "2026-10-27T19:30:06.335Z"
+}

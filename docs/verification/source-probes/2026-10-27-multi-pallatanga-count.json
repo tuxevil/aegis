@@ -1,0 +1,23 @@
+{
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "inspectionOnly": true,
+  "inspectionKind": "count_only",
+  "sourceId": "sngr.multihazard.layer",
+  "areaId": "pallatanga",
+  "expectedCount": 4,
+  "sourceUrl": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services/Hosted/MULTIAMENAZAS_SGR/FeatureServer/0/query?where=dpa_canton%3D%270608%27&f=json&returnGeometry=false&returnCountOnly=true",
+  "retrievedAt": "2026-10-27T19:30:10.746Z",
+  "httpStatus": 200,
+  "elapsedMs": 368,
+  "byteLength": 11,
+  "sha256": "a5fb8eb97856970b61d9f466deb64f7659e835ee8ec5497003b78438fe888cad",
+  "geometryDownloaded": false,
+  "licensing": {
+    "status": "pending",
+    "licenseId": null,
+    "attribution": "SNGR"
+  },
+  "publicationBlocked": true,
+  "producedAt": "2026-10-27T19:30:10.747Z"
+}

@@ -2,26 +2,17 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {createHash,randomUUID} from "node:crypto";
 import {validateEnvelope} from "./envelope.js";
+import {createImmutableFile as atomicCreate} from "./immutable-file.js";
 
 const hash=bytes=>createHash("sha256").update(bytes).digest("hex");
 const origins=new Set(["captured_source","synthetic_fixture"]);
 const sourcePattern=/^[a-z0-9][a-z0-9._-]{1,99}$/;
-async function atomicCreate(file,bytes) {
-  const temporary=file+"."+randomUUID()+".tmp";
-  try {
-    const handle=await fs.open(temporary,"wx",0o600);
-    try { await handle.writeFile(bytes); await handle.sync(); }
-    finally { await handle.close(); }
-    await fs.link(temporary,file);
-  } finally { await fs.unlink(temporary).catch(error=>{if(error.code!=="ENOENT") throw error;}); }
-}
-
 export class RawArtifactStore {
-  constructor(dataDir,{origin="captured_source",maxCaptures=10000,maxBytes=256*1024*1024}={}) {
-    if(!origins.has(origin) || !dataDir || !Number.isSafeInteger(maxCaptures) || maxCaptures<1 || !Number.isSafeInteger(maxBytes) || maxBytes<1)
+  constructor(dataDir,{origin="captured_source",namespace="sources",maxCaptures=10000,maxBytes=256*1024*1024}={}) {
+    if(!origins.has(origin) || !["sources","layers"].includes(namespace) || !dataDir || !Number.isSafeInteger(maxCaptures) || maxCaptures<1 || !Number.isSafeInteger(maxBytes) || maxBytes<1)
       throw new Error("invalid_store_configuration");
-    Object.assign(this,{origin,maxCaptures,maxBytes});
-    this.root=path.join(path.resolve(dataDir),"hazards","v1",origin);
+    Object.assign(this,{origin,namespace,maxCaptures,maxBytes});
+    this.root=namespace==="sources"?path.join(path.resolve(dataDir),"hazards","v1",origin):path.join(path.resolve(dataDir),"hazards","layers","v1",origin);
   }
   async initialize() {
     for(const directory of [this.root,path.join(this.root,"raw"),path.join(this.root,"captures"),path.join(this.root,"failures")])
@@ -30,11 +21,11 @@ export class RawArtifactStore {
     try { await fs.access(format); }
     catch(error) {
       if(error.code!=="ENOENT") throw error;
-      try {await atomicCreate(format,JSON.stringify({version:1,origin:this.origin}));}
+      try {await atomicCreate(format,JSON.stringify({version:1,origin:this.origin,namespace:this.namespace}));}
       catch(writeError) {if(writeError.code!=="EEXIST") throw writeError;}
     }
     const existing=JSON.parse(await fs.readFile(format,"utf8"));
-    if(existing.version!==1 || existing.origin!==this.origin) throw new Error("unsupported_store_format");
+    if(existing.version!==1 || existing.origin!==this.origin || (existing.namespace===undefined?"sources":existing.namespace)!==this.namespace) throw new Error("unsupported_store_format");
   }
   async locked(action) {
     await this.initialize();

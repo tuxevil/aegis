@@ -1,0 +1,23 @@
+{
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "inspectionOnly": true,
+  "inspectionKind": "count_only",
+  "sourceId": "sngr.flood.layer",
+  "areaId": "pallatanga",
+  "expectedCount": 17,
+  "sourceUrl": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services/Susceptibilidad_de_Inundaciones/MapServer/0/query?where=dpa_canton%3D%270608%27&f=json&returnGeometry=false&returnCountOnly=true",
+  "retrievedAt": "2026-10-27T19:30:07.875Z",
+  "httpStatus": 200,
+  "elapsedMs": 447,
+  "byteLength": 12,
+  "sha256": "99bdb4d58607c55e945abefcf209c438ac86954b026f8c933df7d412ac1ca91c",
+  "geometryDownloaded": false,
+  "licensing": {
+    "status": "pending",
+    "licenseId": null,
+    "attribution": "SNGR"
+  },
+  "publicationBlocked": true,
+  "producedAt": "2026-10-27T19:30:07.875Z"
+}

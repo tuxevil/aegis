@@ -10,8 +10,9 @@ export class SourceHttp {
     const time=Math.max(this.states.get(sourceId)?.nextAttempt||0,this.hostPause.get(host)||0);
     return time?new Date(time).toISOString():null;
   }
-  async get(sourceId) {
+  async get(sourceId,request) {
     const source=this.registry.get(sourceId);
+    const requestUrl=this.registry.requestUrl(sourceId,request);
     const host=new URL(source.url).hostname;
     const started=this.now().getTime();
     const state=this.states.get(sourceId)||{failures:0,nextAttempt:0};
@@ -20,7 +21,7 @@ export class SourceHttp {
     this.active.add(host);
     let response;
     try {
-      response=await this.httpFetch(source.url,{method:"GET",redirect:"manual",
+      response=await this.httpFetch(requestUrl,{method:"GET",redirect:"manual",
         signal:AbortSignal.timeout(source.timeoutMs),headers:{accept:source.type==="pdf"?"application/pdf":"application/json"}});
       if(response.status===429 || response.status===403) {
         const retry=response.headers.get("retry-after");
@@ -39,7 +40,7 @@ export class SourceHttp {
       if(!size) throw new Error("empty_body");
       const retrievedAt=this.now().toISOString();
       this.states.set(sourceId,{failures:0,nextAttempt:started+source.cooldownMs});
-      return {bytes:Buffer.concat(chunks,size),retrievedAt,sourceUrl:source.url,
+      return {bytes:Buffer.concat(chunks,size),retrievedAt,sourceUrl:requestUrl,
         elapsedMs:Math.max(0,this.now().getTime()-started),httpStatus:response.status,
         mediaType:(response.headers.get("content-type")||"application/octet-stream").split(";")[0],
         etag:response.headers.get("etag"),lastModified:response.headers.get("last-modified")};

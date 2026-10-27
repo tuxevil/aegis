@@ -17,6 +17,7 @@ export class IngestionService {
   }
   async ingest(sourceId) {
     const source=this.registry.get(sourceId);
+    if(source.internal) throw new Error("specialized_connector_required");
     if(!this.networkEnabled) throw new Error("network_opt_in_required");
     if(this.store.origin!=="captured_source") throw new Error("live_fixture_mixing_forbidden");
     if(source.licensing.status==="pending" && !this.allowPendingLicense) throw new Error("research_archive_opt_in_required");

@@ -1,0 +1,40 @@
+{
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "inspectionOnly": true,
+  "sourceId": "sngr.multihazard.layer",
+  "areaId": "pallatanga",
+  "dpaCode": "0608",
+  "idCount": 4,
+  "sourceCrs": 32717,
+  "maxRecordCount": 2000,
+  "supportsPagination": true,
+  "requestEvidence": [
+    {
+      "mode": "metadata",
+      "sourceUrl": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services/Hosted/MULTIAMENAZAS_SGR/FeatureServer/0?f=json",
+      "retrievedAt": "2026-10-27T19:24:06.609Z",
+      "httpStatus": 200,
+      "elapsedMs": 330,
+      "byteLength": 9443,
+      "sha256": "2341cf4ff36f9dba3571ed6e938a5d90bbca553738bb9fc3157571fa5820bb37"
+    },
+    {
+      "mode": "ids",
+      "sourceUrl": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services/Hosted/MULTIAMENAZAS_SGR/FeatureServer/0/query?where=dpa_canton%3D%270608%27&f=json&returnGeometry=false&returnIdsOnly=true",
+      "retrievedAt": "2026-10-27T19:24:07.686Z",
+      "httpStatus": 200,
+      "elapsedMs": 74,
+      "byteLength": 63,
+      "sha256": "bb661577a45febf6925a4829c1fc34923f5bafb148e3e7f8e2396e29690e8932"
+    }
+  ],
+  "geometryDownloaded": false,
+  "licensing": {
+    "status": "pending",
+    "licenseId": null,
+    "attribution": "SNGR"
+  },
+  "publicationBlocked": true,
+  "producedAt": "2026-10-27T19:24:07.687Z"
+}

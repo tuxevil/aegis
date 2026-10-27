@@ -41,6 +41,11 @@ sus límites están en [source-validation-results](../research/source-validation
 
 `reachable` solo comprueba formato estructural, **no** validez legal, espacial, temporal, precisión de riesgos, ni disponibilidad histórica real para habitantes. Incluso una respuesta `reachable` no da permiso para avisos.
 
+Corrección M2: inundaciones usa `objectIds=1` sin `resultRecordCount`, dado que
+la consulta con límite devolvía error JSON 400 en un servicio sin paginación.
+La variante devolvió una entidad real en el [ensayo acotado del 27/10](../verification/source-probes/2026-10-27-flood-object-id.json).
+Es una muestra por ID, no una descarga completa ni cobertura de los pilotos.
+
 ## Fallos y decisiones
 
 - `not_pdf_magic`: la ruta ya no sirve un PDF, bloqueo y revisión del operador.

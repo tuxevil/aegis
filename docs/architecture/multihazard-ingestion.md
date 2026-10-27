@@ -32,6 +32,10 @@ Nunca restaurar encima de un proceso activo ni de un directorio con datos.
 Fuentes de licencia pendiente requieren opt-in **local de investigación** para
 archivo, separado del opt-in de red; no constituye permiso de redistribución.
 El estado legal pendiente siempre permanece en el envelope y bloquea publicación.
+La adquisición de capas tiene un namespace aparte, `hazards/layers/v1`, para no
+cargar geometrías privadas desde el lector público de fuentes. Backup debe incluir
+todo `DATA_DIR/hazards/`. Su manifestación de colecciones y verificación de conteos
+se describen en [M2 adquisición](../verification/multihazard-m2-acquisition.md).
 El catálogo limita URLs GET exactas, tamaño y timeout, y no sigue redirecciones.
 429 respeta Retry-After, 403 pausa; fallos repetidos abren circuito. Sin reintento
 automático inmediato: cada invocación posterior respeta el cooldown. No exponer

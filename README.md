@@ -4,6 +4,17 @@
 
 Un observatorio público para entender las señales de energía de Ecuador y las condiciones locales de Pallatanga, con igual protagonismo. Su objetivo es ayudar a anticiparse: explicar qué cambió, por qué importa y qué datos faltan. No anuncia horarios de cortes ni calcula probabilidades de apagón o deslave.
 
+Avance multiamenaza en ramas de desarrollo: [auditoría M0](docs/research/source-validation-results.md),
+[ingesta y archivo M1](docs/verification/multihazard-m1.md) y
+[explorador M2 y gates territoriales](docs/verification/multihazard-m2.md).
+La [adquisición SNGR por cantón](docs/verification/multihazard-m2-acquisition.md)
+añade verificación por conteos/IDs y archivo privado de investigación; no publica capas.
+`HAZARDS_ENABLED=false` por defecto; `HAZARDS_ENABLED=true npm start` añade
+`/hazards/` y consultas GET `/api/hazards/{sources,areas,observations,bulletins,health}`.
+La activación de esa vista no inicia ingesta ni publica avisos. Las capturas de
+investigación permanecen privadas y la cobertura se declara limitada.
+Grid Sentinel conserva `/`, `/ui` y `/api/status`.
+
 ## La consola
 
 - **Energía nacional:** evolución de Mazar, caudal afluente y su cambio, escenario de continuidad hasta el umbral de seguridad, cascada Mazar–Molino–Sopladora, composición de la producción y curva horaria CENACE.
