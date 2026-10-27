@@ -14,6 +14,8 @@ import {
   SOURCE_URLS,
 } from "./sources.js";
 import { buildAssessment } from "./assessment.js";
+import {registerHazardRoutes,hazardPaths} from "./hazards/routes.js";
+import {HazardPublicReader} from "./hazards/public-reader.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const localIP = (ip) => ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(ip);
@@ -32,6 +34,8 @@ export async function createApp({
   ),
   now = () => new Date(),
   mac = process.env.AMBIENT_MAC,
+  hazardsEnabled = process.env.HAZARDS_ENABLED === "true",
+  hazardReader = null,
 } = {}) {
   const app = Fastify({ logger: false });
   await app.register(rateLimit, {
@@ -43,6 +47,7 @@ export async function createApp({
   app.addHook("onRequest", async (req, reply) => {
     const endpoint = req.url.split("?")[0];
     if (!endpoint.startsWith("/api/") || localIP(req.ip)) return;
+    if (hazardsEnabled && req.method === "GET" && hazardPaths.includes(endpoint) && req.routeOptions.config.aegisPublicRead === true) return;
     if (endpoint === "/api/status") {
       const host = originHost(req.headers.host || "");
       if (
@@ -57,6 +62,7 @@ export async function createApp({
       .code(403)
       .send({ error: "Acceso al panorama desde el dashboard" });
   });
+  if (hazardsEnabled) await registerHazardRoutes(app,{reader:hazardReader||new HazardPublicReader({dataDir:process.env.DATA_DIR||path.join(directory,".data"),now})});
   const caches = new Map();
   const inflight = new Map();
   const getText = async (url, options) => {
@@ -143,7 +149,7 @@ export async function createApp({
     reply
       .header("Cache-Control", "no-cache")
       .type("text/html")
-      .send(fs.readFileSync(path.join(directory, "frontend.html")));
+      .send(fs.readFileSync(path.join(directory, "frontend.html"),"utf8").replace("<!-- HAZARDS_NAV -->",hazardsEnabled?'<a href="/hazards/">Multiamenaza · fuentes</a>':""));
   app.get("/", serveUI);
   app.get("/ui", serveUI);
   const assets = {
