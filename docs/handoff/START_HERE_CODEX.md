@@ -13,7 +13,7 @@ El propietario pidió cerrar aquí la planificación, pasar a un agente Codex en
 3. [Roadmap de implementación M0–M5](../design/implementation-roadmap.md) — entregables, orden, acceptance gates.
 4. [Contratos de conectores v1](../contracts/source-connectors-v1.md), [JSON Schema](../contracts/source-envelope.v1.schema.json), [fixture INAMHI sintético](../contracts/examples/inamhi-warning83.fixture.json).
 5. [Auditoría de fuentes](../research/auditoria-fuentes-alertas-2026-10-27.md) y [procedimiento de sonda](../runbooks/source-probe-staging.md).
-6. [Replay del desastre Guayaquil](../research/guayaquil-2026-10-26-replay.md), [diseño WhatsApp por ciudad](../design/whatsapp-ciudades.md), [solicitudes institucionales redactadas, NO enviadas](../research/solicitudes-datos-inamhi-sngr.md).
+6. [Replay del desastre Guayaquil](../research/guayaquil-2026-10-26-replay.md), [diseño WhatsApp por ciudad](../design/whatsapp-ciudades.md), [propuesta de identidad pública y descubrimiento por demanda — NOMBRE AÚN PENDIENTE DE APROBACIÓN](../design/channel-discovery-proposal.md), [solicitudes institucionales redactadas, NO enviadas](../research/solicitudes-datos-inamhi-sngr.md).
 7. [Plan maestro de producto](../design/aegis-multiamenaza-plan.md); [README del producto existente](../../README.md), \`package.json\`, \`sources.js\`, \`assessment.js\`, \`history.js\`, \`backend.js\`, \`public/app.js\`, tests existentes y archivo de despliegue.
 
 **Jerarquía en caso de contradicción:** (A) este handoff y ADR; (B) roadmap; (C) contratos; (D) evidencia histórica/auditoría; (E) planes exploratorios anteriores; (F) código existente para su comportamiento actual. Ningún documento otorga licencia sobre datos de terceros ni permiso de publicar avisos reales.
@@ -59,6 +59,10 @@ El homelab off-grid es apropiado para laboratorio, sensores y pruebas; un servic
 - Código MIT ≠ datos de dominio público; finanzas futuras: alertas ciudadanas gratis, comercialización separada/licenciada.
 - Calidad de software: fallos parciales por fuente, retries/backoff/circuit breaker, safe HTTP GET, rate limits, sin SSRF ni exposición de sesiones, pruebas documentadas, accesibilidad móvil, fuente y fecha visibles, auditoría y corrección.
 - Agente puede operar y crear código en rama dev sin consultar por cada paso rutinario, pero debe solicitar autorización específica antes de envío externo público, creación de canales, cambios irreversibles a producción, uso de WhatsApp real, pago o contacto institucional.
+
+### Marca pública, descubrimiento por ciudad (nueva propuesta, no definitiva)
+
+La marca **AEGIS** se conserva para código, OSS y motor. Se propuso la marca ciudadana **«Alerta Abierta»** (p. ej. «Alerta Abierta | Ecuador») pero **NO está aprobada aún**. El nombre «Alertas Ecuador» ya identifica un portal oficial de la SNGR: evitar confusión y suplantación. Además, se propuso **un canal nacional inicial con encuesta/pregunta manual en WhatsApp y selector web por DPA** para medir demanda de otras ciudades antes de crear canales locales. WhatsApp admite encuestas/preguntas en canales, pero WAHA documenta `sendPoll` a canales como no soportado; no prometer automatización. El nuevo plan de descubrimiento se encuentra en [channel-discovery-proposal](../design/channel-discovery-proposal.md). Codex puede preparar selector/analítica agregada con mocks; **no cambiar nombres, crear canales ni publicar sin aprobación**.
 
 ## 7. Qué debe hacer Codex AL COMENZAR (M0)
 
