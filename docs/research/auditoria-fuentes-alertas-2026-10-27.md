@@ -124,3 +124,17 @@ Para SNGR, pedir definiciones/escala de susceptibilidad, licencia de reutilizaci
 7. **Revisión comercial/legal**: contrato Open-Meteo, IGM y políticas WhatsApp; separar code MIT, datos de terceros y suscripciones ciudadanas.
 
 **Gate de salida:** al menos un aviso INAMHI original con fechas/vigencia y captura reproducible, un recurso geoespacial real consultado en staging con licencia aclarada, y un canal de distribución en *dry-run* con mensajes auditables. Ninguna alerta pública automática antes de esas pruebas.
+
+## Hallazgo adicional: cuándo estuvo realmente disponible un pronóstico histórico
+
+[Open-Meteo Single Runs](https://open-meteo.com/en/docs/single-runs-api) especifica que `run=YYYY-MM-DDTHH:MM` representa **la inicialización en UTC**, **NO la publicación**. Los modelos globales pueden requerir 4–6 horas después del `run` para distribuir productos. Por ello el backtest necesita `runInitializedAt` y `earliestConservativeAvailableAt` independientes; si no hay fuente de disponibilidad histórica, aplicar una espera conservadora y declarar hipótesis. Ejemplo para la tormenta Guayaquil: evaluar por separado el IFS inicializado el **25-10 12:00 UTC** (07:00 Ecuador), cuyo pronóstico posiblemente pudo distribuirse hacia **11:00–13:00 Ecuador** según margen genérico del proveedor; no reclamar esas horas como evidencia de entrega real. El endpoint documentado es `https://single-runs-api.open-meteo.com/v1/forecast` y es apto para consulta con `run` y `latitude`/`longitude`/variables, **no ensayado aún desde LXC**.
+
+## Precaución cartográfica INEC
+
+El [servidor MGN 2026 del INEC](https://idgn.ecuadorencifras.gob.ec/server/rest/services/mgn_26/service_mgn26/FeatureServer) declara corte enero 2026. Pero la capa [`limite_cantonal` (1)](https://idgn.ecuadorencifras.gob.ec/server/rest/services/mgn_26/service_mgn26/FeatureServer/1) y [`limite_parroquial` (2)](https://idgn.ecuadorencifras.gob.ec/server/rest/services/mgn_26/service_mgn26/FeatureServer/2) tienen geometría `esriGeometryPolyline`, no `Polygon`. No construir zonas de suscripción con ellas directamente; buscar polígonos administrativos oficiales en GeoPackage nacional o capas adicionales apropiadas y verificar denominaciones/códigos.
+
+## Otros caveats
+
+- La página [INAMHI acceso sin cobro](https://www.inamhi.gob.ec/info-liberada/) declara liberación para uso público desde 2025. **No otorga licencia explícita CC BY**, ni garantiza una API de notificaciones: obtener aclaración por escrito.
+- Página de datos INAMHI y mapa SNGR pueden contener contenido cambiante que se sobrescribe. No conservar solo URL.
+- NASA LHASA tiene un repositorio de código y publica mapas en modo *best effort*, usualmente cuatro veces al día con caídas frecuentes. El indicador de deslizamiento no sustituye alerta de movimiento de tierra.
