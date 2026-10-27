@@ -9,13 +9,16 @@
   },
   "dependencies": {
     "@fastify/rate-limit": "^11.2.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
     "chart.js": "^4.5.1",
     "fastify": "^5.12.5",
-    "jsdom": "^29.1.1"
+    "jsdom": "^29.1.1",
+    "pdfjs-dist": "5.4.624"
   },
   "scripts": {
     "start": "node backend.js",
     "test": "node --test",
-    "check": "node --check backend.js && node --check sources.js && node --check assessment.js && node --check public/app.js"
+    "check": "node scripts/check.mjs"
   }
 }

@@ -9,6 +9,9 @@ RUN npm ci --omit=dev
 # Copy application code
 COPY backend.js celec.js mazar.js history.js sources.js assessment.js frontend.html ./
 COPY public/ ./public/
+COPY hazards/ ./hazards/
+COPY scripts/probe-aegis-sources.mjs scripts/ingest-hazards.mjs ./scripts/
+COPY docs/contracts/source-envelope.v1.schema.json ./docs/contracts/
 
 ENV DATA_DIR=/data
 VOLUME ["/data"]
