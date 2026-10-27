@@ -1,0 +1,26 @@
+name: Guayaquil replay checks
+on:
+  pull_request:
+    paths:
+      - 'replay/**'
+      - 'scripts/replay-guayaquil.mjs'
+      - '.github/workflows/guayaquil-replay.yml'
+  push:
+    paths:
+      - 'replay/**'
+      - 'scripts/replay-guayaquil.mjs'
+      - '.github/workflows/guayaquil-replay.yml'
+jobs:
+  verify-replay:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check replay/engine.js
+      - run: node --check scripts/replay-guayaquil.mjs
+      - run: node --test replay/engine.test.js
+      - run: node scripts/replay-guayaquil.mjs > /dev/null

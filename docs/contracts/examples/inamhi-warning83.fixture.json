@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0",
+  "recordOrigin": "synthetic_fixture",
+  "sourceId": "inamhi.warning.pdf",
+  "kind": "official_warning",
+  "sourceUrl": "https://www.inamhi.gob.ec/pronostico/advertencia.pdf",
+  "retrievedAt": null,
+  "raw": {
+    "sha256": null,
+    "byteLength": null,
+    "mediaType": "application/pdf",
+    "storageKey": null,
+    "etag": null,
+    "lastModified": null
+  },
+  "time": {
+    "issuedAt": "2026-10-25T19:00:00Z",
+    "validFrom": "2026-10-25T21:00:00Z",
+    "validTo": "2026-10-29T04:00:00Z",
+    "firstSeenAt": null,
+    "runInitializedAt": null,
+    "availabilityVerifiedAt": null,
+    "sourceTimeZone": "America/Guayaquil",
+    "originalTimeText": "Fecha y hora de emisión: domingo, 25 de octubre de 2026, 14:00 horas. Vigencia: desde 16H00 del 25 hasta las 23H00 del 28 de octubre de 2026"
+  },
+  "spatial": {
+    "precision": "province",
+    "areaNames": [
+      "Guayas",
+      "Los Ríos",
+      "Esmeraldas",
+      "El Oro"
+    ],
+    "crs": null,
+    "geometryRef": null,
+    "matchingMethod": "Texto regional/provincial del boletín; no se digitalizó la geometría del mapa."
+  },
+  "licensing": {
+    "status": "pending",
+    "licenseId": null,
+    "attribution": "INAMHI, Boletín Meteorológico N.º 83",
+    "sourceTermsUrl": "https://www.inamhi.gob.ec/info-liberada/"
+  },
+  "quality": {
+    "dataStatus": "unknown",
+    "warnings": [
+      "Ejemplo de transformación basado en campos publicados del PDF real; sin captura automatizada registrada."
+    ],
+    "blockers": [
+      "NO ES UNA INGESTA REAL",
+      "Permiso de redistribución pendiente",
+      "Geografía del mapa sin vectorizar"
+    ],
+    "parserVersion": null,
+    "completenessRatio": null
+  },
+  "details": {
+    "bulletinNumber": 83,
+    "authority": "INAMHI",
+    "sourceRiskLevel": "MEDIO – MUY ALTO",
+    "phenomena": [
+      "lluvias",
+      "tormentas eléctricas",
+      "ráfagas de viento"
+    ],
+    "textSummary": "Aviso regional/provincial de lluvias fuertes y tormentas, con acumulaciones de agua y crecidas posibles.",
+    "areasMentioned": [
+      "Guayas",
+      "Los Ríos",
+      "Esmeraldas",
+      "El Oro"
+    ],
+    "sourceDocumentRef": null,
+    "notValidForNeighborhoodPrediction": true
+  }
+}
