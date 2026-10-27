@@ -100,3 +100,16 @@ test("extremo a extremo PDF sintético → archivo verificado → revisión → 
   const simulation=await outbox.process(item.key,approver);assert.equal(simulation.state,"simulated");assert.equal(simulation.sent,false);
   assert.equal((await editorial.list())[0].publishedAt,null);assert.deepEqual(await store.verify(),{captures:1,artifacts:1});
 });
+
+test("revisión corregida vuelve a revisión y genera nueva simulación rotulada sin duplicados",async t=>{
+  const env=await setup(t),{alert,service,outbox}=env;
+  const old=await outbox.enqueue(alert.id,"simulation-rss-guayaquil",approver);
+  await service.transition(alert.id,{action:"supersede",reason:"Corrección de interpretación",expectedVersion:3},editor);
+  const candidate=structuredClone(alert.candidate);candidate.id="c".repeat(64);candidate.revisionHash="d".repeat(64);
+  await service.importCandidate(candidate,editor);await service.transition(candidate.id,{action:"submit",reason:"Corrección revisada",expectedVersion:1},editor);
+  await service.transition(candidate.id,{action:"approve",reason:"Revisión humana de corrección",expectedVersion:2},approver);
+  const revised=await outbox.enqueue(candidate.id,"simulation-rss-guayaquil",approver);assert.notEqual(old.key,revised.key);
+  assert.deepEqual(await outbox.enqueue(candidate.id,"simulation-rss-guayaquil",approver),revised);
+  assert.equal((await outbox.process(old.key,approver)).state,"cancelled");
+  const preview=await outbox.process(revised.key,approver);assert.equal(preview.state,"simulated");assert.match(preview.result.payload,/RECTIFICACIÓN/);assert.equal(preview.sent,false);
+});

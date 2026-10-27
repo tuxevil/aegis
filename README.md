@@ -20,6 +20,9 @@ humana y outbox exclusivamente simulada. `ALERTS_ADMIN_ENABLED=false` por defect
 activarlo exige credenciales Bearer configuradas por hash. La carcasa `/editorial/`
 no contiene datos privados; todos sus endpoints requieren autenticación, incluso
 localmente. No hay transporte de envío ni integración con una sesión WhatsApp.
+`ZONE_SUBSCRIPTIONS_ENABLED=false` por defecto; su selector `/ciudades/` guarda
+preferencias piloto opt-in con secreto de gestión privado. No activa Push ni
+confirma seguimiento WhatsApp; véanse límites y retención en el informe M4.
 Grid Sentinel conserva `/`, `/ui` y `/api/status`.
 
 ## La consola

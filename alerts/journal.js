@@ -9,10 +9,10 @@ const filename=sequence=>String(sequence).padStart(8,"0")+".json";
 // Private bounded immutable transactions. A crashed writer leaves a lock for an
 // operator to inspect; no automatic lock stealing or historical overwriting.
 export class AlertJournal {
-  constructor(dataDir,{origin="captured_source",maxEvents=10000,maxBytes=64*1024*1024}={}) {
-    if(!dataDir||!["captured_source","synthetic_fixture"].includes(origin)||!Number.isSafeInteger(maxEvents)||maxEvents<1||maxEvents>99999999||!Number.isSafeInteger(maxBytes)||maxBytes<1)throw new Error("invalid_alert_store");
-    Object.assign(this,{origin,maxEvents,maxBytes});
-    this.root=path.join(path.resolve(dataDir),"alerts","v1",origin);
+  constructor(dataDir,{origin="captured_source",kind="editorial",maxEvents=10000,maxBytes=64*1024*1024}={}) {
+    if(!["editorial","subscriptions"].includes(kind)||!dataDir||!["captured_source","synthetic_fixture"].includes(origin)||!Number.isSafeInteger(maxEvents)||maxEvents<1||maxEvents>99999999||!Number.isSafeInteger(maxBytes)||maxBytes<1)throw new Error("invalid_alert_store");
+    Object.assign(this,{origin,kind,maxEvents,maxBytes});
+    this.root=path.join(path.resolve(dataDir),kind==="editorial"?"alerts":"subscriptions","v1",origin);
   }
   async initialize() {await fs.mkdir(this.root,{recursive:true,mode:0o700});}
   async entries() {
@@ -27,7 +27,7 @@ export class AlertJournal {
       if(total>this.maxBytes)throw new Error("alert_store_capacity");
       const entry=JSON.parse(await fs.readFile(file,"utf8")),{sha256,...payload}=entry;
       const time=utcMillis(payload.at);
-      if(payload.version!==1||payload.origin!==this.origin||payload.sequence!==i+1||payload.previousHash!==previousHash||sha256!==digest(payload)||!Number.isFinite(time)||time<previousTime)throw new Error("alert_journal_corrupt");
+      if((payload.journalKind??"editorial")!==this.kind||payload.version!==1||payload.origin!==this.origin||payload.sequence!==i+1||payload.previousHash!==previousHash||sha256!==digest(payload)||!Number.isFinite(time)||time<previousTime)throw new Error("alert_journal_corrupt");
       previousHash=sha256;previousTime=time;entries.push(entry);
     }
     return entries;
@@ -44,7 +44,7 @@ export class AlertJournal {
       const result=await update(structuredClone(entries));
       // Deduplication is a read; it does not append a misleading second action.
       if(result.unchanged)return structuredClone(result.value);
-      const payload={version:1,origin:this.origin,sequence:entries.length+1,previousHash:prior?.sha256??null,at,actor:{id:actor.id,role:actor.role},action,data:result.data};
+      const payload={version:1,journalKind:this.kind,origin:this.origin,sequence:entries.length+1,previousHash:prior?.sha256??null,at,actor:{id:actor.id,role:actor.role},action,data:result.data};
       const bytes=Buffer.from(JSON.stringify({...payload,sha256:digest(payload)}));
       let total=bytes.length;
       for(const entry of entries)total+=(await fs.stat(path.join(this.root,filename(entry.sequence)))).size;

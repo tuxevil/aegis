@@ -53,3 +53,13 @@ bypass of the localhost restriction, or injection via scraped sources.
 - Journal hashes detect corruption but are not signatures or protection against
   a privileged volume rewrite/tail deletion. Keep independently retained backups;
   do not automatically steal stale writer locks or overwrite incompatible history.
+
+- `ZONE_SUBSCRIPTIONS_ENABLED=false` by default. Zone preferences require explicit
+  versioned consent, bounded signed one-use challenges and per-route limits.
+  Management uses a random 32-byte bearer whose digest alone is persisted in a
+  separate private journal. No contact details, residential coordinates, Push
+  endpoints or raw IPs are stored. Preference expiry is 30 days; revocation
+  removes active zones but does not erase immutable audit history. Retention,
+  LOPDP and reliable recovery/deletion require review before public beta.
+  Interest in PWA is not permission or delivery; demand metrics are private,
+  suppress small groups and never claim unique people or real channel follows.

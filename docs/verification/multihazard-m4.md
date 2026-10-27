@@ -53,8 +53,8 @@ hashes/huecos/locks/capacidad, origen, reinicio, dedupe, expiración, retractaci
 cambio de fuente, backoff/dead-letter y escape XML. Incluyen extracción de PDF
 sintético real → archivo hash → motor → revisión → outbox DRY_RUN, sin red.
 
-Pendiente: suscripciones por zona con antiabuso y secretos de gestión,
-consentimiento PWA independiente y onboarding de canales. Las rutas editoriales
+El tercer incremento implementa preferencias por zona, antiabuso y onboarding
+en modo de prueba. La entrega operacional sigue pendiente de sus gates. Las rutas editoriales
 solo son accesibles con Bearer; ningún candidato interno se expone al público. Rectificaciones ensayadas aquí son
 revisiones internas; no se afirma envío correctivo real o publicación previa.
 M5 sigue sujeto a aprobación separada; no se ha desplegado ni usado WAHA.
@@ -109,3 +109,72 @@ Verificación local del segundo incremento: `npm run check`, **139/139** Node,
 **6/6** Python, ambos replays y diff-check correctos. Docker **84/84** pruebas
 hazards+alerts con red deshabilitada. CI del primer incremento `36f44d0` pasó;
 la CI del nuevo commit se registra por separado en el PR #28.
+
+## Tercer incremento — preferencias por zona y descubrimiento
+
+`ZONE_SUBSCRIPTIONS_ENABLED=false` por defecto, independiente de los otros flags.
+Añade `/ciudades/` y, al activarse, enlace desde Grid Sentinel. Catálogo cerrado de
+los dos cantones piloto con códigos/procedencia/estado sin geometría certificada;
+no representa un catálogo nacional completo. El servicio admite inyectar otro
+catálogo validado en código; no hay endpoint para cargar ciudades arbitrarias.
+Búsqueda con normalización de acentos, filtro por provincia, checkbox por cantón,
+fuentes y enlaces reportados de Guayaquil/nacional. Pallatanga permanece sin enlace.
+Abrir WhatsApp es una acción manual del visitante, no una petición de AEGIS a WAHA.
+Se informa sobre campana, cobertura y falta de garantía de notificación.
+
+| Ruta | Acceso y significado |
+| --- | --- |
+| GET `/api/subscriptions/catalog` | Catálogo piloto y canales reportados, sin datos de personas |
+| GET `/api/subscriptions/challenge` | Desafío firmado, no constituye alta |
+| POST `/api/subscriptions/zones` | Preferencia opt-in, sin habilitar envíos |
+| GET/PATCH/DELETE `/api/subscriptions/zones/me` | Bearer privado para consultar/cambiar/baja |
+| GET `/api/admin/alerts/demand` | Solo admin autenticado si ambos flags están activos |
+
+Alta requiere consentimiento versionado, 1–5 zonas válidas, interés PWA booleano
+independiente, honeypot vacío y desafío firmado ligado al cliente: espera mínima
+1,5 s, caducidad 10 min y consumo único durable. Límites antes de operar, incluyendo
+localhost: 5/min para desafío/alta, gestión 10–20/min y cuerpo máximo 4 KiB.
+Es protección proporcionada de laboratorio, **no** prueba de persona humana ni
+resistencia certificada frente a botnets. Tras reiniciar, desafíos previos dejan
+de valer; los secretos de gestión existentes siguen funcionando.
+
+Se devuelve una vez un secreto CSPRNG de 32 bytes. Solo su SHA-256 va al journal;
+comparación de digests constante. Bearer nunca por URL/cookie; no se recogen
+IP persistida, teléfono, email, domicilio, coordenadas ni Push endpoints. Capturas
+y fixtures siguen separados y la respuesta identifica recordOrigin. El secreto
+en navegador permanece en memoria y campo password; copiar es acción explícita.
+Limpiar pantalla no se presenta como baja; DELETE revoca y vacía zonas activas.
+No hay recuperación de secreto por contacto personal.
+
+Persistencia privada independiente `DATA_DIR/subscriptions/v1/{recordOrigin}`.
+La extensión journalKind distingue namespaces y acepta entradas editoriales
+anteriores sin campo nuevo, verificando su hash original sin reescribirlas.
+No hay migración de history/archivo fuente ni sobreescritura de datos históricos.
+Preferencias vencen a los 30 días y dejan de computarse. La baja no borra la
+historia inmutable: sus hashes/cantones previos persisten para auditoría. Política
+de retención/depuración, LOPDP y restauración con datos ciudadanos deben aprobarse
+antes de una beta pública; no se ofrece olvido histórico automático inexistente.
+Al agotar capacidad/disco el servicio falla cerrado; esta condición exige atención
+del operador, tampoco se promete disponibilidad operacional del alta/baja.
+
+Métricas privadas cuentan preferencias activas, **no personas únicas**, visitas,
+seguidores WhatsApp o notificaciones recibidas. Grupos menores de 5 se suprimen
+con null; visitas/selecciones/seguidores/push-enabled desconocidos permanecen null.
+El interés en PWA no pide permiso al navegador ni crea una suscripción Push.
+La prueba PWA sigue siendo el serializador puro de outbox; no hay service worker
+que despache avisos, servidor de Push ni solicitud real de permisos.
+
+Rectificaciones: revisión posterior requiere retirar la anterior y repetir revisión
+humana. La nueva outbox usa otra clave y plantilla RECTIFICACIÓN; la anterior se
+cancela al procesar. No se inventa una publicación previa ni entrega correctiva.
+
+Rollback: apagar los flags, conservar y respaldar journals privados; restaurar solo
+a raíz nueva y verificar secuencia/hashes/kind. El rollback no reactiva nada ni
+requiere tocar canales. No enviar ni desplegar con estos flags sin aprobación.
+
+Verificación del tercer incremento: `npm ci` 0 vulnerabilidades, check y **157/157**
+Node; **6/6** Python, ambos replays y diff-check correctos. Imagen reconstruida,
+**102/102** hazards+alerts con `--network none`. Prueba adicional con el directorio
+experimental oculto en tmpfs: `/ui` devuelve 200 con flags apagados. El directorio
+se lee de forma diferida para que su ausencia no interrumpa Grid Sentinel; esta
+comprobación queda también en CI. No hubo GET a proveedores ni actividad WAHA.

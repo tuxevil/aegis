@@ -51,7 +51,7 @@ export class DryRunOutbox {
       if(utcMillis(item.nextAttemptAt)>utcMillis(at))return {unchanged:true,value:item};
       item.attempts++;
       try {
-        const result=await this.simulate(structuredClone(item.target),renderPreview(alert),structuredClone(alert));
+        const result=await this.simulate(structuredClone(item.target),renderPreview(alert,{kind:alert.revision>1?"correction":"notice"}),structuredClone(alert));
         if(result?.simulation!==true||result.sent!==false||result.providerMessageId!==null)throw new Error("invalid_simulation_result");
         if(Buffer.byteLength(JSON.stringify(result))>100000)throw new Error("simulation_result_too_large");
         item.result=result;item.state="simulated";item.nextAttemptAt=null;item.lastError=null;

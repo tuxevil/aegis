@@ -74,3 +74,13 @@ test("configuración rechaza roles, IDs y digests duplicados; comparación usa d
   assert.throws(()=>createAdminAuthenticator([{...credentials[0],role:"owner"}]),/invalid_admin_credentials/);
   assert.throws(()=>createAdminAuthenticator([{...credentials[0],token:"plaintext"}]),/invalid_admin_credentials/);
 });
+
+test("demanda agregada solo existe con flag de zonas y requiere autenticación administrativa",async t=>{
+  const {credentials,tokens,inject}=await setup(t);
+  assert.equal((await inject("/api/admin/alerts/demand")).statusCode,403);
+  const app=await createApp({...base,zoneSubscriptionsEnabled:true,alertsAdminEnabled:true,alertsAdminCredentials:credentials,
+    zoneSubscriptionService:{catalog:[],demand:async()=>({areas:[{areaId:"guayaquil",interest:null}],realWhatsappFollowers:null}),challenge:()=>({})}});t.after(()=>app.close());
+  const response=await app.inject({url:"/api/admin/alerts/demand",remoteAddress:"192.0.2.15"});assert.equal(response.statusCode,401);
+  const authenticated=await app.inject({url:"/api/admin/alerts/demand",remoteAddress:"192.0.2.15",headers:{authorization:"Bearer "+tokens.editor}});assert.equal(authenticated.statusCode,200);assert.equal(authenticated.json().realWhatsappFollowers,null);
+  assert.equal((await app.inject({url:"/api/subscriptions/demand",remoteAddress:"192.0.2.15"})).statusCode,403);
+});

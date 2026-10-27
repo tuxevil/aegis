@@ -9,7 +9,7 @@ const id={type:"string",pattern:"^[a-f0-9]{64}$"};
 const query={...properties,properties:{limit:{type:"integer",minimum:1,maximum:50,default:20},offset:{type:"integer",minimum:0,maximum:10000,default:0}}};
 const empty={...properties,properties:{}};
 const page=(items,{limit=20,offset=0})=>({items:items.slice(offset,offset+limit),total:items.length,limit,offset,...safeMode});
-export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox,sourceStore,now=()=>new Date().toISOString()}) {
+export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox,sourceStore,zoneSubscriptions=null,now=()=>new Date().toISOString()}) {
   const authenticate=createAdminAuthenticator(credentials);
   if(!editorial||!outbox||!sourceStore||editorial.journal!==outbox.journal||sourceStore.origin!==editorial.journal.origin)throw new Error("invalid_admin_services");
   await app.register(async scope=>{
@@ -37,6 +37,7 @@ export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox
           if(!definition||typeof value!=="object"||Array.isArray(value)||Object.keys(value).some(k=>!Object.hasOwn(definition.properties,k)))return reply.code(400).send({error:"invalid_admin_request"});
         }
       },handler});
+    if(zoneSubscriptions)route("GET","/api/admin/alerts/demand",{querystring:empty},()=>zoneSubscriptions.demand());
     route("GET","/api/admin/alerts/session",{querystring:empty},req=>({actor:req.alertActor,...safeMode}));
     route("GET","/api/admin/alerts",{querystring:query},async req=>page(await editorial.list(),req.query));
     route("GET","/api/admin/alerts/outbox",{querystring:query},async req=>page(await outbox.list(),req.query));
