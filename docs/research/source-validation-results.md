@@ -6,6 +6,9 @@ v24.21.0; no es producción ni un LXC de AEGIS verificado. Rama de trabajo
 de `origin/feature/guayaquil-replay-whatsapp` (contexto PR #23).
 Árbol limpio al comenzar; `main` y producción sin cambios.
 
+> Informe histórico de M0. El estado acumulado posterior se contrasta en
+> [auditoría de aceptación](../verification/multihazard-acceptance.md).
+
 ## Resultado y alcance
 
 M0 ejecutado: baseline, seis GET predefinidos, evidencia sanitizada y pruebas

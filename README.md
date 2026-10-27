@@ -23,6 +23,7 @@ localmente. No hay transporte de envío ni integración con una sesión WhatsApp
 `ZONE_SUBSCRIPTIONS_ENABLED=false` por defecto; su selector `/ciudades/` guarda
 preferencias piloto opt-in con secreto de gestión privado. No activa Push ni
 confirma seguimiento WhatsApp; véanse límites y retención en el informe M4.
+[Auditoría de aceptación y gates pendientes](docs/verification/multihazard-acceptance.md).
 Grid Sentinel conserva `/`, `/ui` y `/api/status`.
 
 ## La consola
