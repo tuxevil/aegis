@@ -28,6 +28,11 @@ El caso de Guayaquil: el INAMHI declaró haber emitido el boletín meteorológic
 | ADR-14 | **Trazabilidad retrospectiva sin fuga temporal**: diferencia issued, effective, original observed, published, run initialized, availability verified, ingested, first seen, updated, expired. UTC canónico; representación America/Guayaquil. | Reconstruir qué era cognoscible antes de cada evento sin hindsight. |
 | ADR-15 | **Candidatos a avisos**, no órdenes de emergencia. Mensajes distinguen «retransmisión de aviso oficial» de «evaluación independiente AEGIS» y estado de datos. | No hacerse pasar por autoridad ni emitir órdenes de evacuación propias. |
 | ADR-16 | **No bloquear desarrollo por validación externa pendiente**: Codex hace el diagnóstico como primera fase. Sí bloquear la **publicación** de productos basados en datos sin licencia, caducidad o calidad verificada. | Permite comenzar ya con un ciclo seguro. |
+| ADR-17 | **Nombre decidido para el canal nacional:** `OpenAlert - Ecuador`, distinto del nombre interno del software `AEGIS`. La convención `OpenAlert - [Ciudad]` es una propuesta para futuros canales; aún no es una marca registrada/comprobada ni autorización para crearlos. | Canal comprensible para ciudadanos, evitando renombrar sin necesidad la plataforma técnica. Debe revisarse colisión de marca porque existen otros productos OpenAlert. |
+
+### Identidad pública del canal nacional · actualización del 27/10
+
+Se adopta **OpenAlert - Ecuador** para el canal nacional WhatsApp, por decisión expresa del propietario. No es autorización de creación/envío y no cambia automáticamente el nombre AEGIS del repositorio, interfaz o producto. Para posible expansión: `OpenAlert - Guayaquil` y demás ciudades, solo si se aprueba en despliegue. Consultar [propuesta de descubrimiento y notas de colisión](channel-discovery-proposal.md).
 
 ## Qué NO está decidido y cómo manejarlo sin bloquear el comienzo
 
