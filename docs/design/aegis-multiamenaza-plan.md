@@ -1,6 +1,6 @@
 # AEGIS Multiamenaza — plan de producto y preparación técnica (27-10-2026)
 
-**Estado:** propuesta para revisión; no es una orden de implementación. Este documento precede el prompt de desarrollo. Referencia: [replay de Guayaquil](../research/guayaquil-2026-10-26-replay.md) y [diseño WhatsApp por ciudades](whatsapp-ciudades.md).
+**Estado:** planificación de producto cerrada para comenzar implementación incremental (M0–M4) en modo seguro. Este documento fue exploratorio; las decisiones finales y el prompt de desarrollo viven en [START_HERE_CODEX](../handoff/START_HERE_CODEX.md) y [ADRs](architecture-decisions.md). No autoriza alertas públicas ni producción. Referencia: [replay de Guayaquil](../research/guayaquil-2026-10-26-replay.md) y [diseño WhatsApp por ciudades](whatsapp-ciudades.md).
 
 ## Actualización de investigación · 27-10-2026
 
@@ -85,7 +85,7 @@ Política de publicación: fallo de fuente / geometría dudosa / documento nuevo
 | D — beta pública controlada | Portal de Guayaquil y Pallatanga + suscripción por canal manual, mensajes revisados | Simulacros, publicación/corrección/expiración probadas; opt-in claro |
 | E — expansión | Nuevas ciudades por demanda, hidrología/landslides, automatización gradual donde validada | Seguridad operativa y evidencia histórica por fenómeno |
 
-## 8. Decisiones abiertas antes del prompt Codex
+## 8. Cuestiones resueltas para comenzar y verificaciones pendientes por fase
 
 1. Marca: ¿AEGIS como observatorio multiamenaza y subproyecto Grid Sentinel, o Grid Sentinel queda sección de AEGIS? Propuesta: AEGIS paraguas, Grid Sentinel energía.
 2. Grano territorial: ciudad/cantón como canal WhatsApp, parroquia para filtros web. La señal oficial puede tener granularidad provincia/región; mostrar precisión real.
@@ -105,4 +105,4 @@ Política de publicación: fallo de fuente / geometría dudosa / documento nuevo
 - Política WhatsApp, consentimiento y canal redundante acordados.
 - Diagrama de despliegue, almacenamiento y recuperación; decisión de no romper AEGIS actual.
 
-Mientras estas condiciones no se cumplan, no desplegar automatización de avisos que la población pudiera interpretar como instrucción oficial de emergencia.
+**Cierre de la planificación:** Codex ya puede comenzar M0 (auditoría ejecutable) y siguientes hitos seguros con estas condiciones como pruebas y gates del desarrollo, sin esperar más aprobación de diseño. Mientras las condiciones operativas no se cumplan, no desplegar automatización de avisos que la población pudiera interpretar como instrucción oficial de emergencia.
