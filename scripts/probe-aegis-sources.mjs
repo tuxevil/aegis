@@ -58,6 +58,11 @@ export function inspectPayload(type, bytes) {
   if(type === "forecast") {
     if(!Array.isArray(j.hourly?.time)||!Array.isArray(j.hourly?.precipitation)) throw new Error("missing_forecast_arrays");
     if(j.hourly.time.length!==j.hourly.precipitation.length) throw new Error("forecast_length_mismatch");
+    if(j.hourly.precipitation.some(v=>v!==null && (typeof v!=="number" || !Number.isFinite(v) || v<0)))
+      throw new Error("invalid_precipitation");
+    const times=j.hourly.time.map(t=>typeof t==="string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(t) ? Date.parse(t+"Z") : NaN);
+    if(times.some((t,i)=>!Number.isFinite(t) || (i>0 && t<=times[i-1])))
+      throw new Error("invalid_forecast_times");
     return {contentKind:"forecast",points:j.hourly.time.length,
       keys:Object.keys(j.hourly),precipitationUnit:j.hourly_units?.precipitation??null,
       modelIdentityKnown: typeof j.model === "string" || typeof j.models === "string"};
@@ -84,11 +89,28 @@ export async function probeOne(item,{httpFetch=fetch,timeoutMs=12000}={}) {
     // All endpoints are hardcoded; do not follow redirects to unknown hosts.
     const response=await httpFetch(item.url,{method:"GET",redirect:"manual",
       signal:AbortSignal.timeout(timeoutMs),headers:{accept:item.type==="pdf"?"application/pdf":"application/json"}});
+    Object.assign(base, {
+      httpStatus:response.status,
+      observedContentType:response.headers.get("content-type"),
+      lastModified:response.headers.get("last-modified"),
+      etag:response.headers.get("etag"),
+      serverDate:response.headers.get("date"),
+      retryAfter:response.headers.get("retry-after"),
+    });
     if(response.status>=300&&response.status<400)
       throw new Error("redirect_not_followed_"+response.status);
     if(response.status===429)throw new Error("rate_limited_429");
     if(!response.ok)throw new Error("http_"+response.status);
     const bytes=await boundedRead(response,item.maxBytes);
+    Object.assign(base,{byteLength:bytes.length,
+      sha256:createHash("sha256").update(bytes).digest("hex")});
+    // Keep numeric provider codes, never arbitrary remote messages or details.
+    if(item.type!=="pdf") {
+      try {
+        const payload=JSON.parse(bytes.toString("utf8"));
+        if(Number.isInteger(payload?.error?.code)) base.providerErrorCode=payload.error.code;
+      } catch { /* inspectPayload reports invalid JSON below */ }
+    }
     const inspection=inspectPayload(item.type,bytes);
     return {...base,status:"reachable",httpStatus:response.status,
       elapsedMs:Date.now()-started,byteLength:bytes.length,
@@ -98,8 +120,26 @@ export async function probeOne(item,{httpFetch=fetch,timeoutMs=12000}={}) {
       etag:response.headers.get("etag"),inspection};
   } catch(error) {
     return {...base,status:"unverified",elapsedMs:Date.now()-started,
-      errorCode:String(error?.message||"error").slice(0,100)};
+      errorCode: error?.name==="TimeoutError" ? "timeout" :
+        /^(not_pdf_magic|invalid_json|provider_json_error|invalid_layer_metadata|invalid_arcgis_query|query_exceeded_1_record|missing_forecast_arrays|forecast_length_mismatch|invalid_precipitation|invalid_forecast_times|unsupported_payload_kind|body_too_large_declared|body_too_large_stream|rate_limited_429|http_\d{3}|redirect_not_followed_\d{3})$/.test(error?.message)
+          ? error.message : "network_or_read_error"};
   }
+}
+
+export async function probeAll({httpFetch=fetch,timeoutMs=12000}={}) {
+  const results=[];
+  const pausedHosts=new Set();
+  for(const item of probes) {
+    const host=new URL(item.url).hostname;
+    if(pausedHosts.has(host)) {
+      results.push({sourceId:item.id,readOnly:true,status:"unverified",errorCode:"provider_paused"});
+      continue;
+    }
+    const result=await probeOne(item,{httpFetch,timeoutMs});
+    results.push(result);
+    if([403,429].includes(result.httpStatus)) pausedHosts.add(host);
+  }
+  return results;
 }
 
 export async function main(args=process.argv.slice(2)) {
@@ -111,10 +151,10 @@ export async function main(args=process.argv.slice(2)) {
     console.error("Modo seguro: no se hacen consultas. Para sondear SOLO las URLs predefinidas: node scripts/probe-aegis-sources.mjs --live");
     return;
   }
-  const results=[];
   // Ejecutar en serie: mínimo impacto; no hay callbacks de publicación ni credenciales.
-  for(const item of probes)results.push(await probeOne(item));
+  const results=await probeAll();
   const report={reportKind:"AEGIS_READ_ONLY_SOURCE_PROBE",producedAt:new Date().toISOString(),
+    alertsPublishEnabled:false,dispatchMode:"DRY_RUN",
     note:"Proof of request/structure only; NOT approval for license or production alerts.",
     results};
   const payload=JSON.stringify(report,null,2)+"\n";

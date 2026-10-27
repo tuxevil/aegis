@@ -1,0 +1,178 @@
+{
+  "reportKind": "AEGIS_READ_ONLY_SOURCE_PROBE",
+  "producedAt": "2026-10-27T18:38:41.822Z",
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "note": "Proof of request/structure only; NOT approval for license or production alerts.",
+  "results": [
+    {
+      "sourceId": "inamhi.warning.pdf",
+      "attemptedAt": "2026-10-27T18:38:39.605Z",
+      "readOnly": true,
+      "httpStatus": 200,
+      "observedContentType": "application/pdf",
+      "lastModified": "Sun, 25 Oct 2026 18:03:06 GMT",
+      "etag": "\"903e9-65eae067e4279\"",
+      "serverDate": "Tue, 27 Oct 2026 18:34:35 GMT",
+      "retryAfter": null,
+      "byteLength": 590825,
+      "sha256": "8342ad850be3a3144f0e185857e60e0f58f711acfe186c9d436b30603207f429",
+      "status": "reachable",
+      "elapsedMs": 785,
+      "inspection": {
+        "contentKind": "pdf",
+        "pdfMagic": true,
+        "parsedBulletin": false
+      }
+    },
+    {
+      "sourceId": "sngr.multihazard.metadata",
+      "attemptedAt": "2026-10-27T18:38:40.391Z",
+      "readOnly": true,
+      "httpStatus": 200,
+      "observedContentType": "text/plain; charset=UTF-8",
+      "lastModified": null,
+      "etag": null,
+      "serverDate": "Tue, 27 Oct 2026 18:38:40 GMT",
+      "retryAfter": null,
+      "byteLength": 11847,
+      "sha256": "d41ac6ec292c168f509c5a5c144bfb7ca147902fc3c3a542dfec079797022ef9",
+      "status": "reachable",
+      "elapsedMs": 277,
+      "inspection": {
+        "contentKind": "arcgis_layer",
+        "geometryType": "esriGeometryPolygon",
+        "maxRecordCount": 2000,
+        "supportsPagination": true,
+        "fieldNames": [
+          "objectid",
+          "tipo_amen",
+          "susc_total",
+          "dpa_parroq",
+          "dpa_despar",
+          "dpa_canton",
+          "dpa_descan",
+          "dpa_provin",
+          "dpa_despro",
+          "SHAPE__Length",
+          "SHAPE__Area"
+        ]
+      }
+    },
+    {
+      "sourceId": "sngr.multihazard.single",
+      "attemptedAt": "2026-10-27T18:38:40.668Z",
+      "readOnly": true,
+      "httpStatus": 200,
+      "observedContentType": "application/json; charset=UTF-8",
+      "lastModified": null,
+      "etag": "\"80037897\"",
+      "serverDate": "Tue, 27 Oct 2026 18:38:40 GMT",
+      "retryAfter": null,
+      "byteLength": 850,
+      "sha256": "32a3f403134ffbe3c41fd7974e68494db34f0bc466029333d35a580888085407",
+      "status": "reachable",
+      "elapsedMs": 74,
+      "inspection": {
+        "contentKind": "arcgis_query",
+        "returnedCount": 1,
+        "attributeKeys": [
+          "susc_total",
+          "dpa_canton",
+          "dpa_descan",
+          "tipo_amen",
+          "objectid"
+        ],
+        "exceededTransferLimit": true
+      }
+    },
+    {
+      "sourceId": "sngr.flood.metadata",
+      "attemptedAt": "2026-10-27T18:38:40.742Z",
+      "readOnly": true,
+      "httpStatus": 200,
+      "observedContentType": "text/plain; charset=UTF-8",
+      "lastModified": null,
+      "etag": "\"db55748b\"",
+      "serverDate": "Tue, 27 Oct 2026 18:38:40 GMT",
+      "retryAfter": null,
+      "byteLength": 13313,
+      "sha256": "f2f5d9a1d467d7c79650cc6c362cdcc697789460f1c65af6555e8a08eee1b66d",
+      "status": "reachable",
+      "elapsedMs": 78,
+      "inspection": {
+        "contentKind": "arcgis_layer",
+        "geometryType": "esriGeometryPolygon",
+        "maxRecordCount": 2000,
+        "supportsPagination": false,
+        "fieldNames": [
+          "FID",
+          "Shape",
+          "dpa_parroq",
+          "dpa_despar",
+          "dpa_canton",
+          "dpa_descan",
+          "dpa_provin",
+          "dpa_despro",
+          "dpa_anio",
+          "txt",
+          "fcode",
+          "fcode_1",
+          "descr",
+          "umo",
+          "pen",
+          "txs",
+          "ttd",
+          "ith",
+          "sui",
+          "sce",
+          "st_area_sh",
+          "st_length_",
+          "anno"
+        ]
+      }
+    },
+    {
+      "sourceId": "sngr.flood.single",
+      "attemptedAt": "2026-10-27T18:38:40.820Z",
+      "readOnly": true,
+      "httpStatus": 200,
+      "observedContentType": "application/json; charset=UTF-8",
+      "lastModified": null,
+      "etag": "\"GIkjxHmWv9JKnNH0_e1659a2a\"",
+      "serverDate": "Tue, 27 Oct 2026 18:38:40 GMT",
+      "retryAfter": null,
+      "byteLength": 76,
+      "sha256": "80945055b6a4a6bee0ec96a1da4e1ce0e0618b95656ca2aa28130a84bfbd8df8",
+      "providerErrorCode": 400,
+      "status": "unverified",
+      "elapsedMs": 81,
+      "errorCode": "provider_json_error"
+    },
+    {
+      "sourceId": "openmeteo.singlerun.test",
+      "attemptedAt": "2026-10-27T18:38:40.902Z",
+      "readOnly": true,
+      "httpStatus": 200,
+      "observedContentType": "application/json; charset=utf-8",
+      "lastModified": null,
+      "etag": null,
+      "serverDate": "Tue, 27 Oct 2026 18:38:41 GMT",
+      "retryAfter": null,
+      "byteLength": 1993,
+      "sha256": "cc2c583f446b6c3fdd7788187ecfc10ccf853cecc014e7cec78b7cd5b7ff17c2",
+      "status": "reachable",
+      "elapsedMs": 920,
+      "inspection": {
+        "contentKind": "forecast",
+        "points": 72,
+        "keys": [
+          "time",
+          "precipitation"
+        ],
+        "precipitationUnit": "mm",
+        "modelIdentityKnown": false
+      }
+    }
+  ]
+}

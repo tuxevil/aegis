@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { inspectPayload, probeOne, probes, main } from "./probe-aegis-sources.mjs";
+import { inspectPayload, probeOne, probeAll, probes, main } from "./probe-aegis-sources.mjs";
 
 const b = value => Buffer.from(JSON.stringify(value));
 test("lista de sondas solo hosts públicos predefinidos y HTTPS", () => {
@@ -53,4 +53,63 @@ test("429, HTML por PDF y payload sobredimensionado dan 'unverified'",async()=>{
 });
 test("sin --live el script no accede a red",async()=> {
   await main([]);
+});
+
+test("errores de proveedor conservan HTTP/hash, nunca mensajes remotos",async()=>{
+  const result=await probeOne(probes[4],{httpFetch:async()=>new Response(
+    JSON.stringify({error:{code:400,message:"private-secret",details:["sensitive"]}}),
+    {headers:{"content-type":"application/json","date":"Tue, 27 Oct 2026 18:00:00 GMT"}})});
+  assert.equal(result.httpStatus,200);
+  assert.equal(result.providerErrorCode,400);
+  assert.match(result.sha256,/^[a-f0-9]{64}$/);
+  assert.equal(result.serverDate,"Tue, 27 Oct 2026 18:00:00 GMT");
+  assert.equal(JSON.stringify(result).includes("private-secret"),false);
+});
+
+test("timeout, 404 y redirecciones se documentan sin seguir ni filtrar URLs",async()=>{
+  const timeout=await probeOne(probes[0],{httpFetch:async()=>{
+    throw new DOMException("secret-url","TimeoutError");
+  }});
+  assert.equal(timeout.errorCode,"timeout");
+  for(const status of [302,404]) {
+    let calls=0;
+    const result=await probeOne(probes[0],{httpFetch:async(url,options)=>{
+      calls++;
+      assert.equal(options.method,"GET");
+      assert.equal(options.redirect,"manual");
+      assert.ok(options.signal instanceof AbortSignal);
+      return new Response(null,{status,headers:{location:"https://private.example/secret"}});
+    }});
+    assert.equal(calls,1);
+    assert.equal(result.httpStatus,status);
+    assert.equal(JSON.stringify(result).includes("private.example"),false);
+  }
+  const network=await probeOne(probes[0],{httpFetch:async()=>{throw new Error("secret");}});
+  assert.equal(network.errorCode,"network_or_read_error");
+});
+
+test("403/429 suspenden ese proveedor; otras fuentes continúan sin reintentos",async()=>{
+  for(const status of [403,429]) {
+    const calls=[];
+    const results=await probeAll({httpFetch:async(url)=>{
+      calls.push(url);
+      return new Response(null,{status,headers:{"retry-after":"120"}});
+    }});
+    assert.equal(calls.length,3);
+    assert.equal(results.filter(r=>r.errorCode==="provider_paused").length,3);
+    assert.equal(results[1].retryAfter,"120");
+  }
+});
+
+test("límites y modelo ausente son evidencia incompleta, nunca validación operativa",()=>{
+  const layer=inspectPayload("layer",b({geometryType:"esriGeometryPolygon",fields:[],maxRecordCount:2000}));
+  assert.equal(layer.maxRecordCount,2000);
+  assert.equal(layer.supportsPagination,null);
+  const forecast=inspectPayload("forecast",b({hourly:{time:["2026-10-25T00:00"],precipitation:[null]}}));
+  assert.equal(forecast.modelIdentityKnown,false);
+});
+
+test("precipitación negativa y tiempos desordenados se rechazan",()=>{
+  assert.throws(()=>inspectPayload("forecast",b({hourly:{time:["2026-10-25T00:00"],precipitation:[-1]}})),/invalid_precipitation/);
+  assert.throws(()=>inspectPayload("forecast",b({hourly:{time:["2026-10-25T01:00","2026-10-25T00:00"],precipitation:[1,2]}})),/invalid_forecast_times/);
 });
