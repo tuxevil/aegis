@@ -1,0 +1,157 @@
+{
+  "reportKind": "AEGIS_READ_ONLY_SOURCE_PROBE",
+  "producedAt": "2026-10-27T18:37:52.550Z",
+  "note": "Proof of request/structure only; NOT approval for license or production alerts.",
+  "results": [
+    {
+      "sourceId": "inamhi.warning.pdf",
+      "attemptedAt": "2026-10-27T18:37:49.536Z",
+      "readOnly": true,
+      "status": "reachable",
+      "httpStatus": 200,
+      "elapsedMs": 1012,
+      "byteLength": 590825,
+      "sha256": "8342ad850be3a3144f0e185857e60e0f58f711acfe186c9d436b30603207f429",
+      "observedContentType": "application/pdf",
+      "lastModified": "Sun, 25 Oct 2026 18:03:06 GMT",
+      "etag": "\"903e9-65eae067e4279\"",
+      "inspection": {
+        "contentKind": "pdf",
+        "pdfMagic": true,
+        "parsedBulletin": false
+      }
+    },
+    {
+      "sourceId": "sngr.multihazard.metadata",
+      "attemptedAt": "2026-10-27T18:37:50.549Z",
+      "readOnly": true,
+      "status": "reachable",
+      "httpStatus": 200,
+      "elapsedMs": 672,
+      "byteLength": 11847,
+      "sha256": "d41ac6ec292c168f509c5a5c144bfb7ca147902fc3c3a542dfec079797022ef9",
+      "observedContentType": "text/plain; charset=UTF-8",
+      "lastModified": null,
+      "etag": null,
+      "inspection": {
+        "contentKind": "arcgis_layer",
+        "geometryType": "esriGeometryPolygon",
+        "maxRecordCount": 2000,
+        "supportsPagination": true,
+        "fieldNames": [
+          "objectid",
+          "tipo_amen",
+          "susc_total",
+          "dpa_parroq",
+          "dpa_despar",
+          "dpa_canton",
+          "dpa_descan",
+          "dpa_provin",
+          "dpa_despro",
+          "SHAPE__Length",
+          "SHAPE__Area"
+        ]
+      }
+    },
+    {
+      "sourceId": "sngr.multihazard.single",
+      "attemptedAt": "2026-10-27T18:37:51.222Z",
+      "readOnly": true,
+      "status": "reachable",
+      "httpStatus": 200,
+      "elapsedMs": 75,
+      "byteLength": 850,
+      "sha256": "32a3f403134ffbe3c41fd7974e68494db34f0bc466029333d35a580888085407",
+      "observedContentType": "application/json; charset=UTF-8",
+      "lastModified": null,
+      "etag": "\"80037897\"",
+      "inspection": {
+        "contentKind": "arcgis_query",
+        "returnedCount": 1,
+        "attributeKeys": [
+          "susc_total",
+          "dpa_canton",
+          "dpa_descan",
+          "tipo_amen",
+          "objectid"
+        ],
+        "exceededTransferLimit": true
+      }
+    },
+    {
+      "sourceId": "sngr.flood.metadata",
+      "attemptedAt": "2026-10-27T18:37:51.298Z",
+      "readOnly": true,
+      "status": "reachable",
+      "httpStatus": 200,
+      "elapsedMs": 72,
+      "byteLength": 13313,
+      "sha256": "f2f5d9a1d467d7c79650cc6c362cdcc697789460f1c65af6555e8a08eee1b66d",
+      "observedContentType": "text/plain; charset=UTF-8",
+      "lastModified": null,
+      "etag": "\"db55748b\"",
+      "inspection": {
+        "contentKind": "arcgis_layer",
+        "geometryType": "esriGeometryPolygon",
+        "maxRecordCount": 2000,
+        "supportsPagination": false,
+        "fieldNames": [
+          "FID",
+          "Shape",
+          "dpa_parroq",
+          "dpa_despar",
+          "dpa_canton",
+          "dpa_descan",
+          "dpa_provin",
+          "dpa_despro",
+          "dpa_anio",
+          "txt",
+          "fcode",
+          "fcode_1",
+          "descr",
+          "umo",
+          "pen",
+          "txs",
+          "ttd",
+          "ith",
+          "sui",
+          "sce",
+          "st_area_sh",
+          "st_length_",
+          "anno"
+        ]
+      }
+    },
+    {
+      "sourceId": "sngr.flood.single",
+      "attemptedAt": "2026-10-27T18:37:51.370Z",
+      "readOnly": true,
+      "status": "unverified",
+      "elapsedMs": 79,
+      "errorCode": "provider_json_error"
+    },
+    {
+      "sourceId": "openmeteo.singlerun.test",
+      "attemptedAt": "2026-10-27T18:37:51.449Z",
+      "readOnly": true,
+      "status": "reachable",
+      "httpStatus": 200,
+      "elapsedMs": 1101,
+      "byteLength": 1994,
+      "sha256": "370e492f18faa54694735ecbae7d72f002d445c321d84fa1e292b51b11233f20",
+      "observedContentType": "application/json; charset=utf-8",
+      "lastModified": null,
+      "etag": null,
+      "inspection": {
+        "contentKind": "forecast",
+        "points": 72,
+        "keys": [
+          "time",
+          "precipitation"
+        ],
+        "precipitationUnit": "mm",
+        "modelIdentityKnown": false
+      }
+    }
+  ]
+}

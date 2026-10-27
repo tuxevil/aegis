@@ -20,6 +20,14 @@ jq '{producedAt, results: [.results[] | {sourceId,status,errorCode,inspection,el
 
 El parámetro `--out` usa escritura exclusiva, no reemplaza un informe anterior. El reporte conserva `sha256`, byteLength, HTTP content type, ETag/Last-Modified y estructura simplificada, **sin guardar ni redistribuir los bytes de proveedor**. Un PDF con firma `%PDF-` no equivale a parseo y vigencia confirmados. La sonda únicamente verifica metadatos/capacidad de consulta, una muestra mínima y un pronóstico histórico de prueba.
 
+Actualización M0: el informe conserva HTTP, `Date`, `Retry-After`, hash y tamaño
+también cuando la inspección del cuerpo falla; registra solo el código numérico
+de error ArcGIS, nunca sus mensajes/detalles. Un 403/429 pausa el resto de sondas
+al mismo host (`provider_paused`), sin reintentos; los otros proveedores continúan.
+Errores de transporte desconocidos se reducen a `network_or_read_error`, sin URLs
+o mensajes potencialmente sensibles. Los resultados de desarrollo del 27/10 y
+sus límites están en [source-validation-results](../research/source-validation-results.md).
+
 ## Qué mide cada sonda
 
 | ID | Endpoint | Condición para `reachable` |
