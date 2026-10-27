@@ -1,12 +1,6 @@
 // M1 foundation: normalized, explicitly extracted dates only. No PDF parsing,
 // network, publication or claim about historic web availability.
-const utcTime = value => {
-  if(typeof value!=="string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value)) return NaN;
-  const time=Date.parse(value);
-  const canonical=value.includes(".") ? value : value.slice(0,-1)+".000Z";
-  if(!Number.isFinite(time) || new Date(time).toISOString()!==canonical) return NaN;
-  return time;
-};
+import {utcMillis as utcTime} from "./time.js";
 
 export function inspectWarningValidity({issuedAt,validFrom,validTo,retrievedAt},now=new Date()) {
   const times=[issuedAt,validFrom,validTo,retrievedAt].map(utcTime);
