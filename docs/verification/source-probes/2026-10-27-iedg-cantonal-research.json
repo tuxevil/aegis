@@ -1,0 +1,122 @@
+{
+  "documentKind": "AEGIS_BOUNDARY_RESEARCH_REPORT",
+  "version": 1,
+  "evidenceOrigin": "live_public_institutional_download",
+  "discoveryUrl": "https://www.iedg.gob.ec/servicios/descargas/",
+  "transport": {
+    "url": "https://www.iedg.gob.ec/wp-content/uploads/2026/09/Organizacion-Territorial-Cantonal.rar",
+    "retrievedAt": "2026-10-27T23:04:52.862Z",
+    "httpStatus": 200,
+    "contentType": "application/vnd.rar",
+    "lastModified": "Mon, 07 Sep 2026 15:52:16 GMT",
+    "etag": "\"3316708-65ae69a3ad0b3-gzip\"",
+    "byteLength": 53569288,
+    "sha256": "edb261297c2c263f9f611593871cd78e2c2cec4ec8f6a14283e53645fb34e9c7",
+    "elapsedMs": 15117,
+    "archiveType": "RAR",
+    "researchOnly": true,
+    "publicationRights": "unverified",
+    "geometryValidation": "not_yet_performed"
+  },
+  "components": [
+    {
+      "component": "metadata.pdf",
+      "byteLength": 762581,
+      "sha256": "826128d3b8e7d8f791d95ebd27c76a13e819ae59659c02c3c063ce0ba8f85163"
+    },
+    {
+      "component": "cantons.cpg",
+      "byteLength": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "component": "cantons.dbf",
+      "byteLength": 232102,
+      "sha256": "a4f3a841fd41ecb48c5e5b61967ab26fa4672c3af33c922ede3f3ae8a7986faf"
+    },
+    {
+      "component": "cantons.prj",
+      "byteLength": 409,
+      "sha256": "d5c5de3bec971779a1f128faf9da32ac90902653587b053fabf52994c1c37dec"
+    },
+    {
+      "component": "cantons.shp",
+      "byteLength": 95990496,
+      "sha256": "9c50789f9cc9f02c1b3310d17785093892127bd658886a770d19bcd30c272d73"
+    },
+    {
+      "component": "cantons.shp.xml",
+      "byteLength": 39644,
+      "sha256": "dd59b9ca6182a3f4775c9b9c493ffc9bfd96eec693681715c4ae4668f3281144"
+    },
+    {
+      "component": "cantons.shx",
+      "byteLength": 1908,
+      "sha256": "e61259a5aa97f7d20398fc4906a3afe0f645a29ad914c987d76281f06f533910"
+    }
+  ],
+  "inspection": {
+    "inspectedAt": "2026-10-27T23:09:23.694888+00:00",
+    "recordCount": 226,
+    "fourDigitCodeCount": 225,
+    "uniqueFourDigitCodes": 225,
+    "otherCodeCount": 1,
+    "sourceCrsAuthority": [
+      "EPSG",
+      "32717"
+    ],
+    "pdfMetadataEpsg": 4326,
+    "crsConsistency": "contradictory",
+    "pilots": [
+      {
+        "dpaCode": "0608",
+        "name": "PALLATANGA",
+        "sourceYear": "2026",
+        "geometryType": "Polygon",
+        "pointCount": 60532,
+        "partCount": 1,
+        "sourceTopologyValid": true,
+        "sourceValidityReason": "Valid Geometry",
+        "wgs84TopologyValid": true,
+        "approximateModelPointCovered": true,
+        "repaired": false
+      },
+      {
+        "dpaCode": "0901",
+        "name": "GUAYAQUIL",
+        "sourceYear": "2026",
+        "geometryType": "MultiPolygon",
+        "pointCount": 35532,
+        "partCount": 10,
+        "sourceTopologyValid": true,
+        "sourceValidityReason": "Valid Geometry",
+        "wgs84TopologyValid": true,
+        "approximateModelPointCovered": true,
+        "repaired": false
+      }
+    ],
+    "versions": {
+      "pyshp": "2.3.1",
+      "pyproj": "3.7.2",
+      "shapely": "2.1.2",
+      "geos": "3.13.1"
+    },
+    "publicationBlocked": true
+  },
+  "licensing": {
+    "status": "pending_clarification",
+    "accessRestrictionInPdf": "none",
+    "publicationAuthorizationUnverified": true,
+    "termsSource": "https://www.ministeriodegobierno.gob.ec/entrega-del-trazado-de-limites-territoriales-internos-y-organizacion-territorial-del-estado/"
+  },
+  "interpretationLimits": [
+    "226 records are not assumed to mean 226 cantons",
+    "225 four-digit codes are not assumed to be 225 confirmed administrative cantons",
+    "Topology checks cover only the two pilot records, not national topology",
+    "PRJ resolves to EPSG:32717 while PDF metadata states EPSG:4326",
+    "No repairs, geometry publication or event predictions"
+  ],
+  "publicationBlocked": true,
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN"
+}

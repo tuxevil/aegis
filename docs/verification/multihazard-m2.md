@@ -105,3 +105,10 @@ M5 requiere las autorizaciones explícitas originales; no se activará por este 
 
 Rollback: apagar `HAZARDS_ENABLED`; queda v4 y se conserva DATA_DIR. No hay
 migración ni nueva escritura de observaciones históricas por la vista pública.
+
+
+Actualización de investigación posterior: se encontró y descargó de IEDG una
+capa institucional CONALI 2026 para revisión privada. Véase la
+[evidencia territorial](multihazard-territory-research.md). No cierra el gate:
+metadatos CRS contradictorios y alcance de publicación aún por aclarar. Los
+resultados y limitaciones iniciales anteriores se conservan como corte histórico.

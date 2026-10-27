@@ -84,3 +84,12 @@ Añadidos backup.js/CLI seguro, lectores readOnly y runbook
 vulnerabilidades, check/replays/diff-check correctos. Los ensayos no certifican
 hardware ni recuperación de producción. CI anterior 8a77905 pasó en Node 22/24 y
 contenedor (run 40597525877); la CI del nuevo commit se registra en el PR #28.
+
+
+## Nueva evidencia territorial
+
+[IEDG/CONALI 2026](multihazard-territory-research.md): descarga real privada,
+polígonos de los dos pilotos válidos sin reparar y códigos corroborados por DBF.
+El PRJ identifica 32717 pero PDF dice 4326; autorización de publicación/catálogo
+siguen pendientes. INEC limite_cantonal confirmado como línea. No cambia el gate
+ni se publican geometrías. Datos Abiertos devolvió 403 y se detuvo ese acceso.

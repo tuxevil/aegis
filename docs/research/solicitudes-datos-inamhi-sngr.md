@@ -64,3 +64,41 @@ Por cada contacto conservar:
 `institution`, `recipient`, `requestedAt`, `responseAt`, `responseSummary`, `authorizationScope`, `attributionRequirements`, `restrictions`, `technicalContact`, `proofReference`, `decision`.
 
 No asumir autorización por silencio. Los mensajes se entregarán con datos de contacto verificados; no pedir ni enviar contraseñas, sesiones WAHA, ubicación residencial o datos personales de suscriptores.
+
+## 3. CONALI / Dirección de Límites Territoriales Internos — aclaración preparada
+
+**Estado:** borrador técnico, NO enviado.
+
+**Contacto publicado por el Ministerio:** atencion.limitesterritoriales@ministeriodegobierno.gob.ec
+
+**Fuente:** [procedimiento institucional](https://www.ministeriodegobierno.gob.ec/entrega-del-trazado-de-limites-territoriales-internos-y-organizacion-territorial-del-estado/).
+
+**Asunto:** Aclaración de metadatos y uso de Organización Territorial Cantonal 2026 en AEGIS
+
+Estimado equipo de la Dirección de Límites Territoriales Internos:
+
+AEGIS es un observatorio ciudadano abierto en fase de investigación, con avisos
+automáticos deshabilitados. Revisamos el recurso Organización Territorial Cantonal
+2026 enlazado por IEDG y quisiéramos aclarar, antes de publicar cartografía:
+
+1. ¿Cuál es la versión/fecha de referencia vigente y su relación con las fechas
+   de aprobación, DPA_ANIO 2026 y archivo publicado en septiembre de 2026?
+2. El PRJ del recurso identifica WGS84/UTM 17S (EPSG:32717), mientras el PDF de
+   metadatos indica EPSG:4326 junto a descripción UTM. ¿Cuál corresponde al dato
+   entregado y existe metadato corregido o transformación oficial documentada?
+3. El recurso tiene 226 registros y 225 códigos de cuatro dígitos. ¿Qué campos
+   distinguen cantones, zonas especiales/en estudio y otras unidades? ¿Cómo
+   reconciliarlo con el clasificador geográfico estadístico vigente del INEC?
+4. ¿Qué alcance tienen las condiciones de autorización/atribución del PDF para
+   conservar versiones privadas y publicar representaciones derivadas, simplificadas
+   o reproyectadas en una web gratuita? ¿Se requiere autorización específica?
+5. ¿Qué licencia y texto de atribución corresponden exactamente a este recurso,
+   y cómo informar correcciones o cambios de límites sin presentar precisión no validada?
+
+Los pilotos son Guayaquil y Pallatanga. No hemos publicado sus geometrías ni
+atribuimos predicciones de daños a los límites administrativos. Agradecemos la
+documentación o procedimiento aplicable; esta consulta no presume autorización.
+
+Atentamente,
+Equipo AEGIS / tuxevil
+Repositorio: https://github.com/tuxevil/aegis
