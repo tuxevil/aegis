@@ -1,17 +1,16 @@
-# Descubrimiento de ciudades y marca pública de canales — propuesta para aprobación
+# Descubrimiento de ciudades y canales — nombre nacional definido
 
-**27-10-2026 | Estado: PROPUESTA, NO APROBADA.** Se originó al observar que la marca interna AEGIS no comunica su función al público y que crear centenares de canales WhatsApp vacíos sería ineficiente. **No crear ni renombrar canales, no publicar encuestas, no cambiar el branding de producción sin autorización expresa del propietario.**
+**27-10-2026 | Estado: NOMBRE DEL CANAL NACIONAL DECIDIDO.** El propietario eligió explícitamente **«OpenAlert - Ecuador»** para el canal nacional de WhatsApp. Se mantiene en evaluación la identidad comercial general del portal y de futuros canales por ciudad. **No crear/renombrar automáticamente canales, ni publicar encuestas o alertas ni modificar producción sin autorización operativa específica.**
 
 ## Nomenclatura
 
-Marca pública **candidata principal**, NO definitiva: **Alerta Abierta**. Ejemplos:
-- «Alerta Abierta | Ecuador» — canal de alcance nacional y convocatorias para elegir territorio.
-- «Alerta Abierta | Guayaquil» — canal local cuando corresponda.
-- «Alerta Abierta | Pallatanga» — piloto de sensor/territorio, potencialmente primero en entorno controlado.
+**Nombre confirmado exclusivamente para el canal nacional:** **OpenAlert - Ecuador**. Convención propuesta para canales locales, si se decide crearlos: **OpenAlert - Guayaquil** y **OpenAlert - Pallatanga**. El patrón local es una recomendación coherente con el canal nacional, no aprobación de creación.
+
+**Separación de nombres:** AEGIS es el repositorio/software; «OpenAlert - Ecuador» es el canal ciudadano nacional. No asumir que el portal, dominio, licencia o producto completo deben renombrarse a OpenAlert.
 
 AEGIS permanece nombre del proyecto técnico, OSS, motor y repo. La identidad pública indica en su descripción: «Iniciativa ciudadana independiente, impulsada por AEGIS/tuxevil. Reúne avisos oficiales y datos abiertos con fuentes y fechas; no pertenece al Gobierno ni sustituye las indicaciones de autoridades». Revisar disponibilidad de nombres, marcas y canales antes de cualquier lanzamiento.
 
-**No usar «Alertas Ecuador»: es una marca del portal oficial de SNGR** https://alertasecuador.gob.ec/ ; evitar nombres/diseño que parezcan comunicaciones oficiales. Alternativas de evaluación si no se aprueba nombre: «Ecuador Atento», «Vigía Ecuador». No afirmar que alguna está disponible jurídicamente.
+**No usar «Alertas Ecuador»: identifica un portal oficial de SNGR** https://alertasecuador.gob.ec/ ; evitar confusión con instituciones. La opción previa «Alerta Abierta» quedó descartada como nombre del canal nacional. **Colisiones encontradas para OpenAlert:** https://open-alert.com/about (sistema IoT/alertas), https://a2m.cloud/ (proyecto OpenAlert de datos para emergencias), y un proyecto Nostr de alertas críticas citado por Human Rights Foundation (https://pro.edgex.exchange/en-US/news/article/hrf-grants-bitcoin-projects-three-regions). El nombre no es exclusivo ni se ha comprobado su disponibilidad jurídica: verificar marcas, handle, dominio y presentación antes de adoptar marca comercial amplia.
 
 ## Descubrimiento sin canales vacíos
 
