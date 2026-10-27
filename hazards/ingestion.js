@@ -20,10 +20,18 @@ export class IngestionService {
     if(!this.networkEnabled) throw new Error("network_opt_in_required");
     if(this.store.origin!=="captured_source") throw new Error("live_fixture_mixing_forbidden");
     if(source.licensing.status==="pending" && !this.allowPendingLicense) throw new Error("research_archive_opt_in_required");
+    const captures=await this.store.records(),failures=await this.store.records("failures");
+    const sourceHost=new URL(source.url).hostname;
+    const paused=failures.some(f=>{
+      try {return new URL(this.registry.get(f.sourceId).url).hostname===sourceHost && Date.parse(f.retryAt)>this.now().getTime();}
+      catch {return false;}
+    }) || captures.some(r=>r.sourceId===sourceId && r.operation!=="reprocess" && Date.parse(r.retrievedAt)+source.cooldownMs>this.now().getTime());
+    if(paused) return {...safeMode,sourceId,status:"unknown",errorCode:"source_cooldown"};
     try { return await this.capture(source,await this.http.get(sourceId)); }
     catch(error) {
       const code=errorCodes.has(error.message)||/^http_\d{3}$/.test(error.message)?error.message:"ingestion_failed";
-      await this.store.failure({sourceId,at:this.now().toISOString(),code});
+      await this.store.failure({sourceId,at:this.now().toISOString(),code,
+        retryAt:this.http.nextAllowedAt?.(sourceId)||new Date(this.now().getTime()+source.cooldownMs).toISOString()});
       return {...safeMode,sourceId,status:"unknown",errorCode:code};
     }
   }
@@ -35,6 +43,8 @@ export class IngestionService {
     const adapter=this.adapterOverrides[source.id]||adapters[source.type]();
     const record=await this.store.capture({bytes:capture.bytes,sourceId:source.id,retrievedAt:capture.retrievedAt,
       operation:capture.operation||"capture",captureRef:capture.captureRef||null,
+      transport:capture.operation==="reprocess"?null:{httpStatus:Number.isInteger(capture.httpStatus)?capture.httpStatus:null,
+        elapsedMs:Number.isFinite(capture.elapsedMs)?capture.elapsedMs:null},
       normalize:async raw=>{
         const e=await adapter.normalize(capture.bytes,source,capture,raw);
         if(raw.recordOrigin==="synthetic_fixture") {e.quality.dataStatus="unknown";e.quality.blockers.push("synthetic_fixture_never_publish");}

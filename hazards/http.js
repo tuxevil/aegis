@@ -5,6 +5,11 @@ export class SourceHttp {
     Object.assign(this,{registry,httpFetch,now,random});
     this.states=new Map(); this.hostPause=new Map(); this.active=new Set();
   }
+  nextAllowedAt(sourceId) {
+    const host=new URL(this.registry.get(sourceId).url).hostname;
+    const time=Math.max(this.states.get(sourceId)?.nextAttempt||0,this.hostPause.get(host)||0);
+    return time?new Date(time).toISOString():null;
+  }
   async get(sourceId) {
     const source=this.registry.get(sourceId);
     const host=new URL(source.url).hostname;
