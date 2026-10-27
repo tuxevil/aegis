@@ -1,6 +1,9 @@
 name: Multihazard offline regressions
 on:
   pull_request:
+  push:
+    branches:
+      - 'feat/multiamenaza-*'
   workflow_dispatch:
 permissions:
   contents: read
