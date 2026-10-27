@@ -122,3 +122,15 @@ Probado: revisión preventiva antes de validFrom, identidad estable al llegar la
 vigencia, exclusión antes de conocimiento/al vencer y vista previa temporal
 explícita. El candidato sigue privado, con revisión humana y publicación bloqueada.
 Resultado acumulado: **175/175** Node, **120/120** Docker sin red y **6/6** Python.
+
+## Comprobaciones de ingeniería aún abiertas
+
+La revisión no se limita a gates externos. Antes de cerrar el software falta
+probar/corregir el ciclo repetido de una misma edición: importación con distinto
+evaluatedAt y nueva captura del mismo SHA. CandidateDigest incluye actualmente
+metadatos volátiles, mientras el ID representa la edición: hay que demostrar
+idempotencia sin perder procedencia ni ocultar una corrección verdadera.
+Revisar también caducidad de captura por TTL frente a vigencia del documento;
+una vigencia no prueba por sí sola que la última comprobación siga fresca.
+No considerar estas comprobaciones cubiertas por los tests actuales de dedupe
+de outbox o por la única importación del ensayo inicial.
