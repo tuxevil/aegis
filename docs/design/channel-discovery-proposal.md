@@ -1,10 +1,10 @@
 # Descubrimiento de ciudades y canales — nombre nacional definido
 
-**27-10-2026 | Estado: NOMBRE DEL CANAL NACIONAL DECIDIDO.** El propietario eligió explícitamente **«OpenAlert - Ecuador»** para el canal nacional de WhatsApp. Se mantiene en evaluación la identidad comercial general del portal y de futuros canales por ciudad. **No crear/renombrar automáticamente canales, ni publicar encuestas o alertas ni modificar producción sin autorización operativa específica.**
+**27-10-2026 | Estado: CANAL NACIONAL CREADO MANUALMENTE (reportado por el propietario), pregunta sobre ciudades publicada; primer canal local decidido: «OpenAlert - Guayaquil» (todavía no confirmada su creación).** La identidad comercial general del portal continúa diferenciada de la marca técnica AEGIS. La creación manual de este canal es una decisión del propietario; **no autoriza crear canales por WAHA, publicar alertas automatizadas, ni desplegar producción**.
 
 ## Nomenclatura
 
-**Nombre confirmado exclusivamente para el canal nacional:** **OpenAlert - Ecuador**. Convención propuesta para canales locales, si se decide crearlos: **OpenAlert - Guayaquil** y **OpenAlert - Pallatanga**. El patrón local es una recomendación coherente con el canal nacional, no aprobación de creación.
+**Nombres decididos:** canal nacional **OpenAlert - Ecuador**; primer canal local a abrir manualmente **OpenAlert - Guayaquil**. La convención `OpenAlert - [Ciudad]` queda como guía para expansión futura. **OpenAlert - Pallatanga** continúa pendiente de decisión de apertura; no crear canales de forma masiva.
 
 **Separación de nombres:** AEGIS es el repositorio/software; «OpenAlert - Ecuador» es el canal ciudadano nacional. No asumir que el portal, dominio, licencia o producto completo deben renombrarse a OpenAlert.
 
