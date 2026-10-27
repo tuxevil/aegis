@@ -61,8 +61,10 @@ backup a destino nuevo, hash corrupto, cuotas, lock, formato incompatible,
 separación fixture/live, opt-ins, fallos que preservan última captura, salud stale,
 errores HTTP/ArcGIS, nulls, unidades/UTC, modelo ausente y glifos fragmentados.
 Ejecutar `npm ci`, `npm run check`, `npm test` y los contratos Python del M0.
-Resultado de esta entrega: 69/69 pruebas Node y 6/6 contratos Python, checks y
+Resultado inicial: 69/69 pruebas Node y 6/6 contratos Python, checks y
 replay correctos; `npm ci` y `npm audit` sin vulnerabilidades reportadas.
+Antes del PR se incorporaron el cooldown durable probado tras reinicio y la
+corrección del empaquetado Docker: el conjunto Node se amplía a 70 pruebas.
 Check ahora incluye todos los módulos raíz, public, hazards, replay y scripts.
 
 Rollback: dejar de ejecutar ingesta, conservar `DATA_DIR/hazards/v1`; no hay
@@ -81,4 +83,5 @@ Las cuotas se configuran por constructor; retención `preserve`, sin GC destruct
 
 M1 demuestra el flujo técnico con una fuente real, sin certificar permiso ni
 vigencia operativa permanente. M2–M4 y los gates externos siguen pendientes.
-No se ha creado PR remoto, desplegado ni enviado ninguna notificación.
+Durante estos ensayos no se desplegó ni se envió ninguna notificación; la entrega
+se prepara para revisión en PR draft, separada de activación operacional.
