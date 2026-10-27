@@ -5,6 +5,9 @@ import { inspectPayload, probeOne, probeAll, probes, main } from "./probe-aegis-
 const b = value => Buffer.from(JSON.stringify(value));
 test("lista de sondas solo hosts públicos predefinidos y HTTPS", () => {
   assert.equal(probes.length,6);
+  const flood=new URL(probes[4].url);
+  assert.equal(flood.searchParams.get("objectIds"),"1");
+  assert.equal(flood.searchParams.has("resultRecordCount"),false);
   for(const item of probes) {
     const u=new URL(item.url);
     assert.equal(u.protocol,"https:");

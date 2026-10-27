@@ -14,7 +14,7 @@ for(const [k,v] of Object.entries({
 const floodQuery = new URL(poly + "/Susceptibilidad_de_Inundaciones/MapServer/0/query");
 for(const [k,v] of Object.entries({
   where:"1=1",outFields:"FID,sui,dpa_canton,dpa_descan",
-  returnGeometry:"false",resultRecordCount:"1",f:"json"
+  returnGeometry:"false",objectIds:"1",f:"json"
 })) floodQuery.searchParams.set(k,v);
 
 const weather = new URL("https://single-runs-api.open-meteo.com/v1/forecast");
