@@ -1,0 +1,39 @@
+name: Multihazard offline regressions
+on:
+  pull_request:
+  push:
+    branches:
+      - 'feat/multiamenaza-*'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: node scripts/replay-guayaquil.mjs > /dev/null
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'jsonschema==4.23.0'
+      - run: python -m unittest discover -s tests -p 'test_source_envelope.py'
+      # Never run --live or contact providers/WAHA in CI.
+  container-smoke:
+    needs: regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t aegis-offline-ci .
+      - run: docker run --rm --network none --entrypoint node aegis-offline-ci scripts/ingest-hazards.mjs
+      - run: docker run --rm --network none --entrypoint node aegis-offline-ci --test hazards/*.test.js
