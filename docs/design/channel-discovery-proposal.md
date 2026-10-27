@@ -1,10 +1,10 @@
 # Descubrimiento de ciudades y canales — nombre nacional definido
 
-**27-10-2026 | Estado: CANAL NACIONAL CREADO MANUALMENTE (reportado por el propietario), pregunta sobre ciudades publicada; primer canal local decidido: «OpenAlert - Guayaquil» (todavía no confirmada su creación).** La identidad comercial general del portal continúa diferenciada de la marca técnica AEGIS. La creación manual de este canal es una decisión del propietario; **no autoriza crear canales por WAHA, publicar alertas automatizadas, ni desplegar producción**.
+**27-10-2026 | Estado: CANALES «OpenAlert - Ecuador» Y «OpenAlert - Guayaquil» CREADOS MANUALMENTE (reportado por propietario), con enlaces públicos aportados; pregunta sobre ciudades publicada en el canal nacional.** La identidad comercial general del portal continúa diferenciada de la marca técnica AEGIS. La creación manual de este canal es una decisión del propietario; **no autoriza crear canales por WAHA, publicar alertas automatizadas, ni desplegar producción**.
 
 ## Nomenclatura
 
-**Nombres decididos:** canal nacional **OpenAlert - Ecuador**; primer canal local a abrir manualmente **OpenAlert - Guayaquil**. La convención `OpenAlert - [Ciudad]` queda como guía para expansión futura. **OpenAlert - Pallatanga** continúa pendiente de decisión de apertura; no crear canales de forma masiva.
+**Nombres y enlaces confirmados por el propietario:** canal nacional **[OpenAlert - Ecuador](https://whatsapp.com/channel/0029VbEqWioGk1FvdNjrxd3y)**; primer canal local **[OpenAlert - Guayaquil](https://whatsapp.com/channel/0029Vb8azrt5q08lKaGyqp1r)**, ya creado manualmente. La convención `OpenAlert - [Ciudad]` queda como guía para expansión futura. **OpenAlert - Pallatanga** continúa pendiente de decisión de apertura; no crear canales de forma masiva.
 
 **Separación de nombres:** AEGIS es el repositorio/software; «OpenAlert - Ecuador» es el canal ciudadano nacional. No asumir que el portal, dominio, licencia o producto completo deben renombrarse a OpenAlert.
 
@@ -47,4 +47,4 @@ Analítica mínima: \`territory_selected\`, \`interest_registered\`, \`push_opt_
 
 ## Aceptación de planificación
 
-**Pendiente:** propietario debe decidir marca comercial y confirmar si el canal nacional es prioritario. Puede desarrollarse el selector de territorios y la analítica agregada en modo sombra como tarea M2/M4 bajo la arquitectura vigente, pero no hacer marketing, publicaciones ni crear canales.
+**Canales iniciales y enlaces ya decididos:** consultar [directorio versionado](openalert-channels.json). Quedan pendientes la marca comercial del portal, el selector territorial y la analítica agregada que Codex podrá construir en modo sombra M2/M4. No crear canales adicionales ni automatizar publicaciones desde WAHA sin autorización.
