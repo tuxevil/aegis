@@ -71,6 +71,15 @@ Si devuelve \`unauthorized_401\`, revisar estado de la cuenta/clave o dominio au
 - Cache/concurrencia de cuota y \`source_health\`; fallos/429 → \`unknown\`, nunca «riesgo bajo».
 - Valor estratégico: combinar **alertas verificadas INAMHI + fuente complementaria Amaru + distribución OpenAlert**. No competir replicando mapa/índice a corto plazo; evaluar cobertura/precisión/latencia y conversación institucional.
 
+
+## Primera prueba autenticada desde servidor del propietario (27/10/2026)
+
+**Resultado reportado por el operador** (JSON del script de diagnóstico, sin credenciales): `2026-10-27T20:14:52.944Z` (15:14:52 Ecuador), punto Guayaquil `lat=-2.17, lon=-79.92`, duración **1416 ms**, `result=unverified`, `errorCode=provider_reported_error`. La sonda llegó hasta interpretar una respuesta JSON HTTP 2xx con campo `error` o `erro`; **no es un fallo DNS o timeout**, y no sabemos aún el valor/causa del error. No se guardó el cuerpo de respuesta por seguridad. No declarar que la API key esté invalidada ni que la cuota se haya agotado.
+
+**Contraste de documentación oficial Amaru:** `/organizaciones.php` indica `GET /api/v1/status.php?lat=...&lon=...&key=amaru_...`, coincidente con la URL construida por nuestra sonda. El formulario de alta indica «el widget solo cargará en este dominio»: **la restricción de un dominio del plan Dev está expresamente explicada para el widget y no puede asumirse automáticamente para peticiones API desde un LXC**. La documentación pública antigua `/api-docs.php` muestra una ruta prefijada `/inundaciones/api/v1/status.php` pero su enlace «Probar Guayaquil» dirige a `/api/v1/status.php`.
+
+**Mejora de diagnóstico:** `scripts/probe-amaru.mjs` ahora extrae un `providerErrorCategory` y `providerErrorCode` seguro (si existe un token identificador no sensible) **sin imprimir el mensaje libre** porque podría incluir secretos. Ejecutar una sola vez nuevamente desde staging y registrar solamente esa salida saneada; si continúa sin categoría clara, contactar soporte con hora/endpoint sin revelar clave por chat.
+
 ## Pendientes para Codex
 
 - [ ] Probar **exactamente una** llamada autenticada en staging; registrar salida sanitizada sin credenciales.
