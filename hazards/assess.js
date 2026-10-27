@@ -75,10 +75,11 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
     if(recordOrigin!=="synthetic_fixture"&&["unknown","invalid","stale"].includes(e.quality.dataStatus)){reject("source_quality_not_usable");continue;}
     let proposal;
     if(e.kind==="official_warning") {
-      if(ref.activeAtCutoff!==true||!e.details.bulletinNumber||!e.details.sourceRiskLevel||!e.details.phenomena.length){reject("official_warning_not_current_or_complete");continue;}
-      proposal={messageClass:"OFFICIAL",evidenceClass:"OFFICIAL",phenomenon:"meteorological_warning",ruleId:"official-warning-current",
+      const from=utcMillis(e.time.validFrom),to=utcMillis(e.time.validTo),issued=utcMillis(e.time.issuedAt);
+      if(!Number.isFinite(from)||!Number.isFinite(to)||!Number.isFinite(issued)||issued>to||from>=to||to<=cutoff||!e.details.bulletinNumber||!e.details.sourceRiskLevel||!e.details.phenomena.length){reject("official_warning_expired_or_incomplete");continue;}
+      proposal={messageClass:"OFFICIAL",evidenceClass:"OFFICIAL",phenomenon:"meteorological_warning",ruleId:"official-warning-known-unexpired",
         validFrom:e.time.validFrom,validTo:e.time.validTo,sourceRiskLevel:e.details.sourceRiskLevel,
-        reasons:["Primary INAMHI warning is within its stated validity",`Source geographic precision: ${scope.precision}`],
+        reasons:["Primary INAMHI warning is known and unexpired; its stated validity is preserved",`Source geographic precision: ${scope.precision}`],
         facts:{authority:e.details.authority,bulletinNumber:e.details.bulletinNumber,phenomena:[...e.details.phenomena]},
         familyKey:`${e.sourceId}:${e.details.bulletinNumber}:${area.id}`};
     } else if(e.kind==="forecast_run") {
@@ -108,10 +109,11 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
         facts:{measuredAt:e.details.measuredAt,rainRateMmHr:rate,rainDailyMm:daily},familyKey:`${e.sourceId}:${e.details.measuredAt}:${area.id}`};
       limitations.push("Single station does not represent the canton, basin or slope stability");
     } else {reject("unsupported_dynamic_evidence");continue;}
-    const familyId=hash(proposal.familyKey),revisionHash=hash({sha256:record.sha256,parser:e.quality.parserVersion,proposal,scope,policy:shadowPolicy.version});
+    const policyVersion=proposal.messageClass==="OFFICIAL"?"official-warning-known-1":shadowPolicy.version;
+    const familyId=hash(proposal.familyKey),revisionHash=hash({sha256:record.sha256,parser:e.quality.parserVersion,proposal,scope,policy:policyVersion});
     delete proposal.familyKey;
     candidates.push({...proposal,id:hash({familyId,revisionHash}),familyId,revisionHash,recordOrigin,areaId:area.id,dpaCode:area.dpaCode,
-      scope,policyVersion:shadowPolicy.version,severity:"watch",status:"draft",confidenceInEvidence:"partial",limitations:[...new Set(limitations)],
+      scope,policyVersion,severity:"watch",status:"draft",confidenceInEvidence:"partial",limitations:[...new Set(limitations)],
       sourceRefs:[sourceRef],recommendations:[{text:"Consulte la fuente original y siga las indicaciones oficiales.",sourceUrl:e.sourceUrl}],
       evaluatedAt:asOf,publicationBlocked:true,...safeMode});
   }

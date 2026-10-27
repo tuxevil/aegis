@@ -52,9 +52,9 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 
 ## Evidencia actual reproducida
 
-- `npm ci`: 0 vulnerabilidades; check y Node **173/173**.
+- `npm ci`: 0 vulnerabilidades; check y Node **175/175**.
 - Contrato Python **6/6**, ambos CLI replay y diff-check correctos.
-- Docker construido: **118/118** hazards+alerts+backup con `--network none`.
+- Docker construido: **120/120** hazards+alerts+backup con `--network none`.
 - Docker con `/app/docs/design` vacío en tmpfs: `/ui` **200**, flags OFF.
 - CI de `bcc0c47`: Node 22/24 y smoke contenedor terminaron **success**;
   [run 40596729727](https://github.com/tuxevil/aegis/actions/runs/40596729727).
@@ -114,3 +114,11 @@ sin inicialización y respuestas de catálogo útiles, sin publicar datos de fue
 
 Resultado de lectura estricta: **173/173** Node, **118/118** Docker sin red,
 **6/6** Python, check/replays/diff-check correctos.
+
+
+## Vigencia futura de avisos conocidos
+
+Probado: revisión preventiva antes de validFrom, identidad estable al llegar la
+vigencia, exclusión antes de conocimiento/al vencer y vista previa temporal
+explícita. El candidato sigue privado, con revisión humana y publicación bloqueada.
+Resultado acumulado: **175/175** Node, **120/120** Docker sin red y **6/6** Python.

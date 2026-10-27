@@ -16,7 +16,7 @@ riesgo bajo o all_clear.
 
 | Entrada | Representación | Alcance |
 | --- | --- | --- |
-| Aviso primario INAMHI vigente | Candidato OFFICIAL, nivel fuente literal | Provincia/cantón explícito, no barrio |
+| Aviso primario INAMHI conocido y no vencido | Candidato OFFICIAL, nivel fuente literal | Provincia/cantón explícito, no barrio |
 | Modelo identificado y disponible | Contexto FORECAST y propuesta independiente AEGIS_ASSESSMENT | Punto aproximado |
 | Estación Pallatanga reciente | Contexto OBSERVATION y propuesta independiente AEGIS_ASSESSMENT | Una estación, no cantón/cuenca |
 | Susceptibilidad estática | STATIC_EXPOSURE, sin clase de aviso ni candidato dinámico | Contexto no predictivo |
@@ -119,3 +119,22 @@ Verificación local del incremento: `npm ci` (0 vulnerabilidades), `npm run chec
 `git diff --check` correctos. Imagen Docker construida; **60/60** pruebas de
 hazards con `--network none`. El alias `python` no existe en este laboratorio;
 se ejecutó con `python3` sin cambiar el workflow de Ubuntu.
+
+
+## Revisión de vigencia futura
+
+Un aviso primario ya conocido puede entrar a revisión preventiva antes de validFrom;
+no se espera al inicio del período para proponerlo internamente. La regla versionada
+`official-warning-known-unexpired` exige emisión/ventana completas y fin posterior
+al corte. Preserva las fechas originales, no anticipa la captura y no confirma un
+incidente. La identidad permanece estable al pasar de vigencia futura a efectiva;
+un aviso vencido o aún no conocido queda excluido. La regla oficial tiene versión
+`official-warning-known-1`, independiente de los umbrales experimentales de lluvia.
+
+Vista previa recibe corte explícito del procesador y distingue futuro/vencido;
+ningún texto equipara vigencia con daños. Cambio de política puede invalidar
+candidatos internos anteriores para nueva revisión; no reescribe bytes ni versiones
+fuente. La cancelación de outbox usa motivo general evidence_no_longer_eligible,
+pues una pérdida de elegibilidad no demuestra que el proveedor cambió el documento.
+Regresiones y suite completa: **175/175** Node, **120/120** Docker sin red,
+**6/6** Python, check/replays/diff-check correctos. Sin publicación o nuevos GET.

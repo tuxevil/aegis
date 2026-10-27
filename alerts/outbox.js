@@ -47,11 +47,11 @@ export class DryRunOutbox {
       const cancel=reason=>{item.state="cancelled";item.lastError=reason;item.nextAttemptAt=null;return {data:{item},value:item};};
       if(utcMillis(item.expiresAt)<=utcMillis(at))return cancel("expired");
       if(!alert||alert.state!=="approved"||alert.candidateDigest!==item.candidateDigest||alert.revision!==item.revision)return cancel("editorial_state_changed");
-      if((await this.verifyEvidence(structuredClone(alert.candidate),at))?.current!==true)return cancel("source_version_changed");
+      if((await this.verifyEvidence(structuredClone(alert.candidate),at))?.current!==true)return cancel("evidence_no_longer_eligible");
       if(utcMillis(item.nextAttemptAt)>utcMillis(at))return {unchanged:true,value:item};
       item.attempts++;
       try {
-        const result=await this.simulate(structuredClone(item.target),renderPreview(alert,{kind:alert.revision>1?"correction":"notice"}),structuredClone(alert));
+        const result=await this.simulate(structuredClone(item.target),renderPreview(alert,{kind:alert.revision>1?"correction":"notice",asOf:at}),structuredClone(alert));
         if(result?.simulation!==true||result.sent!==false||result.providerMessageId!==null)throw new Error("invalid_simulation_result");
         if(Buffer.byteLength(JSON.stringify(result))>100000)throw new Error("simulation_result_too_large");
         item.result=result;item.state="simulated";item.nextAttemptAt=null;item.lastError=null;

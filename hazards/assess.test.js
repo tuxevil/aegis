@@ -125,3 +125,13 @@ test("lluvia de la hora anterior no se atribuye a la ventana futura del modelo",
   assert.equal(candidate.validTo,"2026-10-28T19:00:00.000Z");
   assert.equal(candidate.facts.forecast24hMm,20);
 });
+
+test("aviso oficial conocido admite revisión preventiva antes de su vigencia sin adelantar efectos",()=>{
+  const r=record({origin:"synthetic_fixture"});r.envelope.time.validFrom="2026-10-27T19:00:00Z";r.envelope.time.validTo="2026-10-28T19:00:00Z";
+  const options={recordOrigin:"synthetic_fixture"},early=assess([r],"guayaquil",options);
+  assert.equal(early.candidates.length,1);const c=early.candidates[0];assert.equal(c.messageClass,"OFFICIAL");assert.equal(c.validFrom,r.envelope.time.validFrom);assert.equal(c.publicationBlocked,true);
+  const effective=assess([r],"guayaquil",{...options,asOf:"2026-10-27T19:00:00Z"}).candidates[0];assert.equal(effective.id,c.id);assert.equal(effective.revisionHash,c.revisionHash);
+  const incomplete=structuredClone(r);incomplete.envelope.time.issuedAt=null;assert.equal(assess([incomplete],"guayaquil",options).candidates.length,0);
+  assert.equal(assess([r],"guayaquil",{...options,asOf:"2026-10-27T17:59:00Z"}).candidates.length,0);
+  assert.equal(assess([r],"guayaquil",{...options,asOf:r.envelope.time.validTo}).candidates.length,0);
+});

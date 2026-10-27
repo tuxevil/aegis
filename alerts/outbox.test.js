@@ -113,3 +113,11 @@ test("revisión corregida vuelve a revisión y genera nueva simulación rotulada
   assert.equal((await outbox.process(old.key,approver)).state,"cancelled");
   const preview=await outbox.process(revised.key,approver);assert.equal(preview.state,"simulated");assert.match(preview.result.payload,/RECTIFICACIÓN/);assert.equal(preview.sent,false);
 });
+
+test("vista previa distingue vigencia futura, actual y vencida sin modificar fechas fuente",async t=>{
+  const {alert}=await setup(t),future=structuredClone(alert);future.candidate.validFrom="2026-10-27T19:00:00Z";
+  const early=renderPreview(future,{asOf:"2026-10-27T18:05:00Z"});assert.match(early.text,/Vigencia futura/);assert.match(early.text,/No confirma un incidente ocurrido/);assert.match(early.text,/Corte de esta vista previa/);
+  assert.doesNotMatch(renderPreview(future,{asOf:"2026-10-27T19:00:00Z"}).text,/Vigencia futura/);
+  assert.match(renderPreview(future,{asOf:future.candidate.validTo}).text,/Vigencia vencida/);assert.equal(future.candidate.validFrom,"2026-10-27T19:00:00Z");
+  assert.throws(()=>renderPreview(future,{asOf:"2026-02-30T00:00:00Z"}),/invalid_template_time/);
+});
