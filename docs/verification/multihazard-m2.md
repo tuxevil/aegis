@@ -112,3 +112,12 @@ capa institucional CONALI 2026 para revisión privada. Véase la
 [evidencia territorial](multihazard-territory-research.md). No cierra el gate:
 metadatos CRS contradictorios y alcance de publicación aún por aclarar. Los
 resultados y limitaciones iniciales anteriores se conservan como corte histórico.
+
+Revisión posterior de acceso público: se reprodujo que un GET con format.json
+presente y directorios faltantes inicializaba el almacén incidentalmente. El lector
+público usa ahora `readOnly:true`; health devuelve 503/unknown sin reparar. Catálogos
+fijos de fuentes/áreas se consultan sin acceder al archivo privado y conservan
+fallback de enlaces aun cuando este falle. Prueba de regresión verifica ausencia
+de escrituras; no se exponen artefactos ni se autoriza publicación.
+Resultado del incremento: check y **173/173** Node, **118/118** Docker sin red,
+**6/6** Python, replays y diff-check correctos.

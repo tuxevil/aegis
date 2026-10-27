@@ -1,6 +1,6 @@
 # Auditoría de aceptación Multiamenaza — M0–M4 en sombra
 
-Corte de implementación: 2026-10-27, `bcc0c47`, PR #28 sobre #27/#26/#25/#24.
+Estado acumulado de desarrollo: 2026-10-27, PR #28 sobre #27/#26/#25/#24.
 La planificación normativa sigue en START_HERE_CODEX y roadmap. Este documento
 reconcilia las entregas incrementales; los informes M0/M1/M2 anteriores describen
 su corte histórico, no una ausencia actual de código que apareció después.
@@ -52,14 +52,14 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 
 ## Evidencia actual reproducida
 
-- `npm ci`: 0 vulnerabilidades; check y Node **157/157**.
+- `npm ci`: 0 vulnerabilidades; check y Node **173/173**.
 - Contrato Python **6/6**, ambos CLI replay y diff-check correctos.
-- Docker construido: **102/102** hazards+alerts con `--network none`.
+- Docker construido: **118/118** hazards+alerts+backup con `--network none`.
 - Docker con `/app/docs/design` vacío en tmpfs: `/ui` **200**, flags OFF.
 - CI de `bcc0c47`: Node 22/24 y smoke contenedor terminaron **success**;
   [run 40596729727](https://github.com/tuxevil/aegis/actions/runs/40596729727).
 
-No se han capturado nuevas fuentes en este incremento ni se tocaron canales.
+No se tocaron canales. Los incrementos de investigación se distinguen abajo.
 Los bytes de proveedor y secretos de laboratorio no se incluyen en este documento.
 Los tests de software no prueban derechos de uso, exactitud cartográfica, reducción
 de daño, disponibilidad de un proveedor, cumplimiento legal o entrega ciudadana.
@@ -104,3 +104,13 @@ cubren el límite. Mantener pendiente dimensionamiento real y revisión de reten
 no se convierte esa corrección en garantía de disponibilidad física o cumplimiento legal.
 Resultado de este incremento: **172/172** Node, **117/117** Docker sin red,
 **6/6** Python, instalación/check/replays/diff-check correctos.
+
+## Lectura pública estricta
+
+Se reprodujo y corrigió una escritura incidental desde GET sobre un almacén
+incompleto. PublicReader usa readOnly y solo carga registros para health; los
+catálogos estáticos siguen disponibles ante fallo privado. Se prueba 503/unknown
+sin inicialización y respuestas de catálogo útiles, sin publicar datos de fuente.
+
+Resultado de lectura estricta: **173/173** Node, **118/118** Docker sin red,
+**6/6** Python, check/replays/diff-check correctos.

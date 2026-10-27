@@ -6,7 +6,7 @@ import {pilotAreas,pilotArea} from "./areas.js";
 
 export class HazardPublicReader {
   constructor({dataDir,now=()=>new Date(),registry=new SourceRegistry()}={}) {
-    this.store=dataDir?new RawArtifactStore(dataDir):null;
+    this.store=dataDir?new RawArtifactStore(dataDir,{readOnly:true}):null;
     Object.assign(this,{now,registry});
   }
   async records() {
@@ -35,7 +35,7 @@ export class HazardPublicReader {
   }
   async read(collection,{area,limit=20,offset=0}={}) {
     const sources=this.registry.list().filter(s=>!area || s.areaIds.includes(pilotArea(area)?.id));
-    const records=await this.records();
+    const records=collection==="health"?await this.records():[];
     let items=[];
     if(collection==="areas") items=pilotAreas().filter(a=>!area||a.id===pilotArea(area)?.id);
     if(collection==="sources") items=sources.map(s=>({sourceId:s.id,title:s.title,owner:s.owner,sourceUrl:s.url,
