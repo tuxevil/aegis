@@ -9,6 +9,8 @@ Avance multiamenaza en ramas de desarrollo: [auditoría M0](docs/research/source
 [explorador M2 y gates territoriales](docs/verification/multihazard-m2.md).
 La [adquisición SNGR por cantón](docs/verification/multihazard-m2-acquisition.md)
 añade verificación por conteos/IDs y archivo privado de investigación; no publica capas.
+[M3 en sombra](docs/verification/multihazard-m3-engine.md) añade candidatos
+internos, replay y métricas con brechas explícitas; no es un predictor calibrado ni emisor.
 `HAZARDS_ENABLED=false` por defecto; `HAZARDS_ENABLED=true npm start` añade
 `/hazards/` y consultas GET `/api/hazards/{sources,areas,observations,bulletins,health}`.
 La activación de esa vista no inicia ingesta ni publica avisos. Las capturas de

@@ -5,7 +5,7 @@ import {InamhiPdfAdapter,SngrArcgisAdapter,OpenMeteoSingleRunsAdapter} from "./a
 const adapters={pdf:()=>new InamhiPdfAdapter(),"arcgis-query":()=>new SngrArcgisAdapter(),forecast:()=>new OpenMeteoSingleRunsAdapter()};
 const errorCodes=new Set(["not_pdf_magic","unexpected_media_type","invalid_json","provider_json_error","invalid_arcgis_query",
   "query_exceeded_1_record","missing_forecast_arrays","forecast_length_mismatch","invalid_precipitation","invalid_forecast_times",
-  "invalid_forecast_units_or_timezone","missing_model_run","pdf_extraction_failed","pdf_extraction_timeout",
+  "invalid_forecast_units_or_timezone","missing_model_run","forecast_model_mismatch","pdf_extraction_failed","pdf_extraction_timeout",
   "body_too_large","empty_body","timeout","network_or_read_error","source_cooldown","source_busy",
   "invalid_source_envelope","store_busy","store_capacity_exceeded","artifact_corrupt"]);
 
@@ -20,7 +20,7 @@ export class IngestionService {
     if(source.internal) throw new Error("specialized_connector_required");
     if(!this.networkEnabled) throw new Error("network_opt_in_required");
     if(this.store.origin!=="captured_source") throw new Error("live_fixture_mixing_forbidden");
-    if(source.licensing.status==="pending" && !this.allowPendingLicense) throw new Error("research_archive_opt_in_required");
+    if(source.licensing.status!=="verified" && !this.allowPendingLicense) throw new Error("research_archive_opt_in_required");
     const captures=await this.store.records(),failures=await this.store.records("failures");
     const sourceHost=new URL(source.url).hostname;
     const paused=failures.some(f=>{

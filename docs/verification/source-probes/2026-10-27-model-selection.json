@@ -1,0 +1,52 @@
+{
+  "reportKind": "AEGIS_MODEL_SELECTION_DIAGNOSTIC",
+  "producedAt": "2026-10-27T20:01:25.392Z",
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "documentation": "https://open-meteo.com/en/docs/single-runs-api",
+  "results": [
+    {
+      "requestedModel": "ecmwf_ifs",
+      "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-2.19&longitude=-79.88&run=2026-10-25T00%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+      "sourceId": "openmeteo.singlerun.test",
+      "attemptedAt": "2026-10-27T20:01:24.042Z",
+      "readOnly": true,
+      "httpStatus": 200,
+      "observedContentType": "application/json; charset=utf-8",
+      "lastModified": null,
+      "etag": null,
+      "serverDate": "Tue, 27 Oct 2026 20:01:25 GMT",
+      "retryAfter": null,
+      "byteLength": 1995,
+      "sha256": "fd1646d697e8aa5dfa8787614f24fe09a8964bd4ad38680732f8a7a69143ca35",
+      "status": "reachable",
+      "elapsedMs": 1117,
+      "inspection": {
+        "contentKind": "forecast",
+        "points": 72,
+        "keys": [
+          "time",
+          "precipitation"
+        ],
+        "precipitationUnit": "mm",
+        "modelIdentityKnown": false
+      }
+    },
+    {
+      "requestedModel": "aegis_invalid_model_control",
+      "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-2.19&longitude=-79.88&run=2026-10-25T00%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=aegis_invalid_model_control",
+      "sourceId": "openmeteo.singlerun.test",
+      "attemptedAt": "2026-10-27T20:01:25.159Z",
+      "readOnly": true,
+      "httpStatus": 400,
+      "observedContentType": "application/json; charset=utf-8",
+      "lastModified": null,
+      "etag": null,
+      "serverDate": "Tue, 27 Oct 2026 20:01:25 GMT",
+      "retryAfter": null,
+      "status": "unverified",
+      "elapsedMs": 233,
+      "errorCode": "http_400"
+    }
+  ]
+}

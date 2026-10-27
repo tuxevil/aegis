@@ -126,6 +126,16 @@ test("forecast requiere mm/UTC, conserva null, modelo y disponibilidad separados
   await assert.rejects(()=>adapter.normalize(json(data),source,captured,metadata),/invalid_forecast_units_or_timezone/);
 });
 
+test("modelo explícito verificado se atribuye a la solicitud, no a un eco inexistente",async()=>{
+  const adapter=new OpenMeteoSingleRunsAdapter(),source=registry.get("openmeteo.singlerun.ecmwf");
+  const data={hourly:{time:["2026-10-25T00:00"],precipitation:[1]},hourly_units:{precipitation:"mm"},utc_offset_seconds:0};
+  const e=await adapter.normalize(json(data),source,captured,metadata);validateEnvelope(e);
+  assert.equal(e.details.providerModel,"ecmwf_ifs");assert.equal(e.details.modelIdentityBasis,"explicit_request");
+  assert.ok(!e.quality.blockers.includes("model_identity_unknown"));
+  data.model="different-model";
+  await assert.rejects(()=>adapter.normalize(json(data),source,captured,metadata),/forecast_model_mismatch/);
+});
+
 test("PDF imagen, vencido, HTML y texto parcial no originan aviso válido",async()=>{
   const source=registry.get("inamhi.warning.pdf");
   const adapter=new InamhiPdfAdapter({extractText:async()=>"SYNTHETIC IMAGE NO TEXT"});
