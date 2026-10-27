@@ -48,3 +48,27 @@ test("HTML inesperado o respuesta con error del proveedor",async()=>{
  assert.ok(!JSON.stringify(x).includes(TEST_KEY));
  }
 });
+
+test("Clasifica error textual sin revelar datos del proveedor ni credencial", async()=>{
+  const x=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>new Response(
+    JSON.stringify({error:"Clave de API no autorizada: "+TEST_KEY}),{status:200})});
+  assert.equal(x.result,"unverified");
+  assert.equal(x.errorCode,"provider_reported_error");
+  assert.equal(x.providerErrorCategory,"api_key_or_authentication");
+  assert.equal(x.providerErrorCode,null);
+  assert.equal(x.httpStatus,200);
+  assert.ok(!JSON.stringify(x).includes(TEST_KEY));
+});
+test("Error del proveedor con codigo seguro y mensaje privado", async()=>{
+  const x=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>new Response(
+    JSON.stringify({error:{code:"domain_not_allowed",message:"Dominio asociado: example.com, clave "+TEST_KEY}}),{status:200})});
+  assert.equal(x.providerErrorCategory,"domain_or_origin_restriction");
+  assert.equal(x.providerErrorCode,"domain_not_allowed");
+  assert.ok(!JSON.stringify(x).includes("example.com"));
+  assert.ok(!JSON.stringify(x).includes(TEST_KEY));
+});
+test("Campo error null no invalida una respuesta con datos validos", async()=>{
+  const x=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>new Response(
+    JSON.stringify({error:null,riesgo:{indice:15,nivel:"Bajo"}}),{status:200})});
+  assert.equal(x.result,"sample_obtained");
+});
