@@ -86,7 +86,7 @@ export function describeProviderError(payload, key) {
     }
   }
   return {providerErrorCategory:category,providerErrorCode:providerCode,
-    note:"El proveedor incluy[oó] un error en JSON. No se expone el mensaje original para proteger la clave."};
+    note:"El proveedor incluyó un error en JSON. No se expone el mensaje original para proteger la clave."};
 }
 
 export async function probeAmaru({key,fetchImpl=fetch,location=GUAYAQUIL_SAMPLE,timeoutMs=12000}={}) {
