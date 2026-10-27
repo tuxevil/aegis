@@ -1,10 +1,10 @@
 # AEGIS: canales de WhatsApp por ciudad — diseño y precauciones
 
-Estado: **diseño de implementación**, 27-10-2026. El propietario definió el nombre del canal nacional como **«OpenAlert - Ecuador»**. No se ha confirmado su creación en el servicio de WhatsApp desde esta sesión ni se han publicado mensajes desde AEGIS.
+Estado: **diseño de implementación**, 27-10-2026. El propietario confirmó el canal nacional **«OpenAlert - Ecuador»**, publicó una pregunta a seguidores sobre sus ciudades y decidió crear manualmente el primer canal local **«OpenAlert - Guayaquil»**. Aún **no** se confirmó que el nuevo canal Guayaquil haya sido creado. No hay mensajes de alerta publicados automáticamente por AEGIS.
 
 ## Decisión de producto
 
-**Canal nacional:** `OpenAlert - Ecuador` (nombre decidido por el propietario). **Canales locales futuros, convención propuesta:** `OpenAlert - Guayaquil`, `OpenAlert - Pallatanga`. Empezar con un canal nacional de convocatoria y selector web de ciudades para estimar interés, no crear cientos de canales vacíos. Un canal opt-in por ciudad solo cuando exista demanda y capacidad de cobertura. El mensaje de cada canal incluirá **solo riesgos relevantes para su ámbito**, no boletines nacionales indiferenciados. AEGIS permanece como observatorio abierto e **independiente**, sin presentarse como autoridad pública.
+**Canal nacional:** `OpenAlert - Ecuador` (creado manualmente según propietario). **Primer canal local definido para apertura manual:** `OpenAlert - Guayaquil` (priorizado por tormenta del 26/10/2026 y red de contactos inicial). **Otros locales, convención propuesta:** `OpenAlert - Pallatanga`, etc. Canal nacional recoge interés mediante una pregunta nativa publicada y futuro selector web de ciudades; no abrir cientos de canales vacíos. Un canal local solo cuando exista demanda y capacidad editorial. El mensaje de cada canal incluirá **solo riesgos relevantes para su ámbito**, no boletines nacionales indiferenciados. AEGIS permanece como observatorio abierto e **independiente**, sin presentarse como autoridad pública.
 
 **Importante:** al seguir un canal, las notificaciones están **silenciadas por defecto**. El onboarding mostrará una instrucción explícita para tocar la campana. WhatsApp no sustituye PWA, web ni canales oficiales de emergencias.
 
