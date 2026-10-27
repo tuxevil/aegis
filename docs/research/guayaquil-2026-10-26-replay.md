@@ -17,6 +17,10 @@ Un observatorio ciudadano habría podido retransmitir **un aviso preventivo vál
 
 **Regla de anti-fuga temporal:** en cada corte, el replay muestra solo eventos cuyo `publishedAt` es anterior o igual. Los valores medidos después constan solo en `hindsightOnly` y jamás se inyectan en los borradores previos. La hora del artículo es **cota pública conservadora de publicación**, no prueba de que AEGIS pudiera capturarlo por API de inmediato: todavía falta medir latencia de ingestión.
 
+## Nuevo hallazgo primario (auditoría 27-10-2026)
+
+El PDF oficial N.º 83 fue **emitido a las 14:00 del 25-10** y su vigencia comenzó a las 16:00. El conocimiento retrospectivo del PDF NO autoriza reconstruir disponibilidad de plataforma a las 14:00: no se conoce cuándo habría recibido el documento un ingestor operando en esa fecha. Para ello sirve precisamente el replay con `publishedAt=18:01` de prensa. No interpretar el intervalo de **23 horas** desde emisión hasta la lluvia intensa como tiempo garantizado de aviso ciudadano. Fuente completa y advertencias: [auditoría de fuentes](auditoria-fuentes-alertas-2026-10-27.md).
+
 ## Resultado de la primera reconstrucción
 
 - A las 17:00 del 25/10, **sin fuentes seleccionadas** anteriores al corte, este dataset no genera borradores. Esto NO significa que no existiera ningún aviso oficial previo; solo indica una laguna de este dataset.
@@ -42,7 +46,7 @@ Las salidas son **borradores**, nunca solicitudes de publicación. `planChannelO
 
 ## Qué falta para afirmar utilidad real
 
-1. Recuperar el PDF original de la advertencia INAMHI 83 con su fecha de emisión, revisiones, vigencia y cartografía histórica. No inferir la fecha exacta de emisión del inicio de vigencia.
+1. **PDF original recuperado e inspeccionado el 27-10:** [INAMHI, advertencia N.º 83](https://www.inamhi.gob.ec/pronostico/advertencia.pdf). Declara emisión **25-10-2026 14:00** y vigencia **25-10 16:00 al 28-10 23:00**; menciona expresamente los días 26 y 27. Falta **archivar bytes inmutables, revisiones previas y demostrar la primera disponibilidad web**; el enlace se sobrescribe. La hora 18:01 que usa el replay sigue siendo la publicación independiente en prensa, no la emisión del boletín.
 2. Capturar feeds automáticamente en adelante y conservar versiones crudas, marcas de origen, recepción y transformación (hash, licencia y caducidad).
 3. Validar el mapeo espacial del aviso regional a la ciudad; distinguir previsión de lluvia, exposición e impacto.
 4. Reconstruir fuentes disponibles antes del evento (pronósticos almacenados, avisos, estaciones, nowcasting) sin incluir información posterior.
