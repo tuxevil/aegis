@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "documentKind": "AEGIS_OPENALERT_PUBLIC_CHANNEL_DIRECTORY",
+  "schemaVersion": "1.0",
+  "updatedAt": "2026-10-27",
+  "timeZone": "America/Guayaquil",
+  "scope": "Public WhatsApp invitation URLs reported by the project owner; NOT verified WAHA session JIDs",
+  "channels": [
+    {
+      "key": "ec-national",
+      "displayName": "OpenAlert - Ecuador",
+      "territoryType": "country",
+      "country": "EC",
+      "dpaCode": null,
+      "publicInvitationUrl": "https://whatsapp.com/channel/0029VbEqWioGk1FvdNjrxd3y",
+      "providerChannelJid": null,
+      "ownerRoleVerifiedAt": null,
+      "linkVerification": "provided_by_owner",
+      "ownerReportedCreated": true,
+      "automatedPublishingEnabled": false,
+      "notes": "Canal nacional ya creado manualmente. Pregunta nativa de WhatsApp sobre ciudad de origen/interés publicada por propietario."
+    },
+    {
+      "key": "ec-guayaquil",
+      "displayName": "OpenAlert - Guayaquil",
+      "territoryType": "canton_or_city",
+      "country": "EC",
+      "province": "Guayas",
+      "dpaCode": null,
+      "publicInvitationUrl": "https://whatsapp.com/channel/0029Vb8azrt5q08lKaGyqp1r",
+      "providerChannelJid": null,
+      "ownerRoleVerifiedAt": null,
+      "linkVerification": "provided_by_owner",
+      "ownerReportedCreated": true,
+      "automatedPublishingEnabled": false,
+      "notes": "Primer canal local creado manualmente por el propietario. DPA, cobertura geométrica y vinculación WAHA pendientes de validar."
+    }
+  ],
+  "integrationGuards": {
+    "treatInvitationUrlsAsProviderIds": false,
+    "publishToWAHA": false,
+    "allowNewChannelCreation": false,
+    "requiresOwnerSessionAndRoleVerification": true,
+    "requiresExplicitApprovalToPublishRealAlerts": true,
+    "fallbackIfChannelNotReachable": "Show link state unknown, not a confirmed follow/notification subscription"
+  }
+}
