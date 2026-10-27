@@ -16,6 +16,12 @@ import {
 import { buildAssessment } from "./assessment.js";
 import {registerHazardRoutes,hazardPaths} from "./hazards/routes.js";
 import {HazardPublicReader} from "./hazards/public-reader.js";
+import {registerAlertAdminRoutes} from "./alerts/admin-routes.js";
+import {AlertJournal} from "./alerts/journal.js";
+import {EditorialService} from "./alerts/editorial.js";
+import {DryRunOutbox} from "./alerts/outbox.js";
+import {archiveEvidenceVerifier} from "./alerts/evidence.js";
+import {RawArtifactStore} from "./hazards/artifact-store.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const localIP = (ip) => ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(ip);
@@ -36,6 +42,9 @@ export async function createApp({
   mac = process.env.AMBIENT_MAC,
   hazardsEnabled = process.env.HAZARDS_ENABLED === "true",
   hazardReader = null,
+  alertsAdminEnabled = process.env.ALERTS_ADMIN_ENABLED === "true",
+  alertsAdminCredentials = null,
+  alertsAdminServices = null,
 } = {}) {
   const app = Fastify({ logger: false });
   await app.register(rateLimit, {
@@ -47,6 +56,7 @@ export async function createApp({
   app.addHook("onRequest", async (req, reply) => {
     const endpoint = req.url.split("?")[0];
     if (!endpoint.startsWith("/api/") || localIP(req.ip)) return;
+    if (alertsAdminEnabled && req.routeOptions.config.aegisAlertAdmin === true) return;
     if (hazardsEnabled && req.method === "GET" && hazardPaths.includes(endpoint) && req.routeOptions.config.aegisPublicRead === true) return;
     if (endpoint === "/api/status") {
       const host = originHost(req.headers.host || "");
@@ -63,6 +73,22 @@ export async function createApp({
       .send({ error: "Acceso al panorama desde el dashboard" });
   });
   if (hazardsEnabled) await registerHazardRoutes(app,{reader:hazardReader||new HazardPublicReader({dataDir:process.env.DATA_DIR||path.join(directory,".data"),now})});
+  if (alertsAdminEnabled) {
+    const alertNow=()=>now().toISOString();
+    let credentials=alertsAdminCredentials;
+    if(credentials===null) {
+      try {credentials=JSON.parse(process.env.ALERTS_ADMIN_CREDENTIALS_JSON||"null");}
+      catch {throw new Error("invalid_admin_credentials");}
+    }
+    let services=alertsAdminServices;
+    if(!services) {
+      const dataDir=process.env.DATA_DIR||path.join(directory,".data");
+      const sourceStore=new RawArtifactStore(dataDir),journal=new AlertJournal(dataDir);
+      const verifyEvidence=archiveEvidenceVerifier(sourceStore);
+      services={sourceStore,editorial:new EditorialService({journal,verifyEvidence,now:alertNow}),outbox:new DryRunOutbox({journal,verifyEvidence,now:alertNow})};
+    }
+    await registerAlertAdminRoutes(app,{...services,credentials,now:alertNow});
+  }
   const caches = new Map();
   const inflight = new Map();
   const getText = async (url, options) => {

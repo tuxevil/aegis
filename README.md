@@ -15,6 +15,11 @@ internos, replay y métricas con brechas explícitas; no es un predictor calibra
 `/hazards/` y consultas GET `/api/hazards/{sources,areas,observations,bulletins,health}`.
 La activación de esa vista no inicia ingesta ni publica avisos. Las capturas de
 investigación permanecen privadas y la cobertura se declara limitada.
+El [centro editorial M4](docs/verification/multihazard-m4.md) permite revisión
+humana y outbox exclusivamente simulada. `ALERTS_ADMIN_ENABLED=false` por defecto;
+activarlo exige credenciales Bearer configuradas por hash. La carcasa `/editorial/`
+no contiene datos privados; todos sus endpoints requieren autenticación, incluso
+localmente. No hay transporte de envío ni integración con una sesión WhatsApp.
 Grid Sentinel conserva `/`, `/ui` y `/api/status`.
 
 ## La consola
