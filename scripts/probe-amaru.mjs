@@ -51,6 +51,44 @@ export function summarizeResponse(payload,{httpStatus=200,secret=null}={}) {
   };
 }
 
+// Diagnostic classification, deliberately without logging free-form provider messages.
+// Provider errors may echo the API key, registered domain, e-mail or complete request URL.
+export function describeProviderError(payload, key) {
+  const p=asRecord(payload);
+  const e=p.error??p.erro;
+  const nested=asRecord(e);
+  const candidates=[e,nested.code,nested.codigo,nested.message,nested.mensaje,nested.detail,
+    p.code,p.codigo,p.message,p.mensaje,p.detail];
+  const parts=candidates.filter(v=>typeof v==="string"||typeof v==="number")
+    .map(v=>String(v).slice(0,250));
+  const text=parts.join(" ").toLowerCase();
+  const contains=(pattern)=>pattern.test(text);
+  let category="other_provider_error";
+  if(contains(/quota|cuota|exced|rate.?limit|too.many|limite de consult|l[ií]mite de consult/))
+    category="quota_or_rate_limit";
+  else if(contains(/domain|dominio|origen|referer|referrer/))
+    category="domain_or_origin_restriction";
+  else if(contains(/key|clave|token|credencial|autenticaci|auth|api.?key|inv[aá]lid/))
+    category="api_key_or_authentication";
+  else if(contains(/plan|pago|suscrip|activaci[oó]n|inactiv/))
+    category="plan_or_activation";
+  else if(contains(/latitud|longitud|coordinate|coordenad|par[aá]metro|parameter/))
+    category="invalid_parameters";
+  else if(contains(/servidor|internal|database|base de datos|service unavailable/))
+    category="provider_server_error";
+  const codeCandidates=[nested.code,nested.codigo,p.code,p.codigo,
+    typeof e==="string" ? e : null];
+  let providerCode=null;
+  for(const value of codeCandidates){
+    if(typeof value!=="string"||value===key||value.includes(key))continue;
+    if(/^[a-z][a-z0-9_-]{1,60}$/.test(value) && !/^amaru_/.test(value)){
+      providerCode=value;break;
+    }
+  }
+  return {providerErrorCategory:category,providerErrorCode:providerCode,
+    note:"El proveedor incluy[oó] un error en JSON. No se expone el mensaje original para proteger la clave."};
+}
+
 export async function probeAmaru({key,fetchImpl=fetch,location=GUAYAQUIL_SAMPLE,timeoutMs=12000}={}) {
   const u=buildRequestUrl(key,location);
   const start=Date.now();
@@ -72,7 +110,14 @@ export async function probeAmaru({key,fetchImpl=fetch,location=GUAYAQUIL_SAMPLE,
     let payload;
     try{payload=JSON.parse(raw)}catch{throw new Error("invalid_json")}
     if(!payload||typeof payload!=="object"||Array.isArray(payload))throw new Error("invalid_json_shape");
-    if("error" in payload||"erro" in payload)throw new Error("provider_reported_error");
+    if((payload.error!==null && payload.error!==undefined && payload.error!==false && payload.error!=="") ||
+       (payload.erro!==null && payload.erro!==undefined && payload.erro!==false && payload.erro!=="")){
+      const diagnostic=describeProviderError(payload,key);
+      return {source:"Amaru",reportKind:"SINGLE_READ_ONLY_SAMPLE",result:"unverified",
+        queriedAt:new Date().toISOString(),queryLocation:location,
+        elapsedMs:Date.now()-start,httpStatus:response.status,
+        errorCode:"provider_reported_error",...diagnostic};
+    }
     if(!("clima" in payload)&&!("riesgo" in payload))throw new Error("unexpected_response_shape");
     return {...summarizeResponse(payload,{httpStatus:response.status,secret:key}),
       queriedAt:new Date().toISOString(),queryLocation:location,
