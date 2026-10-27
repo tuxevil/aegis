@@ -1,0 +1,54 @@
+{
+  "caseId": "guayaquil-2026-10-26",
+  "scope": "Retrospectiva de avisos públicos, NO predicción calibrada de inundación urbana",
+  "city": "Guayaquil",
+  "citySlug": "guayaquil",
+  "zone": "Guayaquil, Ecuador (ámbito ciudad, no barrios)",
+  "referenceImpactAt": "2026-10-26T13:00:00-05:00",
+  "referenceImpactExplanation": "Inicio de la ventana 13:00-15:00 de precipitación extrema observada en la estación Ciencias Naturales; NO es la primera inundación del día (ya hubo anegamientos de madrugada).",
+  "events": [
+    {
+      "id": "inamhi-83-prensa-2510",
+      "kind": "warning",
+      "citySlug": "guayaquil",
+      "publishedAt": "2026-10-25T18:01:00-05:00",
+      "authority": "INAMHI, advertencia meteorológica N.º 83",
+      "carrier": "El Universo (publicación fechada)",
+      "sourceUrl": "https://www.eluniverso.com/comunidad/ecuador/clima-en-guayaquil-manana-pronostico-de-lluvias-del-inamhi-nota/",
+      "message": "Se prevén lluvias de moderadas a muy intensas, tormentas y ráfagas de viento, con posibilidad de acumulación de agua e inundaciones en sectores susceptibles durante el 26 de octubre. No hay predicción verificada por barrio.",
+      "validUntil": "2026-10-28T23:00:00-05:00"
+    },
+    {
+      "id": "segura-18puntos-prensa-2610",
+      "kind": "impact_update",
+      "citySlug": "guayaquil",
+      "publishedAt": "2026-10-26T07:28:00-05:00",
+      "authority": "Segura EP (balance citado por prensa)",
+      "carrier": "Diario Extra",
+      "sourceUrl": "https://www.extra.ec/noticia/guayaquil/seguira-lloviendo-guayaquil-lunes-26-octubre-pronostico-inamhi-165985.html",
+      "message": "La prensa reporta 18 puntos con acumulación de agua hasta las 06:00 y persistencia de advertencia meteorológica. Ya existían afectaciones: no presentar este aviso como predicción previa a toda inundación.",
+      "validUntil": "2026-10-26T23:00:00-05:00"
+    },
+    {
+      "id": "lluvia-en-curso-prensa-2610",
+      "kind": "impact_update",
+      "citySlug": "guayaquil",
+      "publishedAt": "2026-10-26T14:19:00-05:00",
+      "authority": "INAMHI / Segura EP, citados por prensa",
+      "carrier": "Primicias",
+      "sourceUrl": "https://www.primicias.ec/sociedad/lluvias-tormentas-clima-inamhi-26octubre-ecuador-fenomeno-elnino-135746/",
+      "message": "Aproximadamente a las 14:00 se reportó el inicio de un episodio de lluvias fuertes en Guayaquil. El aviso es contemporáneo, no anticipación del episodio de la tarde.",
+      "validUntil": "2026-10-26T23:00:00-05:00"
+    }
+  ],
+  "hindsightOnly": {
+    "station": "Facultad de Ciencias Naturales, norte de Guayaquil",
+    "rainWindow": "2026-10-26 13:00–15:00 America/Guayaquil",
+    "rainMm": 95.3,
+    "maximumHourMm": 67.3,
+    "totalDayUntil19hMm": 148.5,
+    "publishedLater": true,
+    "sourceUrl": "https://www.radiociudad.gob.ec/dos-horas-de-lluvia-en-un-sector-del-norte-de-guayaquil-dejaron-casi-tanta-agua-como-tres-dias/",
+    "warning": "NO incorporar estos datos retrospectivos como si hubieran estado disponibles antes o durante la tormenta."
+  }
+}
