@@ -31,7 +31,7 @@ function validateCandidate(c,origin,at) {
 // request. Approval snapshots the exact evidence digest; every queue rechecks it.
 export class EditorialService {
   constructor({journal,verifyEvidence,now=()=>new Date().toISOString()}) {
-    if(!journal||typeof verifyEvidence!=="function")throw new Error("editorial_configuration_required");
+    if(!journal||journal.kind!=="editorial"||typeof verifyEvidence!=="function")throw new Error("editorial_configuration_required");
     Object.assign(this,{journal,verifyEvidence,now});
   }
   async list() {return [...editorialState(await this.journal.entries()).values()];}

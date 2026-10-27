@@ -16,7 +16,7 @@ export function outboxState(entries) {
 }
 export class DryRunOutbox {
   constructor({journal,verifyEvidence,now=()=>new Date().toISOString(),simulate=simulateTransport,maxAttempts=3,retryMs=60000}) {
-    if(!journal||typeof verifyEvidence!=="function"||typeof simulate!=="function"||!Number.isSafeInteger(maxAttempts)||maxAttempts<1||maxAttempts>5||!Number.isSafeInteger(retryMs)||retryMs<1000)throw new Error("invalid_outbox_configuration");
+    if(!journal||journal.kind!=="editorial"||typeof verifyEvidence!=="function"||typeof simulate!=="function"||!Number.isSafeInteger(maxAttempts)||maxAttempts<1||maxAttempts>5||!Number.isSafeInteger(retryMs)||retryMs<1000)throw new Error("invalid_outbox_configuration");
     Object.assign(this,{journal,verifyEvidence,now,simulate,maxAttempts,retryMs});
   }
   async list() {return [...outboxState(await this.journal.entries()).values()];}

@@ -178,3 +178,34 @@ Node; **6/6** Python, ambos replays y diff-check correctos. Imagen reconstruida,
 experimental oculto en tmpfs: `/ui` devuelve 200 con flags apagados. El directorio
 se lee de forma diferida para que su ausencia no interrumpa Grid Sentinel; esta
 comprobación queda también en CI. No hubo GET a proveedores ni actividad WAHA.
+
+## QA Chromium de editorial y selector
+
+Se añadió `scripts/verify-alerts-browser.mjs`, dependencia Playwright opcional
+fuera del runtime. Levanta servidor efímero solo en 127.0.0.1, archivo/lecturas
+sintéticos, dos credenciales aleatorias y journals temporales; bloquea todo
+tráfico cuyo origen difiera del servidor local. No hay conexiones de estación,
+WAHA ni proveedores. Limpia los datos de QA al terminar.
+
+```sh
+AEGIS_PLAYWRIGHT_MODULE=/ruta/playwright/index.mjs \
+AEGIS_CHROMIUM_EXECUTABLE=/ruta/chrome \
+node scripts/verify-alerts-browser.mjs --out=/ruta/nueva/privada/capturas
+```
+
+Ensayo correcto a **320 y 1280 px**: importación de observación sintética,
+editor solicita revisión, otro rol aprueba y simula WAHA, alta de preferencia con
+consentimiento y baja, cero overflow/page errors, sin local/sessionStorage y
+Notification.permission permanece default. Capturas locales privadas en
+`/tmp/aegis-m4-browser-reviewed`; inspección visual de ambas vistas móviles.
+No se incluyen screenshots ni tokens en git. Se verificó limpieza de campos
+secretos antes de capturar.
+
+La primera ejecución del helper falló por un dato mal nombrado en el fixture
+(`observedAt` en lugar del `timestamp` contratado por v4); se corrigió el helper,
+sin flexibilizar el conector. Revisión de teclado añadió tabindex=-1 a los destinos
+de ambos enlaces de salto. Cada candidato fixture muestra ahora una etiqueta
+visible DATOS SINTÉTICOS, además del rótulo global DRY_RUN. Ensayo repetido correcto.
+Los servicios editorial/outbox rechazan además un journal de suscripciones para
+impedir configuración cruzada. Node **157/157**, check/diff-check y Docker
+**102/102** sin red correctos tras estos cambios.

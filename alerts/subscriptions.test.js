@@ -53,7 +53,11 @@ test("demanda agregada suprime grupos pequeños y no inventa métricas de visita
   assert.doesNotMatch(JSON.stringify(report),/secretDigest|managementSecret|192\.0\.2/);
 });
 test("journal separa suscripciones/editorial y rechaza copias cruzadas sin tocar historia",async t=>{
-  const {root,journal,register}=await setup(t);await register();const editorial=new AlertJournal(root,{origin:"synthetic_fixture"});
+  const {EditorialService}=await import("./editorial.js"),{DryRunOutbox}=await import("./outbox.js");
+  const {root,journal,register}=await setup(t);
+  assert.throws(()=>new EditorialService({journal,verifyEvidence:async()=>({current:true})}),/configuration_required/);
+  assert.throws(()=>new DryRunOutbox({journal,verifyEvidence:async()=>({current:true})}),/invalid_outbox_configuration/);
+  await register();const editorial=new AlertJournal(root,{origin:"synthetic_fixture"});
   await editorial.initialize();await fs.copyFile(path.join(journal.root,"00000001.json"),path.join(editorial.root,"00000001.json"));
   await assert.rejects(editorial.entries(),/corrupt/);assert.equal((await journal.entries()).length,1);
   assert.equal((await fs.stat(path.join(journal.root,"00000001.json"))).mode&0o777,0o600);

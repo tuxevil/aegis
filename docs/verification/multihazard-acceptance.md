@@ -37,7 +37,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M3 leadTime/FAR/missRate/detectionLag | Parcial: implementación verificada con fixtures y denominadores | Tasas reales desconocidas; no probabilidades de desastre |
 | M4 API/admin autenticada y roles | Probado: admin tests; Bearer incluso local, límite antes de auth, importación calculada por servidor | Credenciales operativas no provisionadas ni solicitadas |
 | M4 revisión humana, notas y ciclo | Probado: editorial tests; versiones, revisor distinto, corrección/expiración/retractación auditadas | Approved es revisión para simulación, nunca permiso de publicación |
-| M4 interfaz editorial | Probado en JSDOM: roles/XSS/limpieza/respuestas tardías; CSP/etiquetas/teclado | Falta inspección visual Chromium de las dos vistas nuevas |
+| M4 interfaz editorial/selector | Probado en JSDOM y Chromium 320/1280: roles, flujo simulado, consentimiento/baja, teclado/foco, sin overflow/page errors; vistas móviles inspeccionadas | QA local sintético; no certifica operación pública |
 | M4 CityChannel y enlaces | Parcial: directorio reportado, JID/OWNER/boundary null, propuesto | No hubo comprobación de sesión/roles, ni está autorizada |
 | M4 preferencias por zona y consentimiento | Probado: subscriptions/API/UI tests; secreto hash, opt-in, baja, expiración, sin domicilio/teléfono | Retención/depuración LOPDP y recuperación con usuarios no aprobadas |
 | M4 antiabuso y demanda | Probado de laboratorio: desafío firmado/único, límites, sin IP durable; agregados privados suprimidos <5 | No certifica defensa ante botnets o personas únicas |
@@ -68,8 +68,8 @@ de daño, disponibilidad de un proveedor, cumplimiento legal o entrega ciudadana
 
 1. Ensayar backup/restauración integral y documentar respuesta a incidentes,
    publicación bloqueada, permisos/canales no verificados y fallos de infraestructura.
-2. QA visual en Chromium de editorial/selector y revisión de seguridad del flujo
-   público de preferencias, sin datos de ciudadanos ni conexión a servicios.
+2. Completar revisión de retención/seguridad del flujo público de preferencias;
+   la QA Chromium de ambas vistas ya pasó con datos sintéticos y red externa bloqueada.
 3. Buscar evidencia institucional accesible para cartografía/códigos y completar
    el corpus solo con procedencia verificable; no eludir 403 ni inventar negativos.
 4. Proponer activación únicamente después de resolver gates y contar con revisión

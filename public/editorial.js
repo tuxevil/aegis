@@ -19,7 +19,7 @@
   const run=action=>async event=>{event?.preventDefault();try {await action();}catch(error){status(error.message);}};
   function button(label,action) {const b=element("button",label);b.type="button";b.addEventListener("click",run(async()=>{b.disabled=true;try{await action();}finally{b.disabled=false;}}));return b;}
   function candidateView(c) {
-    const article=element("article");article.append(element("h3",`${c.messageClass} · ${c.areaId}`),element("p",`Alcance: ${c.scope.name} (${c.scope.precision}). Vigencia: ${c.validFrom} → ${c.validTo}.`));
+    const article=element("article");article.append(element("h3",`${c.messageClass} · ${c.areaId}`),element("p",c.recordOrigin==="synthetic_fixture"?"DATOS SINTÉTICOS DE PRUEBA; no representan observaciones ni avisos reales.":"Captura de fuente; pendiente de validación operacional."),element("p",`Alcance: ${c.scope.name} (${c.scope.precision}). Vigencia: ${c.validFrom} → ${c.validTo}.`));
     const details=element("details"),summary=element("summary","Evidencia, procedencia y limitaciones"),pre=element("pre",JSON.stringify({facts:c.facts,sourceRefs:c.sourceRefs,limitations:c.limitations},null,2));details.append(summary,pre);article.append(details);return article;
   }
   async function refresh() {

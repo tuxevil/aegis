@@ -1,6 +1,6 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AEGIS · ciudades y preferencias</title><link rel="stylesheet" href="/ciudades/style.css"><script defer src="/ciudades/app.js"></script></head>
 <body><a class="skip" href="#main">Ir al selector de ciudades</a><header><a href="/ui">AEGIS · Grid Sentinel</a><h1>¿Qué ciudad quieres seguir?</h1><p><strong>Pruebas en DRY_RUN: todavía no se envían avisos.</strong> Guardar interés no confirma una suscripción a notificaciones ni un seguimiento en WhatsApp.</p></header>
-<main id="main"><p id="status" role="status" aria-live="polite">Cargando catálogo…</p>
+<main id="main" tabindex="-1"><p id="status" role="status" aria-live="polite">Cargando catálogo…</p>
 <section aria-labelledby="territory-title"><h2 id="territory-title">Territorio y cobertura</h2><p>Catálogo piloto: Guayaquil y Pallatanga. No hay catálogo nacional ni límites geométricos certificados. No se necesitan teléfono, domicilio o ubicación del dispositivo.</p>
 <label for="province">Provincia</label><select id="province"><option value="">Todas las provincias del piloto</option></select><label for="search">Buscar ciudad o cantón</label><input id="search" type="search" autocomplete="off"><div id="cities"></div><div id="national"></div></section>
 <section aria-labelledby="interest-title"><h2 id="interest-title">Preferencia de zona</h2><form id="interest">
