@@ -1,16 +1,27 @@
 # AEGIS: canales de WhatsApp por ciudad — diseño y precauciones
 
-Estado: **diseño de implementación**, 27-10-2026. El propietario confirmó el canal nacional **«OpenAlert - Ecuador»**, publicó una pregunta a seguidores sobre sus ciudades y decidió crear manualmente el primer canal local **«OpenAlert - Guayaquil»**. Aún **no** se confirmó que el nuevo canal Guayaquil haya sido creado. No hay mensajes de alerta publicados automáticamente por AEGIS.
+Estado: **diseño de implementación**, 27-10-2026. **Ambos canales fueron creados manualmente por el propietario y sus enlaces de invitación fueron comunicados**: «OpenAlert - Ecuador» y «OpenAlert - Guayaquil». La pregunta sobre las ciudades de interés ya fue publicada en el canal nacional. **No hay mensajes de alerta publicados automáticamente por AEGIS.**
 
 ## Decisión de producto
 
-**Canal nacional:** `OpenAlert - Ecuador` (creado manualmente según propietario). **Primer canal local definido para apertura manual:** `OpenAlert - Guayaquil` (priorizado por tormenta del 26/10/2026 y red de contactos inicial). **Otros locales, convención propuesta:** `OpenAlert - Pallatanga`, etc. Canal nacional recoge interés mediante una pregunta nativa publicada y futuro selector web de ciudades; no abrir cientos de canales vacíos. Un canal local solo cuando exista demanda y capacidad editorial. El mensaje de cada canal incluirá **solo riesgos relevantes para su ámbito**, no boletines nacionales indiferenciados. AEGIS permanece como observatorio abierto e **independiente**, sin presentarse como autoridad pública.
+**Canal nacional:** `OpenAlert - Ecuador` (creado manualmente según propietario). **Primer canal local creado:** `OpenAlert - Guayaquil` (priorizado por tormenta del 26/10/2026 y red de contactos inicial). **Otros locales, convención propuesta:** `OpenAlert - Pallatanga`, etc. Canal nacional recoge interés mediante una pregunta nativa publicada y futuro selector web de ciudades; no abrir cientos de canales vacíos. Un canal local solo cuando exista demanda y capacidad editorial. El mensaje de cada canal incluirá **solo riesgos relevantes para su ámbito**, no boletines nacionales indiferenciados. AEGIS permanece como observatorio abierto e **independiente**, sin presentarse como autoridad pública.
 
 **Importante:** al seguir un canal, las notificaciones están **silenciadas por defecto**. El onboarding mostrará una instrucción explícita para tocar la campana. WhatsApp no sustituye PWA, web ni canales oficiales de emergencias.
 
 Guayaquil y Pallatanga serán los primeros pilotos técnicos propuestos; no implica abrir ambos canales inmediatamente. El catálogo admitirá todas las ciudades con identificador territorial estable; canales nuevos se provisionarán **bajo demanda y tras verificación humana**, no se crearán decenas o cientos automáticamente.
 
 La estrategia de encuestas y selector por cantón, así como la distinción AEGIS (software) / OpenAlert (nombre de canal), están en [descubrimiento de ciudades](channel-discovery-proposal.md). El nombre OpenAlert se usa ya en otros proyectos tecnológicos; revisar disponibilidad jurídica si se decide registrarlo como marca comercial.
+
+## Directorio de canales activos reportados (27/10/2026)
+
+**Fuente de verdad para Codex:** [`docs/design/openalert-channels.json`](openalert-channels.json), con nombres y URL exactas proporcionadas por el propietario.
+
+| Canal | Enlace público |
+| --- | --- |
+| **OpenAlert - Ecuador** | https://whatsapp.com/channel/0029VbEqWioGk1FvdNjrxd3y |
+| **OpenAlert - Guayaquil** | https://whatsapp.com/channel/0029Vb8azrt5q08lKaGyqp1r |
+
+**Importante:** los sufijos de estas URL de invitación **NO son el ID de canal `@newsletter` de WAHA**, ni prueban permisos OWNER o acceso de publicación desde la sesión actual. Resolverlos únicamente en una fase autorizada y preservar `DRY_RUN`. No declarar validación operativa de WhatsApp con solo disponer de un enlace.
 
 ## Viabilidad WAHA
 
@@ -74,7 +85,7 @@ Los campos deben reflejar **fechas reales del tipo correcto**: si 18:01 correspo
 ## Plan operativo por etapas
 
 1. Replay offline Guayaquil del 26/10 y test temporal.
-2. Inspección de versión WAHA/motor/cuenta, `GET ...?role=OWNER` en entorno controlado; creación MANUAL de un canal Guayaquil, con nombre que no suplante instituciones.
+2. Los canales nacionales y Guayaquil ya se crearon manualmente por el propietario. Cuando se autorice una integración, inspeccionar versión WAHA/motor/cuenta y consultar `GET ...?role=OWNER` en entorno controlado; **no repetir la creación**.
 3. Comprobar publicación privada de una actualización de **prueba**, no alarmante, solo con autorización explícita, y examinar limitaciones.
 4. Portal de alta de ciudades con enlace a canal, aviso de activar campana y enlace PWA.
 5. Ingesta de fuentes históricas y actuales, matching geoespacial, validación con expertos, auditoría, aprobación y despacho controlado.
