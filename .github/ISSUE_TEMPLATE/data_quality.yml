@@ -1,0 +1,52 @@
+name: "Error de datos o evaluación"
+description: "Reportar un problema reproducible en fecha, geografía, fuente, unidad o riesgo"
+title: "[DATOS] "
+labels: ["data-quality"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Este formulario ayuda a corregir AEGIS. No es un canal de emergencias.
+        Nunca publiques domicilios, teléfonos, información de terceros, secretos ni fotos privadas.
+  - type: input
+    id: what
+    attributes:
+      label: "Componente o URL pública de AEGIS"
+      placeholder: "Módulo o vista, sin información privada"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Qué muestra AEGIS y qué dato verificable lo contradice"
+      description: "Explica resultado actual y esperado, con fuente y fecha."
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: "URL de evidencia primaria"
+      placeholder: "https://..."
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: "Fecha, hora y territorio aproximado"
+      description: "Cantón o parroquia cuando baste; NO dirección exacta ni geolocalización privada."
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Tipo de error"
+      options:
+        - "Documento vencido / sin datos"
+        - "Fecha o huso horario"
+        - "Unidad, formato, CRS o geografía"
+        - "Atribución y licencia"
+        - "Evaluación o aviso inconsistente"
+        - "Interfaz o accesibilidad"
+        - "Otro"
+    validations:
+      required: true
