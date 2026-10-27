@@ -15,7 +15,7 @@ const detailSchemas={
   static_exposure:{type:"object",additionalProperties:false,required:["features","exceededTransferLimit","sourceCrs","geometryIncluded"],properties:{
     features:{type:"array",maxItems:2000,items:{type:"object",additionalProperties:false,required:["objectId","categoryRaw","cantonCode","cantonName","hazardRaw"],properties:{
       objectId:{type:["integer","null"]},categoryRaw:nullableText,cantonCode:nullableText,cantonName:nullableText,hazardRaw:nullableText}}},
-    exceededTransferLimit:{type:"boolean"},sourceCrs:{type:["integer","null"]},geometryIncluded:{const:false}}},
+    exceededTransferLimit:{type:["boolean","null"]},sourceCrs:{type:["integer","null"]},geometryIncluded:{const:false}}},
   forecast_run:{type:"object",additionalProperties:false,required:["providerModel","runInitializedAt","time","precipitationMm","unit"],properties:{
     providerModel:nullableText,runInitializedAt:{type:"string",format:"date-time"},unit:{const:"mm"},
     time:{type:"array",minItems:1,maxItems:240,items:{type:"string",format:"date-time"}},

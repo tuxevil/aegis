@@ -27,8 +27,12 @@ export class RawArtifactStore {
     for(const directory of [this.root,path.join(this.root,"raw"),path.join(this.root,"captures"),path.join(this.root,"failures")])
       await fs.mkdir(directory,{recursive:true,mode:0o700});
     const format=path.join(this.root,"format.json");
-    try { await atomicCreate(format,JSON.stringify({version:1,origin:this.origin})); }
-    catch(error) { if(error.code!=="EEXIST") throw error; }
+    try { await fs.access(format); }
+    catch(error) {
+      if(error.code!=="ENOENT") throw error;
+      try {await atomicCreate(format,JSON.stringify({version:1,origin:this.origin}));}
+      catch(writeError) {if(writeError.code!=="EEXIST") throw writeError;}
+    }
     const existing=JSON.parse(await fs.readFile(format,"utf8"));
     if(existing.version!==1 || existing.origin!==this.origin) throw new Error("unsupported_store_format");
   }
@@ -46,10 +50,20 @@ export class RawArtifactStore {
     const names=(await fs.readdir(path.join(this.root,directory))).filter(n=>/^[a-f0-9-]{36}\.json$/.test(n));
     if(names.length>this.maxCaptures) throw new Error("store_capacity_exceeded");
     const records=[];
-    for(const name of names) records.push(JSON.parse(await fs.readFile(path.join(this.root,directory,name),"utf8")));
+    for(const name of names) {
+      const record=JSON.parse(await fs.readFile(path.join(this.root,directory,name),"utf8"));
+      if(directory==="captures") {
+        validateEnvelope(record.envelope);
+        if(record.version!==1 || record.envelope.sourceId!==record.sourceId || record.envelope.recordOrigin!==this.origin ||
+          !Number.isSafeInteger(record.sequence) || record.sequence<1 || !/^[a-f0-9]{64}$/.test(record.sha256) ||
+          (this.origin==="captured_source" && (record.sha256!==record.envelope.raw.sha256 || record.envelope.raw.storageKey!==`raw/${record.sha256}`)))
+          throw new Error("invalid_capture_index");
+      }
+      records.push(record);
+    }
     return records.sort((a,b)=>a.sequence-b.sequence);
   }
-  async capture({bytes,sourceId,retrievedAt,normalize,operation="capture",captureRef=null}) {
+  async capture({bytes,sourceId,retrievedAt,normalize,operation="capture",captureRef=null,transport=null}) {
     if(!Buffer.isBuffer(bytes) || bytes.length<1 || !sourcePattern.test(sourceId) || !Number.isFinite(Date.parse(retrievedAt)))
       throw new Error("invalid_capture");
     return this.locked(async()=>{
@@ -76,17 +90,17 @@ export class RawArtifactStore {
       if(!["capture","reprocess"].includes(operation) || (operation==="reprocess" && !previous.some(r=>r.id===captureRef && r.sha256===digest && r.retrievedAt===retrievedAt)))
         throw new Error("invalid_capture_reference");
       const record={version:1,id:randomUUID(),sequence:previous.length+1,sourceId,retrievedAt,operation,captureRef,processedAt:new Date().toISOString(),
-        sha256:digest,revision:versions.includes(digest)?versions.indexOf(digest)+1:versions.length+1,envelope};
+        transport,sha256:digest,revision:versions.includes(digest)?versions.indexOf(digest)+1:versions.length+1,envelope};
       await atomicCreate(path.join(this.root,"captures",record.id+".json"),JSON.stringify(record));
       return structuredClone(record);
     });
   }
-  async failure({sourceId,at,code}) {
-    if(!sourcePattern.test(sourceId) || !Number.isFinite(Date.parse(at)) || !/^[a-z0-9_]{1,80}$/.test(code)) throw new Error("invalid_failure");
+  async failure({sourceId,at,code,retryAt=null}) {
+    if(!sourcePattern.test(sourceId) || !Number.isFinite(Date.parse(at)) || !/^[a-z0-9_]{1,80}$/.test(code) || (retryAt!==null && !Number.isFinite(Date.parse(retryAt)))) throw new Error("invalid_failure");
     return this.locked(async()=>{
       const previous=await this.records("failures");
       if(previous.length>=this.maxCaptures) throw new Error("store_capacity_exceeded");
-      await atomicCreate(path.join(this.root,"failures",randomUUID()+".json"),JSON.stringify({sequence:previous.length+1,sourceId,at,code}));
+      await atomicCreate(path.join(this.root,"failures",randomUUID()+".json"),JSON.stringify({sequence:previous.length+1,sourceId,at,code,retryAt}));
     });
   }
   async readRaw(digest) {

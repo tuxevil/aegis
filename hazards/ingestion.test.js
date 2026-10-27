@@ -68,7 +68,7 @@ test("fallo de fuente conserva captura previa, frescura y código sanitizado",as
   const root=await sandbox(t);let time=new Date(date),fail=false;
   const service=new IngestionService({store:new RawArtifactStore(root),now:()=>time,networkEnabled:true,allowPendingLicense:true,
     http:{get:async()=>{if(fail)throw new Error("https://private/secret");return {bytes:syntheticBulletin(),retrievedAt:time.toISOString(),mediaType:"application/pdf"};}}});
-  await service.ingest("inamhi.warning.pdf");fail=true;time=new Date(time.getTime()+1000);
+  await service.ingest("inamhi.warning.pdf");fail=true;time=new Date(time.getTime()+300001);
   assert.equal((await service.ingest("inamhi.warning.pdf")).errorCode,"ingestion_failed");
   assert.equal((await service.health())[0].status,"degraded");
   assert.equal((await service.store.records()).length,1);
@@ -94,10 +94,11 @@ test("fixtures aislados y archivo/red requieren opt-in independiente",async t=>{
 });
 
 test("cuotas, formato desconocido y lock nunca sobreescriben historia",async t=>{
-  const root=await sandbox(t);const store=new RawArtifactStore(root,{maxCaptures:1});
-  const service=new IngestionService({store,networkEnabled:true,allowPendingLicense:true,
+  const root=await sandbox(t);const store=new RawArtifactStore(root,{maxCaptures:1});let time=new Date(date);
+  const service=new IngestionService({store,now:()=>time,networkEnabled:true,allowPendingLicense:true,
     http:{get:async()=>({bytes:syntheticBulletin(),retrievedAt:date,mediaType:"application/pdf"})}});
   await service.ingest("inamhi.warning.pdf");
+  time=new Date(time.getTime()+300001);
   assert.equal((await service.ingest("inamhi.warning.pdf")).errorCode,"store_capacity_exceeded");
   assert.equal((await store.verify()).captures,1);
   await fs.writeFile(path.join(store.root,"writer.lock"),"");
@@ -149,4 +150,24 @@ test("HTTP fijo rechaza redirección, pausa host y corta tamaños sin reintentos
     const http=new SourceHttp({httpFetch:async()=>response});
     await assert.rejects(()=>http.get("inamhi.warning.pdf"),new RegExp(code));
   }
+});
+
+test("reiniciar el CLI no elude Retry-After; latencia/HTTP quedan en el índice",async t=>{
+  const root=await sandbox(t);let time=new Date(date),calls=0;
+  const httpFetch=async()=>{
+    calls++;
+    if(calls===1) return new Response(null,{status:429,headers:{"retry-after":"3600"}});
+    return new Response(JSON.stringify({features:[]}),{headers:{"content-type":"application/json"}});
+  };
+  const service=()=>new IngestionService({store:new RawArtifactStore(root),now:()=>time,networkEnabled:true,allowPendingLicense:true,
+    http:new SourceHttp({now:()=>time,httpFetch,random:()=>0})});
+  assert.equal((await service().ingest("sngr.multihazard.single")).errorCode,"http_429");
+  time=new Date(time.getTime()+300001);
+  assert.equal((await service().ingest("sngr.flood.single")).errorCode,"source_cooldown");
+  assert.equal(calls,1);
+  time=new Date(time.getTime()+3600000);
+  await service().ingest("sngr.multihazard.single");
+  assert.equal(calls,2);
+  const record=(await new RawArtifactStore(root).records())[0];
+  assert.equal(record.transport.httpStatus,200);assert.equal(record.transport.elapsedMs,0);
 });

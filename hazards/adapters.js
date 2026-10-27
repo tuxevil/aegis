@@ -78,7 +78,7 @@ export class SngrArcgisAdapter {
       return {objectId:Number.isInteger(a.objectid??a.FID)?a.objectid??a.FID:null,
         categoryRaw:clean(a.susc_total??a.sui),cantonCode:clean(a.dpa_canton),cantonName:clean(a.dpa_descan),hazardRaw:clean(a.tipo_amen)};
     });
-    e.details={features,exceededTransferLimit:payload.exceededTransferLimit===true,
+    e.details={features,exceededTransferLimit:typeof payload.exceededTransferLimit==="boolean"?payload.exceededTransferLimit:null,
       sourceCrs:payload.spatialReference?.latestWkid??payload.spatialReference?.wkid??null,geometryIncluded:false};
     e.quality.dataStatus="partial";
     e.quality.blockers=["sample_only_no_geometry","licensing_pending"];
