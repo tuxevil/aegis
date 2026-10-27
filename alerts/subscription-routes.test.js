@@ -9,9 +9,9 @@ import {AlertJournal} from "./journal.js";
 import {ZoneSubscriptions,zoneConsentVersion} from "./subscriptions.js";
 const base={store:new HistoryStore(),fetchUrl:async()=>({status:503,data:""}),mac:null,hazardsEnabled:false,alertsAdminEnabled:false};
 const prefs={areaIds:["guayaquil"],consent:true,consentVersion:zoneConsentVersion,pushInterest:false};
-async function setup(t) {
+async function setup(t,journalOptions={}) {
   const root=await fs.mkdtemp(path.join(os.tmpdir(),"aegis-sub-api-"));t.after(()=>fs.rm(root,{recursive:true,force:true}));let time=Date.parse("2026-10-27T21:00:00Z");
-  const journal=new AlertJournal(root,{kind:"subscriptions",origin:"synthetic_fixture"}),service=new ZoneSubscriptions({journal,now:()=>new Date(time).toISOString()});
+  const journal=new AlertJournal(root,{kind:"subscriptions",origin:"synthetic_fixture",...journalOptions}),service=new ZoneSubscriptions({journal,now:()=>new Date(time).toISOString()});
   const app=await createApp({...base,zoneSubscriptionsEnabled:true,zoneSubscriptionService:service});t.after(()=>app.close());
   const inject=(url,opts={})=>app.inject({url,remoteAddress:"192.0.2.37",...opts});
   const register=async()=>{const challenge=(await inject("/api/subscriptions/challenge")).json().challenge;time+=1500;return inject("/api/subscriptions/zones",{method:"POST",payload:{...prefs,challenge}});};
@@ -62,4 +62,15 @@ test("API consume desafío una vez y no devuelve otro secreto al repetirlo",asyn
   const {inject,advance}=await setup(t),challenge=(await inject("/api/subscriptions/challenge")).json().challenge;advance(1500);
   const payload={...prefs,challenge};const first=await inject("/api/subscriptions/zones",{method:"POST",payload});assert.equal(first.statusCode,200);
   const repeated=await inject("/api/subscriptions/zones",{method:"POST",payload});assert.equal(repeated.statusCode,409);assert.equal(repeated.json().managementSecret,undefined);
+});
+
+
+test("API rechaza nuevas altas por reserva de cuota pero conserva DELETE e idempotencia",async t=>{
+  const {inject,register}=await setup(t,{maxEvents:2}),first=await register();assert.equal(first.statusCode,200);
+  const secret=first.json().managementSecret,blocked=await register();assert.equal(blocked.statusCode,503);assert.equal(blocked.json().error,"subscription_store_unavailable");
+  const headers={authorization:"Bearer "+secret};
+  for(let i=0;i<2;i++) {
+    const response=await inject("/api/subscriptions/zones/me",{method:"DELETE",headers});assert.equal(response.statusCode,200);assert.equal(response.json().state,"revoked");
+  }
+  assert.equal((await inject("/api/subscriptions/zones/me",{headers})).statusCode,401);
 });

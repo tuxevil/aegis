@@ -6,6 +6,9 @@ import {utcMillis} from "../hazards/time.js";
 
 const digest=value=>createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const filename=sequence=>String(sequence).padStart(8,"0")+".json";
+const validActor=actor=>actor&&typeof actor.id==="string"&&/^[a-zA-Z0-9._-]{1,80}$/.test(actor.id)&&["editor","approver"].includes(actor.role);
+const validAction=action=>typeof action==="string"&&/^[a-z_]{1,40}$/.test(action);
+const encode=payload=>Buffer.from(JSON.stringify({...payload,sha256:digest(payload)}));
 // Private bounded immutable transactions. A crashed writer leaves a lock for an
 // operator to inspect; no automatic lock stealing or historical overwriting.
 export class AlertJournal {
@@ -37,21 +40,26 @@ export class AlertJournal {
   }
   async transact({at,actor,action},update) {
     if(this.readOnly)throw new Error("read_only_store");
-    if(!Number.isFinite(utcMillis(at))||!actor||typeof actor.id!=="string"||!/^[a-zA-Z0-9._-]{1,80}$/.test(actor.id)||!["editor","approver"].includes(actor.role)||!/^[a-z_]{1,40}$/.test(action))throw new Error("invalid_alert_transaction");
+    if(!Number.isFinite(utcMillis(at))||!validActor(actor)||!validAction(action))throw new Error("invalid_alert_transaction");
     await this.initialize();let lock;
     try {lock=await fs.open(path.join(this.root,"writer.lock"),"wx",0o600);}
     catch(error){if(error.code==="EEXIST")throw new Error("alert_store_busy");throw error;}
     try {
       const entries=await this.entries(),prior=entries.at(-1);
-      if(entries.length>=this.maxEvents)throw new Error("alert_store_capacity");
       if(prior&&utcMillis(at)<utcMillis(prior.at))throw new Error("alert_clock_regression");
       const result=await update(structuredClone(entries));
       // Deduplication is a read; it does not append a misleading second action.
       if(result.unchanged)return structuredClone(result.value);
       const payload={version:1,journalKind:this.kind,origin:this.origin,sequence:entries.length+1,previousHash:prior?.sha256??null,at,actor:{id:actor.id,role:actor.role},action,data:result.data};
-      const bytes=Buffer.from(JSON.stringify({...payload,sha256:digest(payload)}));
+      const bytes=encode(payload),reserved=result.reserveEntries??[];
+      if(!Array.isArray(reserved)||reserved.some(e=>!e||!validActor(e.actor)||!validAction(e.action)))throw new Error("invalid_alert_transaction");
+      if(entries.length+1+reserved.length>this.maxEvents)throw new Error("alert_store_capacity");
       let total=bytes.length;
       for(const entry of entries)total+=(await fs.stat(path.join(this.root,filename(entry.sequence)))).size;
+      // Estimate future entries with maximum-width metadata. These values are
+      // byte-budget padding only: no hypothetical event/timestamp is persisted.
+      for(const future of reserved)total+=encode({...payload,sequence:this.maxEvents,previousHash:"f".repeat(64),at:"9999-12-31T23:59:59.999Z",
+        actor:{id:future.actor.id,role:future.actor.role},action:future.action,data:future.data}).length;
       if(total>this.maxBytes)throw new Error("alert_store_capacity");
       await createImmutableFile(path.join(this.root,filename(payload.sequence)),bytes);
       return structuredClone(result.value);

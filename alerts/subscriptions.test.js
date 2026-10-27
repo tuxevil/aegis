@@ -7,9 +7,9 @@ import {randomBytes} from "node:crypto";
 import {AlertJournal} from "./journal.js";
 import {ZoneSubscriptions,zoneConsentVersion} from "./subscriptions.js";
 const prefs={areaIds:["guayaquil"],consent:true,consentVersion:zoneConsentVersion,pushInterest:false};
-async function setup(t) {
+async function setup(t,journalOptions={}) {
   const root=await fs.mkdtemp(path.join(os.tmpdir(),"aegis-subscriptions-"));t.after(()=>fs.rm(root,{recursive:true,force:true}));
-  let clock=Date.parse("2026-10-27T21:00:00Z");const now=()=>new Date(clock).toISOString(),journal=new AlertJournal(root,{kind:"subscriptions",origin:"synthetic_fixture"});
+  let clock=Date.parse("2026-10-27T21:00:00Z");const now=()=>new Date(clock).toISOString(),journal=new AlertJournal(root,{kind:"subscriptions",origin:"synthetic_fixture",...journalOptions});
   const service=new ZoneSubscriptions({journal,now});
   const register=async(input=prefs)=>{const {challenge}=service.challenge("192.0.2.10");clock+=1500;return service.create(input,{challenge,clientAddress:"192.0.2.10"});};
   return {root,journal,service,register,now,advance:ms=>clock+=ms};
@@ -69,4 +69,43 @@ test("journal editorial legado se lee sin migrar o reescribir entradas",async t=
   const file=path.join(journal.root,"00000001.json"),entry=JSON.parse(await fs.readFile(file,"utf8"));delete entry.sha256;delete entry.journalKind;
   const bytes=JSON.stringify({...entry,sha256:createHash("sha256").update(JSON.stringify(entry)).digest("hex")});await fs.writeFile(file,bytes);
   assert.equal((await journal.entries()).length,1);assert.equal(await fs.readFile(file,"utf8"),bytes);
+});
+
+
+test("cuota de eventos reserva la baja antes de aceptar altas o modificaciones",async t=>{
+  const {service,register,journal}=await setup(t,{maxEvents:3}),first=await register(),secret=first.managementSecret;
+  await assert.rejects(register(),/alert_store_capacity/);
+  await service.update(secret,{...prefs,pushInterest:true});
+  await assert.rejects(service.update(secret,prefs),/alert_store_capacity/);
+  const revoked=await service.revoke(secret);assert.equal(revoked.state,"revoked");assert.equal((await journal.entries()).length,3);
+  assert.deepEqual(await service.revoke(secret),revoked);assert.equal((await journal.entries()).length,3);
+  assert.doesNotMatch(JSON.stringify(await journal.entries()),/reserveEntries|9999-12-31/);
+});
+test("cuota de bytes rechaza más cambios conservando espacio para revocar",async t=>{
+  const {service,register,journal}=await setup(t,{maxBytes:2500}),first=await register(),secret=first.managementSecret;let blocked=false;
+  for(let i=0;i<10;i++) {
+    try {await service.update(secret,{...prefs,pushInterest:i%2===0});}
+    catch(error){assert.match(error.message,/alert_store_capacity/);blocked=true;break;}
+  }
+  assert.equal(blocked,true);assert.equal((await service.revoke(secret)).state,"revoked");
+  let bytes=0;for(const entry of await journal.entries())bytes+=(await fs.stat(path.join(journal.root,String(entry.sequence).padStart(8,"0")+".json"))).size;
+  assert.ok(bytes<=2500);await assert.rejects(service.read(secret),/authentication_required/);
+});
+
+
+test("todas las preferencias activas conservan su baja tras reinicio al alcanzar cuota",async t=>{
+  const {service,register,journal,root,now}=await setup(t,{maxEvents:6}),created=[];
+  for(let i=0;i<3;i++)created.push(await register());
+  await assert.rejects(register(),/alert_store_capacity/);
+  await assert.rejects(service.update(created[0].managementSecret,{...prefs,pushInterest:true}),/alert_store_capacity/);
+  const reopened=new ZoneSubscriptions({journal:new AlertJournal(root,{kind:"subscriptions",origin:"synthetic_fixture",maxEvents:6}),now});
+  for(const s of created)assert.equal((await reopened.revoke(s.managementSecret)).state,"revoked");
+  assert.equal((await journal.entries()).length,6);
+  for(const s of created)assert.equal((await reopened.revoke(s.managementSecret)).state,"revoked");
+});
+test("cuota reducida no bloquea una baja que aún cabe por intentar reservar las demás",async t=>{
+  const {register,root,now}=await setup(t),created=[];for(let i=0;i<3;i++)created.push(await register());
+  const journal=new AlertJournal(root,{kind:"subscriptions",origin:"synthetic_fixture",maxEvents:4}),reopened=new ZoneSubscriptions({journal,now});
+  assert.equal((await reopened.revoke(created[0].managementSecret)).state,"revoked");assert.equal((await journal.entries()).length,4);
+  await assert.rejects(reopened.revoke(created[1].managementSecret),/alert_store_capacity/);
 });

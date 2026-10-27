@@ -43,11 +43,23 @@ export class ZoneSubscriptions {
     if(!input||Object.keys(input).some(k=>!["areaIds","consent","consentVersion","pushInterest"].includes(k))||input.consent!==true||input.consentVersion!==zoneConsentVersion||typeof input.pushInterest!=="boolean"||!Array.isArray(input.areaIds)||!input.areaIds.length||input.areaIds.length>5||new Set(input.areaIds).size!==input.areaIds.length||input.areaIds.some(id=>!this.catalog.some(a=>a.id===id)))throw new Error("invalid_subscription_preferences");
     return [...input.areaIds].sort();
   }
+  #transact(action,at,update) {
+    return this.journal.transact({at,actor,action},async entries=>{
+      const result=await update(entries);
+      // A revocation must remain best-effort even for older under-reserved stores.
+      if(result.unchanged||action==="subscription_revoke")return result;
+      const {subscriptions}=state(entries),next=result.data.subscription;subscriptions.set(next.id,next);
+      result.reserveEntries=[...subscriptions.values()].filter(s=>s.state==="active"&&utcMillis(s.expiresAt)>utcMillis(at)).map(s=>({
+        actor,action:"subscription_revoke",data:{subscription:{...s,state:"revoked",areaIds:[],pushInterest:false}}
+      }));
+      return result;
+    });
+  }
   async create(input,{challenge,clientAddress,website=""}) {
     if(website!=="")throw new Error("invalid_subscription_challenge");
     const at=this.now(),challengeDigest=this.validateChallenge(challenge,clientAddress,at),areaIds=this.validatePreferences(input);
     const secret=randomBytes(32).toString("base64url"),secretDigest=sha(secret);
-    const value=await this.journal.transact({at,actor,action:"subscription_create"},entries=>{
+    const value=await this.#transact("subscription_create",at,entries=>{
       const {used}=state(entries);if(used.has(challengeDigest))throw new Error("subscription_challenge_used");
       const subscription={id:randomUUID(),secretDigest,areaIds,state:"active",consentVersion:zoneConsentVersion,consentedAt:at,pushInterest:input.pushInterest,
         pushDeliveryEnabled:false,whatsappFollowConfirmed:false,expiresAt:new Date(utcMillis(at)+30*86400000).toISOString()};
@@ -66,7 +78,7 @@ export class ZoneSubscriptions {
   async read(secret) {return publicView(this.find(await this.journal.entries(),secret,this.now()),this.journal.origin);}
   async update(secret,input) {
     const areaIds=this.validatePreferences(input),at=this.now();
-    return this.journal.transact({at,actor,action:"subscription_update"},entries=>{
+    return this.#transact("subscription_update",at,entries=>{
       const prior=this.find(entries,secret,at);
       if(prior.areaIds.join()===areaIds.join()&&prior.pushInterest===input.pushInterest)return {unchanged:true,value:publicView(prior,this.journal.origin)};
       const subscription={...prior,areaIds,pushInterest:input.pushInterest,consentedAt:at};
@@ -74,7 +86,7 @@ export class ZoneSubscriptions {
     });
   }
   async revoke(secret) {
-    const at=this.now();return this.journal.transact({at,actor,action:"subscription_revoke"},entries=>{
+    const at=this.now();return this.#transact("subscription_revoke",at,entries=>{
       const prior=this.find(entries,secret,at,{allowRevoked:true});
       if(prior.state==="revoked")return {unchanged:true,value:publicView(prior,this.journal.origin)};
       const subscription={...prior,state:"revoked",areaIds:[],pushInterest:false};

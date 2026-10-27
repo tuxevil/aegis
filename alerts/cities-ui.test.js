@@ -7,18 +7,18 @@ import {cityChannels,nationalDiscoveryChannel} from "./channels.js";
 const html=await fs.readFile(new URL("../public/cities.html",import.meta.url),"utf8"),script=await fs.readFile(new URL("../public/cities.js",import.meta.url),"utf8");
 const flush=()=>new Promise(resolve=>setTimeout(resolve,15));
 async function browser(t) {
-  const dom=new JSDOM(html,{url:"https://aegis.example/ciudades/",runScripts:"outside-only"});t.after(()=>dom.window.close());const w=dom.window,requests=[],secret="S".repeat(43);let revoked=false;
+  const dom=new JSDOM(html,{url:"https://aegis.example/ciudades/",runScripts:"outside-only"});t.after(()=>dom.window.close());const w=dom.window,requests=[],secret="S".repeat(43);let revoked=false,unavailable=false;
   const catalog={areas:pilotAreas(),channels:cityChannels(),nationalChannel:nationalDiscoveryChannel(),consentVersion:"zone-follow-1",pushAvailable:false};
   const preference={areaIds:["guayaquil"],pushInterest:true,state:"active",expiresAt:"2026-11-26T21:00:00Z",pushDeliveryEnabled:false,whatsappFollowConfirmed:false};
   w.fetch=async(url,options)=>{
-    requests.push({url,options});let data;
+    requests.push({url,options});if(unavailable&&url.endsWith("/zones/me"))return {status:503,ok:false,json:async()=>({error:"subscription_store_unavailable"})};let data;
     if(url.endsWith("/catalog"))data=catalog;else if(url.endsWith("/challenge"))data={challenge:"mock-nonce",minWaitMs:0};
     else if(options.method==="DELETE"){revoked=true;data={state:"revoked",areaIds:[]};}
     else if(url.endsWith("/zones"))data={...preference,managementSecret:secret};else data=preference;
     return {status:200,ok:true,json:async()=>data};
   };
   let notificationCalls=0,geolocationCalls=0;w.Notification={requestPermission:()=>notificationCalls++};Object.defineProperty(w.navigator,"geolocation",{value:{getCurrentPosition:()=>geolocationCalls++}});
-  w.eval(script);await flush();return {w,requests,secret,isRevoked:()=>revoked,calls:()=>({notificationCalls,geolocationCalls})};
+  w.eval(script);await flush();return {w,requests,secret,isRevoked:()=>revoked,setUnavailable:value=>unavailable=value,calls:()=>({notificationCalls,geolocationCalls})};
 }
 test("selector móvil filtra pilotos y separa enlace, interés y activación PWA",async t=>{
   const {w,requests,calls}=await browser(t),d=w.document;
@@ -40,4 +40,13 @@ test("gestión usa Authorization y limpiar pantalla no envía una baja silencios
   const {w,requests,secret,isRevoked}=await browser(t),d=w.document;d.getElementById("management-secret").value=secret;d.getElementById("unlock").dispatchEvent(new w.Event("submit",{cancelable:true}));await flush();
   assert.equal(d.getElementById("management-secret").value,"");assert.equal(requests.at(-1).options.headers.Authorization,"Bearer "+secret);assert.equal(d.getElementById("revoke").hidden,false);
   d.getElementById("forget").click();assert.equal(d.getElementById("revoke").hidden,true);assert.equal(isRevoked(),false);assert.match(d.getElementById("status").textContent,/no da de baja/);
+});
+
+
+test("fallo de baja no confirma éxito ni pierde el secreto para reintentar",async t=>{
+  const {w,secret,isRevoked,setUnavailable}=await browser(t),d=w.document;
+  d.getElementById("management-secret").value=secret;d.getElementById("unlock").dispatchEvent(new w.Event("submit",{cancelable:true}));await flush();
+  setUnavailable(true);d.getElementById("revoke").click();await flush();
+  assert.match(d.getElementById("status").textContent,/No se ha confirmado/);assert.equal(d.getElementById("revoke").hidden,false);assert.equal(isRevoked(),false);
+  setUnavailable(false);d.getElementById("revoke").click();await flush();assert.equal(isRevoked(),true);assert.equal(d.getElementById("revoke").hidden,true);
 });

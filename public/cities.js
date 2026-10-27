@@ -8,7 +8,7 @@
     const response=await fetch("/api/subscriptions"+path,{method,credentials:"omit",cache:"no-store",headers,...(body?{body:JSON.stringify(body)}:{})});
     if(!publicData&&current!==generation)throw new Error("La pantalla se limpió; respuesta descartada.");
     if(response.status===401){clear();throw new Error("Secreto no válido, dado de baja o vencido.");}
-    if(!response.ok)throw new Error(response.status===429?"Límite de solicitudes. Espera un minuto.":response.status===409?"El desafío ya fue utilizado. Inicia de nuevo.":"No se pudo completar la operación. Revisa el consentimiento e inténtalo nuevamente.");
+    if(!response.ok)throw new Error(response.status===429?"Límite de solicitudes. Espera un minuto.":response.status===409?"El desafío ya fue utilizado. Inicia de nuevo.":response.status===503?"El registro no está disponible temporalmente. No se ha confirmado esta operación; conserva tu secreto de gestión.":"No se pudo completar la operación. Revisa el consentimiento e inténtalo nuevamente.");
     const data=await response.json();if(!publicData&&current!==generation)throw new Error("La pantalla se limpió; respuesta descartada.");return data;
   }
   const run=fn=>async event=>{event?.preventDefault();if(busy)return;busy=true;$("save").disabled=true;try{await fn();}catch(error){status(error.message);}finally{busy=false;$("save").disabled=!catalog||Boolean(secret);}};

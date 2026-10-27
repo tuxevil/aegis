@@ -93,3 +93,14 @@ polígonos de los dos pilotos válidos sin reparar y códigos corroborados por D
 El PRJ identifica 32717 pero PDF dice 4326; autorización de publicación/catálogo
 siguen pendientes. INEC limite_cantonal confirmado como línea. No cambia el gate
 ni se publican geometrías. Datos Abiertos devolvió 403 y se detuvo ese acceso.
+
+## Revisión adicional del opt-out
+
+La revisión encontró y reprodujo un fallo de capacidad que podía impedir bajas.
+Se corrigió reservando eventos/bytes para revocaciones antes de aceptar altas/cambios,
+sin borrar historia, aumentar cuotas ni almacenar eventos hipotéticos. Regresiones
+de eventos/bytes, reinicio, varios usuarios, API y fallo temporal del navegador
+cubren el límite. Mantener pendiente dimensionamiento real y revisión de retención;
+no se convierte esa corrección en garantía de disponibilidad física o cumplimiento legal.
+Resultado de este incremento: **172/172** Node, **117/117** Docker sin red,
+**6/6** Python, instalación/check/replays/diff-check correctos.

@@ -223,3 +223,27 @@ permisos privados, rechazo de enlaces/locks/corrupción/traversal/cambios observ
 Resultado: **166/166** Node, **111/111** Docker sin red, **6/6** Python y
 check/replays/diff-check; npm ci sin vulnerabilidades. No hay backup externo,
 cifrado o restauración de producción; la retención y operación siguen pendientes.
+
+## Revisión de consentimiento — reserva para bajas
+
+Se reprodujo un fallo de cuota: altas/cambios podían consumir el último evento o
+byte presupuestado y bloquear una baja posterior. Dos pruebas de regresión fallaron
+antes del cambio. Ahora cada alta/cambio reserva capacidad lógica para una futura
+revocación de cada preferencia activa, con tamaño calculado por el serializador del
+journal y metadatos del ancho máximo. La reserva no escribe eventos hipotéticos ni
+fechas ficticias y no aumenta el límite configurado.
+
+Bajas consumen solo su espacio real; no se bloquean por intentar reservar otras
+bajas de un almacén antiguo insuficientemente dimensionado. Las repeticiones sin
+cambio funcionan incluso al llegar al máximo de eventos. No se eliminan, sobrescriben
+ni migran registros. Reservas se reconstruyen desde el estado tras reiniciar.
+
+Cobertura: cuotas de eventos y bytes, varias preferencias, reinicio, repetición a
+journal lleno, cuota reducida/antigua, API (alta 503 y DELETE 200) y fallo temporal
+en navegador. Si falla la baja, la interfaz no confirma éxito ni pierde el secreto
+para reintentar. La reserva se limita al presupuesto lógico configurado. El disco lleno, los límites
+reducidos y los journals antiguos sin espacio requieren revisión operativa, backup
+y dimensionamiento, sin borrar historial.
+
+Verificación del opt-out: npm ci 0 vulnerabilidades, check, **172/172** Node,
+**6/6** Python, replays y diff-check correctos; Docker **117/117** sin red.

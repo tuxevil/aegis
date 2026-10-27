@@ -132,3 +132,16 @@ sintético, no se extrapola de este archivo pequeño. No hay servicios arrancado
 redistribución de bytes, modificación del archivo original ni volumen de producción.
 El verificador rechaza también series de histórico null/array/no-array aunque el
 constructor legacy por sí solo pudiera aceptarlas; no cambia su formato o contenido.
+
+### Cuotas de preferencias y revocación
+
+La versión actual reserva capacidad lógica para bajas antes de aceptar altas o
+cambios. Preservar configuración de cuotas al recuperar; no reducirlas por debajo
+de eventos/bytes existentes más las bajas pendientes de preferencias activas.
+Las reservas se recalculan desde el estado, no son archivos/eventos adicionales.
+Un journal antiguo ya lleno necesita dimensionamiento autorizado; esta versión no
+inventa capacidad ni borra historia. Bajas que aún caben se procesan aunque la
+reserva restante sea insuficiente. Disco realmente lleno o fallo de I/O puede
+seguir impidiendo cualquier escritura: mantener el servicio en sombra y atender
+la capacidad antes de proponer operación. Una repetición de baja ya registrada no
+requiere otro evento y sigue devolviendo su estado.
