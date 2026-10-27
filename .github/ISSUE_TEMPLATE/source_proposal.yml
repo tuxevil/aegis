@@ -1,0 +1,57 @@
+name: "Propuesta de fuente"
+description: "Agregar o mejorar una fuente pública verificable para AEGIS"
+title: "[FUENTE] "
+labels: ["source-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por aportar. No incluyas claves API, datos personales, direcciones residenciales, teléfonos ni material con licencia restringida.
+  - type: input
+    id: provider
+    attributes:
+      label: "Entidad/proveedor responsable"
+      placeholder: "INAMHI, SNGR, estación local, etc."
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: "Enlace a la fuente o documentación"
+      placeholder: "https://..."
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Tipo de información"
+      options:
+        - "Advertencia oficial"
+        - "Medición de estación"
+        - "Pronóstico o modelo"
+        - "Mapa de susceptibilidad"
+        - "Incidentes y estado vial"
+        - "Otro"
+    validations:
+      required: true
+  - type: textarea
+    id: coverage
+    attributes:
+      label: "Cobertura y frecuencia verificables"
+      description: "Territorio, resolución geográfica, tiempo de publicación y evidencia de frescura."
+    validations:
+      required: true
+  - type: textarea
+    id: license
+    attributes:
+      label: "Licencia / condiciones de consulta y redistribución"
+      description: "Enlaza términos. Es válido poner 'desconocidas'; no asumir libre uso."
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: "Ejemplo y pruebas sin secretos"
+      description: "Respuesta simulada/reducida, fecha y pruebas de error; no adjuntar contenido restringido."
+    validations:
+      required: false
