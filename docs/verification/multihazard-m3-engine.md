@@ -201,3 +201,17 @@ Python, replays/diff-check correctos. Imagen local anterior no disponible; se
 reconstruyó Docker correctamente y pasan **153/153** sin red. /ui 200 con flags
 OFF y directorio experimental oculto; CLI sin opciones no ingiere ni publica.
 CI anterior 7de9836 success Node 22/24 + contenedor, run 40609316312.
+
+## Compatibilidad temporal de métricas
+
+Se reprodujo un TP incorrecto cuando la señal vencía antes del evento: el control
+solo comprobaba vigencia mayor al inicio de ventana. Corregido para exigir toda
+la ventana homogénea, con signalValidFrom explícito. Cobertura parcial/desconocida
+se excluye de clasificación/denominadores/leadTime/latencia, sin inventar negativos.
+La política se declara en la salida. [Definición](../architecture/replay-metric-windows.md).
+Sin casos reales nuevos: las tasas históricas siguen desconocidas.
+
+Verificación del incremento: npm ci 0 vulnerabilidades, check, **209/209** Node,
+**154/154** con código hazards actual montado en imagen local/dependencias nativas
+y red bloqueada, **6/6** Python, ambos replays y diff-check. CI de 743607f terminó
+success en Node 22/24 y contenedor: run 40683853168. Nuevo head requiere su CI.

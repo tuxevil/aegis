@@ -1,6 +1,6 @@
 # Auditoría de aceptación Multiamenaza — M0–M4 en sombra
 
-Estado acumulado de desarrollo: 2026-10-27, PR #28 sobre #27/#26/#25/#24.
+Estado acumulado de desarrollo: 2026-10-28, PR #28 sobre #27/#26/#25/#24.
 La planificación normativa sigue en START_HERE_CODEX y roadmap. Este documento
 reconcilia las entregas incrementales; los informes M0/M1/M2 anteriores describen
 su corte histórico, no una ausencia actual de código que apareció después.
@@ -50,19 +50,19 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M5 WAHA/OWNER/ToS/Meta y beta | Pendiente: prohibición expresa de usar sesión/crear canales/enviar | Requiere autorización separada, no implícita por disponer de enlaces |
 | M5 publicación, retractación, entrega y kill switch | Parcial: bloqueo global incondicional y simulaciones locales | No beta pública ni controles de envío real implementados/activados |
 
-## Evidencia actual reproducida
+## Evidencia acumulada verificable
 
-- `npm ci`: 0 vulnerabilidades; check y Node **175/175**.
-- Contrato Python **6/6**, ambos CLI replay y diff-check correctos.
-- Docker construido: **120/120** hazards+alerts+backup con `--network none`.
-- Docker con `/app/docs/design` vacío en tmpfs: `/ui` **200**, flags OFF.
-- CI de `bcc0c47`: Node 22/24 y smoke contenedor terminaron **success**;
-  [run 40596729727](https://github.com/tuxevil/aegis/actions/runs/40596729727).
+Los apartados siguientes registran cortes históricos de cada incremento. La última
+verificación completa de código antes de esta revisión corresponde a 743607f:
+**208/208** Node, **153/153** contenedor construido sin red, **6/6** Python,
+npm ci sin vulnerabilidades, check/replays correctos; /ui 200 con flags OFF.
+Su CI remota se comprueba por SHA, sin trasladar un verde anterior a otro commit.
+Chromium 320/1280 del incremento 7de9836 cubre aviso/retractación simulados,
+consentimiento/baja/teclado/foco; no acredita geografía ni entrega operacional.
 
-No se tocaron canales. Los incrementos de investigación se distinguen abajo.
-Los bytes de proveedor y secretos de laboratorio no se incluyen en este documento.
-Los tests de software no prueban derechos de uso, exactitud cartográfica, reducción
-de daño, disponibilidad de un proveedor, cumplimiento legal o entrega ciudadana.
+No se tocaron canales. Bytes de proveedor y secretos permanecen privados.
+Tests de software no prueban derechos de uso, exactitud cartográfica, reducción
+de daño, disponibilidad permanente, cumplimiento legal o entrega ciudadana.
 
 ## Trabajo siguiente que sigue siendo ejecutable sin activar avisos
 
@@ -232,3 +232,15 @@ Python, replays/diff-check correctos. Imagen local anterior no disponible; se
 reconstruyó Docker correctamente y pasan **153/153** sin red. /ui 200 con flags
 OFF y directorio experimental oculto; CLI sin opciones no ingiere ni publica.
 CI anterior 7de9836 success Node 22/24 + contenedor, run 40609316312.
+
+## Revisión de métricas por ventana completa
+
+Cobertura parcial de una señal ya no cuenta como TP/FP: inicio y fin deben cubrir
+la ventana homogénea revisada. Datos faltantes se excluyen de denominadores; no se
+recorta automáticamente la evaluación ni se inventan negativos. Fallo reproducido
+antes de la corrección. Ver [política](../architecture/replay-metric-windows.md).
+
+Verificación del incremento: npm ci 0 vulnerabilidades, check, **209/209** Node,
+**154/154** con código hazards actual montado en imagen local/dependencias nativas
+y red bloqueada, **6/6** Python, ambos replays y diff-check. CI de 743607f terminó
+success en Node 22/24 y contenedor: run 40683853168. Nuevo head requiere su CI.

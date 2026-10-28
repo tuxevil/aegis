@@ -26,8 +26,12 @@ export function scoreReviewedCases(cases,{evaluationKey,recordOrigin="captured_s
     const event=c.outcome?utcMillis(c.eventAt):null;
     if(c.outcome&&(!Number.isFinite(event)||event<start||event>=end||event<=decision)){reject("event_outside_evaluation_window");continue;}
     const signal=c.forecastPositive?utcMillis(c.firstSignalKnownAt):null;
-    if(c.forecastPositive&&(!Number.isFinite(signal)||signal>decision||utcMillis(c.signalValidTo)<=start||!Number.isFinite(utcMillis(c.signalValidTo)))) {
+    if(c.forecastPositive&&(!Number.isFinite(signal)||signal>decision)) {
       reject("signal_not_known_or_relevant_at_cutoff");continue;
+    }
+    const signalFrom=utcMillis(c.signalValidFrom),signalTo=utcMillis(c.signalValidTo);
+    if(c.forecastPositive&&(!Number.isFinite(signalFrom)||!Number.isFinite(signalTo)||signalFrom>start||signalTo<end||signalFrom>=signalTo)) {
+      reject("signal_window_not_covered");continue;
     }
     const classification=c.forecastPositive?(c.outcome?"TP":"FP"):(c.outcome?"FN":"TN");
     if(classification==="TP") {tp++;leadTime.push({id:c.id,minutes:(event-signal)/60000});}
@@ -36,7 +40,7 @@ export function scoreReviewedCases(cases,{evaluationKey,recordOrigin="captured_s
       detectionLag.push({id:c.id,minutes:(signal-utcMillis(c.documentedPublicationAt))/60000});
     evaluated.push({id:c.id,classification});
   }
-  return {...safeMode,recordOrigin,evaluationKey,caseCount:cases.length,evaluated,excluded,confusion:{tp,fp,tn,fn},
+  return {...safeMode,recordOrigin,evaluationKey,signalWindowPolicy:"full_evaluation_window_v1",caseCount:cases.length,evaluated,excluded,confusion:{tp,fp,tn,fn},
     falseAlertRate:{...ratio(fp,tp+fp),definition:"FP / (TP + FP); false-alarm ratio of reviewed cases"},
     nonEventFalsePositiveRate:{...ratio(fp,fp+tn),definition:"FP / (FP + TN)"},
     missRate:{...ratio(fn,tp+fn),definition:"FN / (TP + FN)"},leadTime,
