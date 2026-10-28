@@ -1,6 +1,7 @@
 # Auditoría de aceptación Multiamenaza — M0–M4 en sombra
 
-Estado acumulado de desarrollo: 2026-10-28, PR #30 sobre #29/#28/#27/#26/#25/#24.
+Estado acumulado de desarrollo: 2026-10-28, rama de evidencia histórica sobre
+PR #30/#29/#28/#27/#26/#25/#24.
 La planificación normativa sigue en START_HERE_CODEX y roadmap. Este documento
 reconcilia las entregas incrementales; los informes M0/M1/M2 anteriores describen
 su corte histórico, no una ausencia actual de código que apareció después.
@@ -45,7 +46,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M3 conocimiento temporal y determinismo | Probado: knowledge-cutoff/assess/replay tests; correcciones sin futuro | No prueba disponibilidad web histórica del PDF |
 | M3 identificación y disponibilidad modelo | Probado: explicit models ECMWF 200/control inválido 400, archivo hash; basis explícita | Validación local/licencia comercial/archivo histórico todavía abiertos |
 | M3 motor territorial/evidencia/clases | Probado: official/forecast/observation/AEGIS_ASSESSMENT; static solo contexto | Fuente provincial o estación no equivale a barrio/cantón/cuenca |
-| M3 corpus 21–27 y casos negativos | Parcial: 14 filas con referencias/gaps y outcome=null | No hay negativos reales compatibles revisados |
+| M3 corpus 21–27 y casos negativos | Parcial: 14 filas, outcome=null; SitRep primario retrospectivo vinculado a Guayaquil 24–26 y referencias/gaps separados | Sin negativos reales compatibles revisados ni prueba de disponibilidad histórica de entradas |
 | M3 leadTime/FAR/missRate/detectionLag | Parcial: implementación verificada con fixtures y denominadores | Tasas reales desconocidas; no probabilidades de desastre |
 | M4 API/admin autenticada y roles | Probado: admin tests; Bearer incluso local, límite antes de auth, importación calculada por servidor | Credenciales operativas no provisionadas ni solicitadas |
 | M4 revisión humana, notas y ciclo | Probado: editorial tests; versiones, revisor distinto, corrección/expiración/retractación auditadas | Approved es revisión para simulación, nunca permiso de publicación |
@@ -69,12 +70,12 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 ## Evidencia acumulada verificable
 
 Los apartados siguientes registran cortes históricos. Última verificación local:
-**256/256** Node, **201/201** en contenedor reconstruido sin red (incluye las
+**258/258** Node, **203/203** en contenedor reconstruido sin red (incluye las
 12 pruebas Amaru con credenciales ficticias), **6/6** Python, npm ci sin
 vulnerabilidades, check/replays/diff-check correctos. La sincronización de referencia
 9e9ab91 se conserva como merge de feature; no modifica main ni autoriza operación.
-CI del padre 7014ac0 success, run 40701560522; el incremento de retención se
-verifica además en el PR #30, sin trasladar automáticamente el resultado del padre.
+CI del padre 7e9d357 success, run 40702470285 (Node 22/24 y contenedor);
+el incremento histórico requiere su propia CI, sin heredar ese resultado.
 Las comprobaciones Chromium se documentan por módulo y alcance, sin trasladarlas
 a afirmaciones de geografía, entrega o licencia certificadas.
 
@@ -414,3 +415,25 @@ anterior al snapshot y contadores por estados. Validación: npm ci 0
 vulnerabilidades, check, **256/256** Node, **201/201** en contenedor nuevo sin red,
 **6/6** Python, replay multiamenaza, benchmark y CLI de ayuda en contenedor.
 No cambia rutas, consentimiento, vencimientos, flags, transportes o reglas.
+
+## Evidencia institucional retrospectiva de Guayaquil 24–26/10
+
+La [investigación primaria del 28/10](../research/historical-corpus-evidence-review-2026-10-28.md)
+identificó informes SNGR y notas municipales, con limitaciones de lectura
+registradas. El corpus enlaza el SitRep nacional 59, páginas 1/9/11, para los
+impactos del 24–26. No conserva PDF ni asigna licencia abierta: linked_only/pending.
+Tiempos de publicación/corte/índice quedan literales y diferentes; disponibilidad
+histórica verificada null. Otras referencias con horas ambiguas quedan en el
+informe de investigación, sin convertirlas en timestamps operacionales.
+
+El reporte reproducible devuelve estos documentos bajo hindsightOnly; rechaza
+mezclarlos por ID/URL con los eventos de entrada o con referencias usadas como
+entradas. Ningún documento se convierte en outcome o fuente de predicción.
+Pruebas comparan antes/después y alteran su contenido sin cambios en runs/métricas,
+y rechazan referencias desconocidas, duplicadas o con credenciales en URL.
+Los 14 outcomes permanecen null, al igual que FAR/missRate. No se encontró una
+etiqueta diaria verificable de Pallatanga; falta de resultados no es no-incidente.
+
+Validación: npm ci 0 vulnerabilidades, check, **258/258** Node, **203/203** en
+contenedor reconstruido sin red, **6/6** Python, ambos replays y benchmark
+comparativo. No cambia assessHazard, reglas activas, rutas, publicación o DRY_RUN.
