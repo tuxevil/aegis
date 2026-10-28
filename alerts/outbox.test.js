@@ -121,3 +121,51 @@ test("vista previa distingue vigencia futura, actual y vencida sin modificar fec
   assert.match(renderPreview(future,{asOf:future.candidate.validTo}).text,/Vigencia vencida/);assert.equal(future.candidate.validFrom,"2026-10-27T19:00:00Z");
   assert.throws(()=>renderPreview(future,{asOf:"2026-02-30T00:00:00Z"}),/invalid_template_time/);
 });
+
+test("retractación simulada requiere historia del mismo transporte, deduplica y sobrevive reinicio",async t=>{
+  const env=await setup(t),{alert,outbox,service,dir}=env,target="simulation-waha-guayaquil";
+  await assert.rejects(()=>outbox.enqueue(alert.id,target,approver,{kind:"retraction"}),/not_retracted/);
+  const original=await outbox.enqueue(alert.id,target,approver);await outbox.process(original.key,approver);
+  const retracted=await service.transition(alert.id,{action:"retract",reason:"Prueba: interpretación retirada, no cancelación oficial",expectedVersion:3},approver);
+  env.setCurrent(false);env.setAt(alert.candidate.validTo);
+  await assert.rejects(()=>outbox.enqueue(alert.id,"simulation-rss-guayaquil",approver,{kind:"retraction"}),/no_prior_simulation/);
+  await assert.rejects(()=>outbox.enqueue(alert.id,target,editor,{kind:"retraction"}),/forbidden/);
+  const queued=await outbox.enqueue(alert.id,target,approver,{kind:"retraction"});
+  assert.equal(queued.originalKey,original.key);assert.notEqual(queued.key,original.key);assert.equal(queued.editorialVersion,retracted.version);
+  assert.deepEqual(await outbox.enqueue(alert.id,target,approver,{kind:"retraction"}),queued);
+  const restored=new DryRunOutbox({journal:new AlertJournal(dir,{origin:"synthetic_fixture"}),verifyEvidence:async()=>assert.fail("withdrawal must not claim fresh source"),now:()=>alert.candidate.validTo});
+  const result=await restored.process(queued.key,approver);assert.equal(result.state,"simulated");assert.equal(result.evidenceCheck,null);
+  assert.match(result.result.payload,/RETRACTACIÓN/);assert.match(result.result.payload,/No demuestra cancelación oficial ni fin de la amenaza/);
+  assert.match(result.result.payload,/interpretación retirada/);assert.equal(result.sent,false);assert.equal(result.result.providerMessageId,null);
+  assert.deepEqual(await restored.process(queued.key,approver),result);
+  assert.equal((await restored.list()).find(i=>i.key===original.key).state,"simulated");
+});
+
+test("sin simulación previa no se inventa difusión; retractación encolada también caduca",async t=>{
+  const env=await setup(t),{alert,outbox,service}=env,target="simulation-rss-guayaquil";
+  const original=await outbox.enqueue(alert.id,target,approver);
+  await service.transition(alert.id,{action:"retract",reason:"Retirada antes de simular",expectedVersion:3},approver);
+  await assert.rejects(()=>outbox.enqueue(alert.id,target,approver,{kind:"retraction"}),/no_prior_simulation/);
+  assert.equal((await outbox.process(original.key,approver)).state,"cancelled");
+  const second=await setup(t);const q=await second.outbox.enqueue(second.alert.id,target,approver);await second.outbox.process(q.key,approver);
+  await second.service.transition(second.alert.id,{action:"retract",reason:"Retirar",expectedVersion:3},approver);
+  const withdrawal=await second.outbox.enqueue(second.alert.id,target,approver,{kind:"retraction"});second.setAt(withdrawal.expiresAt);
+  const expired=await second.outbox.process(withdrawal.key,approver);assert.equal(expired.state,"cancelled");assert.equal(expired.attempts,0);
+});
+
+test("revisión antes aprobada puede retractarse después de registrar su caducidad",async t=>{
+  const {service,alert,setAt}=await setup(t);setAt(alert.candidate.validTo);
+  await service.transition(alert.id,{action:"expire",reason:"Venció",expectedVersion:3},editor);
+  const result=await service.transition(alert.id,{action:"retract",reason:"Error editorial descubierto después",expectedVersion:4},approver);
+  assert.equal(result.state,"retracted");assert.equal(result.publishedAt,null);
+});
+
+test("RSS y PWA distinguen identidad de retractación sin sustituir la simulación original",async t=>{
+  const {alert}=await setup(t);alert.notes.push({action:"retract",reason:"Retirar interpretación"});
+  for(const target of simulationTargets(alert.candidate.areaId).filter(t=>["rss","pwa"].includes(t.transport))) {
+    const notice=simulateTransport(target,renderPreview(alert),alert),retraction=simulateTransport(target,renderPreview(alert,{kind:"retraction"}),alert);
+    if(target.transport==="pwa")assert.notEqual(notice.payload.tag,retraction.payload.tag);
+    else {assert.match(retraction.payload,/:retraction<\/guid>/);assert.doesNotMatch(notice.payload,/:retraction<\/guid>/);}
+    assert.equal(retraction.sent,false);
+  }
+});

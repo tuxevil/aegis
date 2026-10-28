@@ -7,6 +7,8 @@ export function renderPreview(alert,{kind="notice",asOf=alert.candidate.evaluate
   const c=alert.candidate;
   const official=c.messageClass==="OFFICIAL";
   const text=["SIMULACIÓN INTERNA · NO PUBLICADO",kind==="correction"?"RECTIFICACIÓN":kind==="retraction"?"RETRACTACIÓN":"AVISO EN REVISIÓN",
+    ...(kind==="retraction"?["Retiro de la revisión editorial simulada de AEGIS. No demuestra cancelación oficial ni fin de la amenaza.",
+      `Motivo editorial: ${[...alert.notes].reverse().find(n=>n.action==="retract")?.reason??"Consultar el historial editorial."}`]:[]),
     official?"Fuente: aviso oficial de INAMHI; AEGIS es un observatorio independiente.":"Evaluación independiente AEGIS · regla experimental; no es un aviso oficial.",
     `Territorio de consulta: ${c.areaId}. Alcance de la evidencia: ${c.scope.name} (${c.scope.precision}).`,
     official?`Boletín ${c.facts.bulletinNumber}. Nivel literal de la fuente: ${c.sourceRiskLevel}.`:`Evidencia: ${c.evidenceClass}. Severidad editorial: ${c.severity}; confianza en evidencia: ${c.confidenceInEvidence}.`,
@@ -26,7 +28,8 @@ export function renderPreview(alert,{kind="notice",asOf=alert.candidate.evaluate
 export function simulateTransport(target,preview,alert) {
   if(target.mode!=="DRY_RUN"||target.realDeliveryEnabled!==false||target.providerChannelId!==null)throw new Error("real_transport_prohibited");
   if(!["portal","rss","pwa","waha"].includes(target.transport))throw new Error("unknown_simulation_transport");
-  const payload=target.transport==="rss"?`<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>AEGIS simulación privada</title><description>No publicado</description><link>https://example.invalid/</link><item><guid isPermaLink="false">${xml(alert.id+":"+alert.revision)}</guid><title>${xml(preview.messageClass+" · simulación")}</title><description>${xml(preview.text)}</description></item></channel></rss>`:
-    target.transport==="pwa"?{title:"AEGIS · simulación",body:preview.text,tag:`${alert.id}:${alert.revision}`,permissionRequested:false,pushSent:false}:preview.text;
+  const eventId=alert.id+":"+alert.revision+(preview.kind==="retraction"?":retraction":"");
+  const payload=target.transport==="rss"?`<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>AEGIS simulación privada</title><description>No publicado</description><link>https://example.invalid/</link><item><guid isPermaLink="false">${xml(eventId)}</guid><title>${xml(preview.messageClass+" · simulación")}</title><description>${xml(preview.text)}</description></item></channel></rss>`:
+    target.transport==="pwa"?{title:"AEGIS · simulación",body:preview.text,tag:eventId,permissionRequested:false,pushSent:false}:preview.text;
   return {transport:target.transport,payload,simulation:true,sent:false,providerMessageId:null};
 }

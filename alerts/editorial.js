@@ -62,10 +62,10 @@ export class EditorialService {
       const alert=editorialState(entries).get(id);if(!alert)throw new Error("editorial_not_found");
       const version=entries.filter(e=>e.action.startsWith("editorial_")&&e.data.alert.id===id).length;
       if(version!==expectedVersion)throw new Error("editorial_version_conflict");
-      if(["expired","retracted","superseded"].includes(alert.state))throw new Error("editorial_terminal_state");
+      if(["expired","retracted","superseded"].includes(alert.state)&&!(action==="retract"&&alert.state==="expired"&&alert.approval))throw new Error("editorial_terminal_state");
       const expired=utcMillis(alert.candidate.validTo)<=utcMillis(at);
-      if(expired&&action!=="expire")throw new Error("editorial_candidate_expired");
-      const allowed={submit:["draft"],approve:["pending_review"],return:["pending_review"],expire:["draft","pending_review","approved"],retract:["approved"],supersede:["draft","pending_review","approved"],note:["draft","pending_review","approved"]};
+      if(expired&&!["expire","retract"].includes(action))throw new Error("editorial_candidate_expired");
+      const allowed={submit:["draft"],approve:["pending_review"],return:["pending_review"],expire:["draft","pending_review","approved"],retract:["approved","expired"],supersede:["draft","pending_review","approved"],note:["draft","pending_review","approved"]};
       if(!allowed[action].includes(alert.state))throw new Error("editorial_transition_not_allowed");
       if(action==="expire"&&!expired)throw new Error("editorial_not_expired");
       if(action==="approve") {

@@ -177,3 +177,18 @@ Verificación acumulada: check, **197/197** Node, **142/142** con código actual
 y dependencias nativas de imagen local sin red, **6/6** Python, ambos replays
 y diff-check correctos; dependencias sin cambios desde npm ci (0 vulnerabilidades).
 CI de a713092: success Node 22/24 y contenedor, run 40608435679.
+
+## Retractación de una simulación completada
+
+Ya no se limita a cancelar una cola pendiente: se puede encolar/procesar retiro
+editorial simulado, enlazado a un ítem previamente simulado del mismo transporte.
+No inventa publicación, entrega ni cancelación oficial. Digest/historia original
+permanecen intactos; acción separada e idempotente, caducidad propia de laboratorio.
+Una aprobación caducada puede corregirse; borradores nunca aprobados no pueden
+usar esa excepción. UI y API autenticada cubiertas, sin transporte de red.
+Ver [contrato y límites](../architecture/dry-run-retractions.md).
+
+Validación: npm ci 0 vulnerabilidades, check, **202/202** Node, **147/147** en
+imagen local con código actual y dependencias nativas/red bloqueada, **6/6** Python,
+ambos replays y diff-check. UI nueva verificada en DOM; no se afirma nuevo ensayo
+Chromium de estos controles. CI anterior 149e15f success, run 40608697068.

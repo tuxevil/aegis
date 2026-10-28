@@ -20,7 +20,7 @@ async function browser(t,{role="editor"}={}) {
   };
   w.eval(script);
   const login=async()=>{w.document.getElementById("credential").value="T".repeat(43);w.document.getElementById("login").dispatchEvent(new w.Event("submit",{cancelable:true}));await flush();};
-  return {w,requests,login,fail:()=>fail=true,block:promise=>pending=promise};
+  return {w,requests,login,alert,fail:()=>fail=true,block:promise=>pending=promise};
 }
 test("interfaz usa Bearer en memoria, escapa datos y limpia sesión sin storage/URL",async t=>{
   const {w,requests,login}=await browser(t);await login();const d=w.document;
@@ -51,4 +51,12 @@ test("credencial revocada limpia datos, y aprobador no tiene controles de editor
   assert.equal([...w.document.querySelectorAll("button")].some(b=>b.textContent==="Solicitar revisión"),false);
   fail();w.document.getElementById("refresh").click();await flush();
   assert.equal(w.document.getElementById("private").hidden,true);assert.equal(w.document.getElementById("alerts").children.length,0);
+});
+
+test("aprobador encola retractación explícita sin afirmar cancelación oficial",async t=>{
+  const {w,requests,login,alert}=await browser(t,{role:"approver"});alert.state="retracted";await login();
+  const control=[...w.document.querySelectorAll("button")].find(b=>b.textContent==="Encolar retractación simulada WAHA");assert.ok(control);
+  control.click();await flush();const request=requests.find(r=>r.url.endsWith("/outbox")&&r.options.method==="POST");
+  assert.deepEqual(JSON.parse(request.options.body),{targetId:"simulation-waha-guayaquil",kind:"retraction"});
+  assert.match(w.document.getElementById("status").textContent,/sin envío ni cancelación oficial/);
 });

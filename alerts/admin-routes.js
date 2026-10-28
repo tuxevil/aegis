@@ -19,8 +19,8 @@ export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox
       const code=typeof error.message==="string"?error.message:"";
       if(/^(editorial_forbidden|outbox_forbidden)$/.test(code))return reply.code(403).send({error:"admin_forbidden"});
       if(/^(editorial_not_found|outbox_not_found|candidate_not_current)$/.test(code))return reply.code(404).send({error:"admin_not_found"});
-      if(/^(invalid_editorial_|editorial_candidate_too_large|outbox_target_not_allowed)/.test(code))return reply.code(400).send({error:"invalid_admin_request"});
-      if(/^(editorial_(version_conflict|active_revision_exists|candidate_collision|transition_not_allowed|terminal_state|candidate_expired|not_expired|independent_review_required|evidence_not_current)|outbox_(not_approved|expired|evidence_changed))$/.test(code))return reply.code(409).send({error:code});
+      if(/^(invalid_editorial_|editorial_candidate_too_large|outbox_target_not_allowed|invalid_outbox_kind)/.test(code))return reply.code(400).send({error:"invalid_admin_request"});
+      if(/^(editorial_(version_conflict|active_revision_exists|candidate_collision|transition_not_allowed|terminal_state|candidate_expired|not_expired|independent_review_required|evidence_not_current)|outbox_(not_approved|not_retracted|no_prior_simulation|expired|evidence_changed))$/.test(code))return reply.code(409).send({error:code});
       return reply.code(503).send({error:"admin_archive_unavailable"});
     });
     const route=(method,url,schema,handler)=>scope.route({method,url,bodyLimit:16384,
@@ -53,7 +53,7 @@ export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox
     });
     route("POST","/api/admin/alerts/:id/transitions",{querystring:empty,params:{...properties,required:["id"],properties:{id}},body:{...properties,required:["action","reason","expectedVersion"],properties:{
       action:{type:"string",enum:["submit","approve","return","expire","retract","supersede","note"]},reason:{type:"string",minLength:1,maxLength:2000},expectedVersion:{type:"integer",minimum:1}}}},req=>editorial.transition(req.params.id,req.body,req.alertActor));
-    route("POST","/api/admin/alerts/:id/outbox",{querystring:empty,params:{...properties,required:["id"],properties:{id}},body:{...properties,required:["targetId"],properties:{targetId:{type:"string",pattern:"^simulation-(portal|rss|pwa|waha)-(guayaquil|pallatanga)$"}}}},req=>outbox.enqueue(req.params.id,req.body.targetId,req.alertActor));
+    route("POST","/api/admin/alerts/:id/outbox",{querystring:empty,params:{...properties,required:["id"],properties:{id}},body:{...properties,required:["targetId"],properties:{kind:{type:"string",enum:["notice","retraction"]},targetId:{type:"string",pattern:"^simulation-(portal|rss|pwa|waha)-(guayaquil|pallatanga)$"}}}},req=>outbox.enqueue(req.params.id,req.body.targetId,req.alertActor,{kind:req.body.kind}));
     route("POST","/api/admin/alerts/outbox/process",{querystring:empty,body:{...properties,required:["key"],properties:{key:{type:"string",minLength:1,maxLength:300}}}},req=>outbox.process(req.body.key,req.alertActor));
   });
   app.get("/editorial",(_,reply)=>reply.redirect("/editorial/"));

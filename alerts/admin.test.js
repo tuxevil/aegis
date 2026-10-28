@@ -54,6 +54,14 @@ test("API completa evalúa/importa/revisa y simula; nadie puede enviar candidato
   const key=response.json().key;
   response=await inject("/api/admin/alerts/outbox/process",{method:"POST",role:"approver",body:{key}});assert.equal(response.statusCode,200);assert.equal(response.json().state,"simulated");assert.equal(response.json().sent,false);
   assert.equal((await inject("/api/admin/alerts")).json().items[0].publishedAt,null);
+  assert.equal((await transition("retract","approver",3)).statusCode,200);
+  const enqueueBody={targetId:"simulation-waha-guayaquil",kind:"retraction"};
+  assert.equal((await inject(`/api/admin/alerts/${candidate.id}/outbox`,{method:"POST",role:"editor",body:enqueueBody})).statusCode,403);
+  assert.equal((await inject(`/api/admin/alerts/${candidate.id}/outbox`,{method:"POST",role:"approver",body:{...enqueueBody,kind:"send"}})).statusCode,400);
+  response=await inject(`/api/admin/alerts/${candidate.id}/outbox`,{method:"POST",role:"approver",body:enqueueBody});assert.equal(response.statusCode,200);
+  response=await inject("/api/admin/alerts/outbox/process",{method:"POST",role:"approver",body:{key:response.json().key}});
+  assert.equal(response.statusCode,200);assert.equal(response.json().state,"simulated");assert.match(response.json().result.payload,/RETRACTACIÓN/);
+
 });
 test("rutas validadas, paginación acotada y errores sanitizados",async t=>{
   const {inject,setFail}=await setup(t);

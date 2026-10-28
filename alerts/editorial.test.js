@@ -47,7 +47,7 @@ test("caducidad y cambio de fuente bloquean aprobación; expiración es auditada
   env.setCurrent(false);await assert.rejects(service.transition(candidate.id,{action:"approve",reason:"Fuente cambió",expectedVersion:2},approver),/not_current/);
   env.setAt(candidate.validTo);await assert.rejects(service.transition(candidate.id,{action:"approve",reason:"Vencida",expectedVersion:2},approver),/expired/);
   const expired=await service.transition(candidate.id,{action:"expire",reason:"Vigencia terminada",expectedVersion:2},editor);
-  assert.equal(expired.state,"expired");await assert.rejects(service.transition(candidate.id,{action:"note",reason:"terminal",expectedVersion:3},editor),/terminal/);
+  assert.equal(expired.state,"expired");await assert.rejects(service.transition(candidate.id,{action:"retract",reason:"Nunca aprobada",expectedVersion:3},approver),/terminal/);await assert.rejects(service.transition(candidate.id,{action:"note",reason:"terminal",expectedVersion:3},editor),/terminal/);
 });
 test("corrección requiere retirar revisión anterior; mantiene historia y motivos",async t=>{
   const {service,candidate}=await setup(t);await service.importCandidate(candidate,editor);

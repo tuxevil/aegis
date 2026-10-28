@@ -34,13 +34,16 @@
       const reason=element("textarea"),label=element("label","Motivo de la acción (obligatorio)");reason.id="reason-"+alert.id;reason.maxLength=2000;label.htmlFor=reason.id;article.append(label,reason);
       const actions=element("div");actions.className="actions";
       const choices=actor.role==="editor"?[["note","Añadir nota"],["submit","Solicitar revisión"],["return","Devolver a borrador"],["expire","Registrar caducidad"],["supersede","Sustituir por corrección"]]:[["approve","Aprobar para simulación"],["retract","Retractar revisión"]];
-      const allowed={note:["draft","pending_review","approved"],submit:["draft"],return:["pending_review"],expire:["draft","pending_review","approved"],supersede:["draft","pending_review","approved"],approve:["pending_review"],retract:["approved"]};
-      for(const [action,title] of choices)if(allowed[action].includes(alert.state))actions.append(button(title,async()=>{
+      const allowed={note:["draft","pending_review","approved"],submit:["draft"],return:["pending_review"],expire:["draft","pending_review","approved"],supersede:["draft","pending_review","approved"],approve:["pending_review"],retract:["approved","expired"]};
+      for(const [action,title] of choices)if(allowed[action].includes(alert.state)&&!(action==="retract"&&!alert.approval))actions.append(button(title,async()=>{
         if(!reason.value.trim())throw new Error("Escriba el motivo antes de actuar.");
         await api(`/${alert.id}/transitions`,{method:"POST",body:{action,reason:reason.value,expectedVersion:alert.version}});await refresh();status("Transición registrada; publicación bloqueada.");
       }));
       if(actor.role==="approver"&&alert.state==="approved")for(const transport of ["portal","rss","pwa","waha"])actions.append(button("Encolar simulación "+transport.toUpperCase(),async()=>{
         await api(`/${alert.id}/outbox`,{method:"POST",body:{targetId:`simulation-${transport}-${alert.candidate.areaId}`}});await refresh();status("Simulación encolada. No se envió ningún aviso.");
+      }));
+      if(actor.role==="approver"&&alert.state==="retracted")for(const transport of ["portal","rss","pwa","waha"])actions.append(button("Encolar retractación simulada "+transport.toUpperCase(),async()=>{
+        await api(`/${alert.id}/outbox`,{method:"POST",body:{targetId:`simulation-${transport}-${alert.candidate.areaId}`,kind:"retraction"}});await refresh();status("Retractación simulada encolada; sin envío ni cancelación oficial.");
       }));
       article.append(actions);$("alerts").append(article);
     }
