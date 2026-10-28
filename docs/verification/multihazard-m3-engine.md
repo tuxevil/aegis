@@ -147,3 +147,17 @@ prueban frescura bajo esta regla; conservan valor documental/histórico únicame
 La recaptura real y su comparación están registradas en
 [source-probes/2026-10-27-inamhi-evidence-lifecycle.json](source-probes/2026-10-27-inamhi-evidence-lifecycle.json).
 No se antedata disponibilidad ni se simula retrospectivamente una descarga.
+
+## Corridas manuales de los dos pilotos
+
+El perfil ECMWF admite selección UTC/piloto acotada, sin URLs ni coordenadas del
+operador. Reproceso y evaluación conservan URL/ámbito/disponibilidad, evitando
+confundir dos puntos en una corrida. No hay polling automático ni consultas reales
+nuevas en esta validación. Ver [diseño y uso](../architecture/manual-forecast-runs.md).
+La validación externa de nuevas combinaciones y derechos sigue pendiente.
+
+Validación de este incremento: npm ci sin vulnerabilidades, check, **194/194**
+Node, **139/139** en imagen local con dependencias nativas/código actual y red
+bloqueada, **6/6** Python, ambos replays y diff-check correctos. No se reconstruyó
+la imagen contra Docker Hub en este ensayo. CI de 90d25a3 pasó en Node 22/24 y
+contenedor (run 40608037142); el nuevo commit requiere su propia CI.

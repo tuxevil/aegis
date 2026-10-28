@@ -142,3 +142,17 @@ el repositorio falló 5 pruebas PDF por sustituir las dependencias Alpine con la
 del host. Con solo código montado y dependencias nativas de la imagen pasan **134/134**
 pruebas sin red. Eso verifica el código actual, no una reconstrucción de imagen.
 Los gates institucionales, cartográficos, históricos y de activación siguen abiertos.
+
+## Corridas manuales de los dos pilotos
+
+El perfil ECMWF admite selección UTC/piloto acotada, sin URLs ni coordenadas del
+operador. Reproceso y evaluación conservan URL/ámbito/disponibilidad, evitando
+confundir dos puntos en una corrida. No hay polling automático ni consultas reales
+nuevas en esta validación. Ver [diseño y uso](../architecture/manual-forecast-runs.md).
+La validación externa de nuevas combinaciones y derechos sigue pendiente.
+
+Validación de este incremento: npm ci sin vulnerabilidades, check, **194/194**
+Node, **139/139** en imagen local con dependencias nativas/código actual y red
+bloqueada, **6/6** Python, ambos replays y diff-check correctos. No se reconstruyó
+la imagen contra Docker Hub en este ensayo. CI de 90d25a3 pasó en Node 22/24 y
+contenedor (run 40608037142); el nuevo commit requiere su propia CI.

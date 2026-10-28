@@ -47,7 +47,7 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
   const byId=new Map(records.filter(r=>r&&typeof r.id==="string").map(r=>[r.id,r])),latest=new Map(),ambiguous=new Set(),excluded=[...selection.excluded],contexts=[];
   for(const ref of selection.known) {
     const record=byId.get(ref.captureId),e=record.envelope;
-    const key=[e.sourceId,e.kind,e.kind==="official_warning"?e.details.bulletinNumber:e.kind==="forecast_run"?e.details.runInitializedAt:e.kind==="observation"?e.details.measuredAt:record.id].join(":");
+    const key=[e.sourceId,e.kind,e.kind==="official_warning"?e.details.bulletinNumber:e.kind==="forecast_run"?[e.details.runInitializedAt,e.sourceUrl].join(":"):e.kind==="observation"?e.details.measuredAt:record.id].join(":");
     const prior=latest.get(key);
     if(prior&&prior.ref.sequence===ref.sequence&&prior.ref.knownAt===ref.knownAt)ambiguous.add(key);
     latest.set(key,{ref,e,record});
@@ -57,7 +57,7 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
     const reject=reason=>excluded.push({captureId:ref.captureId,reason});
     if(ambiguous.has(key)){reject("ambiguous_revision_order");continue;}
     let source;
-    try {source=registry.get(e.sourceId);}catch {reject("source_not_registered");continue;}
+    try {source=registry.get(e.sourceId);if(source.type==="forecast")source=registry.archivedSource(e.sourceId,e.sourceUrl);}catch {reject("source_not_registered");continue;}
     if(!sourceMatches(source,e)){reject("source_url_not_registered");continue;}
     const allowedKinds={pdf:"official_warning",forecast:"forecast_run","local-observation":"observation","arcgis-query":"static_exposure","arcgis-layer":"static_exposure"};
     if(allowedKinds[source.type]!==e.kind){reject("source_kind_mismatch");continue;}

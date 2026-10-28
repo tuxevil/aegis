@@ -15,8 +15,9 @@ export class IngestionService {
     Object.assign(this,{store,registry,now,networkEnabled,allowPendingLicense,adapterOverrides});
     this.http=http||new SourceHttp({registry,now});
   }
-  async ingest(sourceId) {
-    const source=this.registry.get(sourceId);
+  async ingest(sourceId,request) {
+    const source=request===undefined?this.registry.get(sourceId):this.registry.forecastSource(sourceId,request);
+    if(source.type==="forecast"&&Date.parse(new URL(source.url).searchParams.get("run")+"Z")>this.now().getTime())throw new Error("future_model_run");
     if(source.internal) throw new Error("specialized_connector_required");
     if(!this.networkEnabled) throw new Error("network_opt_in_required");
     if(this.store.origin!=="captured_source") throw new Error("live_fixture_mixing_forbidden");
@@ -28,7 +29,7 @@ export class IngestionService {
       catch {return false;}
     }) || captures.some(r=>r.sourceId===sourceId && r.operation!=="reprocess" && Date.parse(r.retrievedAt)+source.cooldownMs>this.now().getTime());
     if(paused) return {...safeMode,sourceId,status:"unknown",errorCode:"source_cooldown"};
-    try { return await this.capture(source,await this.http.get(sourceId)); }
+    try { return await this.capture(source,await this.http.get(sourceId,request)); }
     catch(error) {
       const code=errorCodes.has(error.message)||/^http_\d{3}$/.test(error.message)?error.message:"ingestion_failed";
       await this.store.failure({sourceId,at:this.now().toISOString(),code,
@@ -60,7 +61,7 @@ export class IngestionService {
     const capture={bytes:await this.store.readRaw(original.sha256),retrievedAt:original.retrievedAt,
       mediaType:original.envelope.raw.mediaType,etag:original.envelope.raw.etag,lastModified:original.envelope.raw.lastModified,
       operation:"reprocess",captureRef:original.id};
-    return this.capture(this.registry.get(original.sourceId),capture);
+    return this.capture(this.registry.archivedSource(original.sourceId,original.envelope.sourceUrl),capture);
   }
   async health() {
     const records=await this.store.records(),failures=await this.store.records("failures");

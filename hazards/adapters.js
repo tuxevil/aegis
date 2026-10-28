@@ -102,7 +102,7 @@ export class OpenMeteoSingleRunsAdapter {
     e.time.runInitializedAt=runInitializedAt;
     // Verified only now, never backdated to the initialization or a guessed lag.
     e.time.availabilityVerifiedAt=raw.recordOrigin==="captured_source"?capture.retrievedAt:null;
-    e.spatial.precision="point";e.spatial.areaNames=["Guayaquil · punto de modelo aproximado"];
+    e.spatial.precision="point";e.spatial.areaNames=[source.forecastArea==="pallatanga"?"Pallatanga · punto de modelo aproximado":"Guayaquil · punto de modelo aproximado"];
     const echoedModel=clean(p.model??(typeof p.models==="string"?p.models:null));
     if(source.modelSelectionVerified&&echoedModel&&echoedModel!==source.requestedModel)throw new Error("forecast_model_mismatch");
     const selected=source.modelSelectionVerified&&new URL(source.url).searchParams.get("models")===source.requestedModel?source.requestedModel:null;
