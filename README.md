@@ -2,6 +2,8 @@
 
 > **Ampliación AEGIS Multiamenaza (planificación cerrada, desarrollo por fases):** el punto de entrada para Codex es [START_HERE_CODEX](docs/handoff/START_HERE_CODEX.md), junto con las [decisiones](docs/design/architecture-decisions.md), el [roadmap M0–M5](docs/design/implementation-roadmap.md) y el [prompt preparado](docs/handoff/CODEX_START_PROMPT.md). El dashboard documentado a continuación corresponde al Grid Sentinel ya existente. Los módulos de alertas ciudadanas aún NO están operativos y ningún mensaje WhatsApp está activado.
 
+Para contribuir con una fuente, empieza por la [receta ejecutable sin red](docs/contributing/source-adapter-example.md): `npm run example:source`. Solo usa un fixture generado y no modifica el archivo real ni habilita avisos.
+
 Un observatorio público para entender las señales de energía de Ecuador y las condiciones locales de Pallatanga, con igual protagonismo. Su objetivo es ayudar a anticiparse: explicar qué cambió, por qué importa y qué datos faltan. No anuncia horarios de cortes ni calcula probabilidades de apagón o deslave.
 
 Avance multiamenaza en ramas de desarrollo: [auditoría M0](docs/research/source-validation-results.md),

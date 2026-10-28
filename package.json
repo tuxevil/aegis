@@ -20,6 +20,7 @@
   "scripts": {
     "start": "node backend.js",
     "test": "node --test",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "example:source": "node scripts/example-source-adapter.mjs --run"
   }
 }

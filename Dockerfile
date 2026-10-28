@@ -15,6 +15,7 @@ COPY docs/design/openalert-channels.json ./docs/design/
 COPY scripts/ ./scripts/
 COPY replay/ ./replay/
 COPY docs/contracts/source-envelope.v1.schema.json ./docs/contracts/
+COPY docs/contracts/examples/source-adapter.receipt.v1.json ./docs/contracts/examples/
 
 ENV DATA_DIR=/data
 VOLUME ["/data"]

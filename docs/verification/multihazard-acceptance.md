@@ -47,7 +47,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M4 extremo a extremo | Probado: PDF sintético → archivo → motor → revisión → simulación; publishedAt null | No es ensayo de entrega operacional con proveedor |
 | Preservación v4/flags/seguridad | Probado: suite completa y /ui 200 sin red/directorio experimental con flags OFF | Excepción TLS CELEC/CENACE heredada sigue documentada |
 | Apertura M0: muestra Amaru documentada | Parcial: informe del operador 27/10 20:19:56.942Z, corrección error:null y tests sin clave real | No es ground truth; factores, ts completo, permiso de reproducción y cobertura restante desconocidos |
-| Apertura M1: ejemplo ejecutable para colaboradores | Parcial: adaptadores/inyección/importFixture y contratos probados | Falta receta autocontenida de contribución reproducible sin datos privados |
+| Apertura M1: ejemplo ejecutable para colaboradores | Implementado: example:source, guía, recibo versionado y pruebas de contrato offline | Fixture propio MIT; no certifica derechos ni disponibilidad del proveedor real |
 | Apertura M2: enlaces a código/contribución/correcciones | Implementado: portal con PR, CONTRIBUTING, issue manual y seguridad privada | No formulario de reportes sensibles ni comunidad consolidada inferida |
 | Apertura M3: benchmark público independiente y comparación | Parcial: métricas, fixtures TP/FP/TN/FN y corpus documental separado | Falta runner/dataset público de benchmark con casos positivos/negativos y comparación antes/después; negativos históricos siguen sin prueba |
 | M5 redundancia/observabilidad/restauración | Parcial: runbook de recuperación/incidentes y diseño de continuidad; restauración local sintética probada | No infraestructura externa provisionada, failover o SLA ensayados |
@@ -57,7 +57,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 ## Evidencia acumulada verificable
 
 Los apartados siguientes registran cortes históricos. Última verificación local:
-**240/240** Node, **185/185** en contenedor reconstruido sin red (incluye las
+**244/244** Node, **189/189** en contenedor reconstruido sin red (incluye las
 12 pruebas Amaru con credenciales ficticias), **6/6** Python, npm ci sin
 vulnerabilidades, check/replays/diff-check correctos. La sincronización de referencia
 9e9ab91 se conserva como merge de feature; no modifica main ni autoriza operación.
@@ -336,3 +336,28 @@ teclado/foco, sin overflow ni page errors, red externa bloqueada. Captura móvil
 inspeccionada; artefactos privados en /tmp/aegis-browser-contribution-20261028.
 Amaru solo se probó con fetch inyectado/credenciales sintéticas; no se ejecutó
 su CLI ni se consultó AMARU_API_KEY.
+
+## Receta autocontenida para nuevos adaptadores
+
+Implementados npm run example:source, SourceAdapter sintético (id/supports/license/
+sourceTermsUrl/fetch/health), Normalizer de ejemplo y guía de contribución. El host
+valida contrato antes de persistir, recalcula SHA y mantiene synthetic_fixture:
+importación + recaptura + reproceso, tres registros/un artefacto/una revisión.
+Fechas de escenario, retrievedAt del envelope null, unknown y publicación bloqueada.
+La licencia MIT del fixture no concede derechos sobre el perfil real pendiente.
+
+Recibo público versionado sin UUIDs, rutas o reloj volátil, comparado completo por
+los tests y entre ejecuciones. CLI sin argumentos solo ayuda; --run usa/elimina una
+raíz temporal propia e ignora DATA_DIR, sin cuenta, clave o HTTP. Tests rechazan
+adaptador inválido antes de guardar bytes, área no soportada, señal abortada y
+opciones no previstas. [Guía](../contributing/source-adapter-example.md).
+
+Validación: npm ci 0 vulnerabilidades, check, **244/244** Node, **189/189** en
+contenedor reconstruido sin red y **6/6** Python, replays/diff-check correctos.
+CLI también ejecutado en el contenedor: recibo idéntico al versionado. Grid /ui 200
+con flags OFF/directorio experimental oculto. CI c9a411d success, run 40690992960.
+No se presentan estos fixtures como incidentes/no-eventos históricos verificados.
+
+El portal actualizado también pasó Chromium 320/1280, selección/teclado y ausencia
+de overflow/page errors con red externa bloqueada; captura móvil inspeccionada.
+Artefactos privados: /tmp/aegis-browser-source-example-20261028.

@@ -1,0 +1,36 @@
+{
+  "exampleVersion": "source-adapter-example-1",
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "recordOrigin": "synthetic_fixture",
+  "fixtureLicense": "MIT",
+  "fixtureTermsUrl": "https://github.com/tuxevil/aegis/blob/6349097/LICENSE",
+  "providerBytes": false,
+  "networkRequests": 0,
+  "verification": {
+    "captures": 3,
+    "artifacts": 1
+  },
+  "sourceId": "inamhi.warning.pdf",
+  "rawFixtureSha256": "3892db0eb552c2220450fc106db24f5c38cf29bcfb49db4421fa7609c0b1982a",
+  "sourceRevisions": [
+    1
+  ],
+  "normalized": {
+    "kind": "official_warning",
+    "parserVersion": "example-inamhi-1.0.0",
+    "dataStatus": "unknown",
+    "bulletinNumber": 83,
+    "issuedAt": "2026-10-25T19:00:00.000Z",
+    "validFrom": "2026-10-25T21:00:00.000Z",
+    "validTo": "2026-10-29T04:00:00.000Z",
+    "sourcePrecision": "province",
+    "sourceLicenseStatus": "pending",
+    "blockers": [
+      "map_not_reviewed",
+      "synthetic_fixture_never_publish",
+      "license_not_verified_for_publication"
+    ]
+  },
+  "notice": "Synthetic scenario dates, not historical availability. No official bulletin, publication or delivery. Temporary archive removed."
+}

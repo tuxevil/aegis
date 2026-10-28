@@ -99,3 +99,12 @@ Validación: npm ci 0 vulnerabilidades, check, **228/228** Node, **173/173** en
 contenedor reconstruido sin red, **6/6** Python, ambos replays/diff-check. El ensayo
 de proceso separado y backup es sintético; no se consultaron proveedores ni se
 eliminaron locks de archivos reales. CI de 37e2e03 success, run 40687614235.
+
+## Ejemplo reproducible para contribuyentes
+
+Añadida [receta ejecutable](../contributing/source-adapter-example.md), recibo
+versionado y prueba de contrato con fixture PDF propio MIT. Adquisición sintética,
+normalizador, validación, duplicado/reproceso e integridad en archivo temporal,
+sin clave, red, DATA_DIR real, publicación ni promoción de fixtures a capturas.
+Tests comparan salidas, guardias y rechazo de esquema; CI ejecuta el CLI sin red.
+Suite acumulada: **244/244** Node, **189/189** Docker sin red y **6/6** Python.

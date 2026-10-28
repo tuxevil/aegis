@@ -49,3 +49,17 @@ AEGIS busca una comunidad que pueda verificar, mejorar y corregir fuentes/reglas
 - Casos históricos documentados y períodos sin incidentes.
 
 Si quieres proponer un proveedor, utiliza el template de issue «Propuesta de fuente» y documenta permisos, cobertura, actualización y URL. El mantenedor decidirá si entra al catálogo de investigación antes de cualquier despliegue.
+
+## Primer adaptador, ejecutable sin claves ni datos privados
+
+```sh
+npm ci
+npm run example:source
+node --test hazards/source-adapter-example.test.js
+```
+
+La receta genera su propio PDF de prueba MIT en un archivo temporal que elimina
+al terminar. No consulta INAMHI, Amaru u otro proveedor, no usa DATA_DIR ni publica
+avisos. La licencia del fixture no cambia los permisos pendientes de la fuente real.
+Consulta [la guía paso a paso](docs/contributing/source-adapter-example.md) para
+las interfaces, resultado esperado y controles que debe pasar una propuesta real.
