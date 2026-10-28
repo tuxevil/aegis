@@ -17,7 +17,9 @@ La URL exacta seleccionada queda en el envelope. Reproceso reconstruye únicamen
 una URL admitida y conserva inicialización, descarga y disponibilidad comprobada
 originales; no usa la muestra por defecto ni una corrida nueva. El evaluador valida
 esa URL y separa corridas del mismo modelo por punto. El catálogo indica ambos
-pilotos; health sigue agregado por fuente, no constituye salud individual por ciudad.
+pilotos; health sin filtro sigue agregado por fuente. Con filtro de piloto selecciona
+solo capturas del punto correspondiente; una captura del otro piloto no renueva
+su frescura. Eso no constituye cobertura meteorológica de toda la ciudad.
 
 Disponibilidad se comprueba en la descarga real, nunca se antedata a inicialización
 ni a un retraso estimado. Las reglas de frescura, revisión y DRY_RUN no cambian.
@@ -45,8 +47,12 @@ Sin `--live` no se consulta red. Sin opciones, el CLI sigue siendo informativo.
 `hazards/forecast-selection.test.js` prueba allowlist, calendario/ciclo, argumentos
 CLI, HTTP simulado, archivo real con bytes simulados, dos pilotos simultáneos,
 replay, confirmación privada, TTL y reproceso sin red nueva. Rechazos tempranos
-no crean DATA_DIR. No se han consultado las nuevas combinaciones al proveedor;
-no presentar estas pruebas como datos meteorológicos reales ni como habilitación.
+no crean DATA_DIR. La combinación Pallatanga/2026-10-27T12:00 se consultó una vez después de este
+incremento: HTTP 200, 72 tiempos, un valor faltante, archivo verificado. Evidencia
+en [reporte sanitizado](../verification/source-probes/2026-10-27-pallatanga-manual-forecast.json).
+Disponibilidad comprobada 2026-10-28T00:24:00.019Z, nunca al inicializar el modelo.
+La evaluación no generó candidatos: no implica ausencia de riesgo. No hubo
+revisión/aprobación humana ni notificación. Otras combinaciones siguen pendientes.
 
 Referencia primaria revisada: [Open-Meteo Single Runs](https://open-meteo.com/en/docs/single-runs-api).
 La documentación describe selección por inicialización; no demuestra disponibilidad

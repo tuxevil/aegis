@@ -161,3 +161,24 @@ Node, **139/139** en imagen local con dependencias nativas/código actual y red
 bloqueada, **6/6** Python, ambos replays y diff-check correctos. No se reconstruyó
 la imagen contra Docker Hub en este ensayo. CI de 90d25a3 pasó en Node 22/24 y
 contenedor (run 40608037142); el nuevo commit requiere su propia CI.
+
+## Validación real Pallatanga y aislamiento de frescura
+
+Un único GET de investigación para ECMWF/Pallatanga, corrida 27/10 12 UTC,
+respondió 200 en 1115 ms. Archivo privado verificado: 1 captura/1 artefacto,
+1993 bytes, 72 tiempos y 1 valor faltante. Disponibilidad comprobada realmente
+28/10 00:24:00.019Z (27 local), no al inicializar. Evaluación unknown/0 candidatos,
+no «sin riesgo». [Metadatos](source-probes/2026-10-27-pallatanga-manual-forecast.json);
+no se publican bytes ni se aprueban candidatos reales. Términos consultados:
+https://open-meteo.com/en/terms ; no se infieren permisos de operación/publicación.
+
+Se reprodujo con tres pruebas fallidas la mezcla de puntos en health: una captura
+reciente de Pallatanga renovaba el estado filtrado de Guayaquil y solo se verificaba
+el artefacto más reciente global. Corregido: selección y verificación por punto,
+unknown si falta el punto o URL registrada, sin recorrer cada corrida histórica.
+La salud sigue siendo de disponibilidad/captura, nunca de seguridad del territorio.
+
+Verificación acumulada: check, **197/197** Node, **142/142** con código actual
+y dependencias nativas de imagen local sin red, **6/6** Python, ambos replays
+y diff-check correctos; dependencias sin cambios desde npm ci (0 vulnerabilidades).
+CI de a713092: success Node 22/24 y contenedor, run 40608435679.

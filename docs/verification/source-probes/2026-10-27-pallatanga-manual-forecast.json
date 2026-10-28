@@ -1,0 +1,59 @@
+{
+  "reportKind": "AEGIS_MANUAL_FORECAST_RESEARCH",
+  "asOf": "2026-10-28T00:24:29.347Z",
+  "localDate": "2026-10-27 America/Guayaquil",
+  "codeCommit": "a713092",
+  "sourceId": "openmeteo.singlerun.ecmwf",
+  "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-1.99856&longitude=-78.96629&run=2026-10-27T12%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+  "requestedArea": "pallatanga",
+  "requestedRun": "2026-10-27T12:00",
+  "verified": {
+    "captures": 1,
+    "artifacts": 1
+  },
+  "transport": {
+    "httpStatus": 200,
+    "elapsedMs": 1115
+  },
+  "sha256": "6ef7bf5c2ac974d8af961c755742bf8f6e3be05817265481b991405720f2faf8",
+  "byteLength": 1993,
+  "retrievedAt": "2026-10-28T00:24:00.019Z",
+  "processedAt": "2026-10-28T00:24:00.031Z",
+  "runInitializedAt": "2026-10-27T12:00:00.000Z",
+  "availabilityVerifiedAt": "2026-10-28T00:24:00.019Z",
+  "providerModel": "ecmwf_ifs",
+  "modelIdentityBasis": "explicit_request",
+  "timePoints": 72,
+  "firstForecastTime": "2026-10-27T12:00:00.000Z",
+  "lastForecastTime": "2026-10-30T11:00:00.000Z",
+  "missingValues": 1,
+  "sourceQuality": {
+    "dataStatus": "partial",
+    "warnings": [],
+    "blockers": [
+      "historical_availability_not_proven",
+      "missing_forecast_values",
+      "license_not_verified_for_publication"
+    ],
+    "parserVersion": "multihazard-1.0.0",
+    "completenessRatio": null
+  },
+  "licensing": {
+    "status": "restricted",
+    "licenseId": "CC-BY-4.0",
+    "attribution": "Open-Meteo"
+  },
+  "assessment": {
+    "status": "unknown",
+    "candidateCount": 0,
+    "exclusions": [
+      "forecast_rule_not_triggered_not_all_clear"
+    ]
+  },
+  "failures": [],
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "humanApprovalPerformed": false,
+  "notificationPerformed": false,
+  "rawRedistributed": false
+}
