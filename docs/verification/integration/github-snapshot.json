@@ -1,0 +1,270 @@
+{
+  "observedAt": "2026-10-28T19:23:02Z",
+  "main": "0339762fb915f068bca8a001b7bd8f2d0b25abee",
+  "pullRequests": [
+    {
+      "baseRefName": "feat/multiamenaza-retention-review",
+      "headRefName": "feat/multiamenaza-historical-evidence",
+      "headRefOid": "8d5da1a3f3f2f8a5f395254cf0483f7d50496084",
+      "isDraft": true,
+      "number": 31,
+      "state": "OPEN",
+      "title": "M3: evidencia primaria de impactos separada del replay",
+      "updatedAt": "2026-10-28T17:02:31Z",
+      "url": "https://github.com/tuxevil/aegis/pull/31"
+    },
+    {
+      "baseRefName": "feat/multiamenaza-benchmark",
+      "headRefName": "feat/multiamenaza-retention-review",
+      "headRefOid": "7e9d357dd61a4c9b1e1ebb7c7b31fb7b9ee47e91",
+      "isDraft": true,
+      "number": 30,
+      "state": "OPEN",
+      "title": "M4: diagnóstico privado de retención de preferencias",
+      "updatedAt": "2026-10-28T14:07:07Z",
+      "url": "https://github.com/tuxevil/aegis/pull/30"
+    },
+    {
+      "baseRefName": "feat/multiamenaza-m4",
+      "headRefName": "feat/multiamenaza-benchmark",
+      "headRefOid": "7014ac0af2e780ceb49310651f70bb3a73d2e510",
+      "isDraft": true,
+      "number": 29,
+      "state": "OPEN",
+      "title": "M3: benchmark público reproducible de controles sintéticos",
+      "updatedAt": "2026-10-28T13:59:36Z",
+      "url": "https://github.com/tuxevil/aegis/pull/29"
+    },
+    {
+      "baseRefName": "feat/multiamenaza-m3",
+      "headRefName": "feat/multiamenaza-m4",
+      "headRefOid": "2ea390c924b69775874956cc079f5e472a2021f4",
+      "isDraft": true,
+      "number": 28,
+      "state": "OPEN",
+      "title": "feat: centro editorial, zonas y outbox en DRY_RUN",
+      "updatedAt": "2026-10-28T13:07:51Z",
+      "url": "https://github.com/tuxevil/aegis/pull/28"
+    },
+    {
+      "baseRefName": "feat/multiamenaza-m2",
+      "headRefName": "feat/multiamenaza-m3",
+      "headRefOid": "9d3f5a5383746328169d2ae1984b0b014ae6a812",
+      "isDraft": true,
+      "number": 27,
+      "state": "OPEN",
+      "title": "feat: motor M3 y replay multiamenaza en sombra",
+      "updatedAt": "2026-10-27T20:17:09Z",
+      "url": "https://github.com/tuxevil/aegis/pull/27"
+    },
+    {
+      "baseRefName": "feat/multiamenaza-m1",
+      "headRefName": "feat/multiamenaza-m2",
+      "headRefOid": "01b734bf4e76d710e869cfcd7cca12fb7fcd1799",
+      "isDraft": true,
+      "number": 26,
+      "state": "OPEN",
+      "title": "feat: explorador M2 seguro y validación territorial parcial",
+      "updatedAt": "2026-10-27T19:43:52Z",
+      "url": "https://github.com/tuxevil/aegis/pull/26"
+    },
+    {
+      "baseRefName": "feat/multiamenaza-m0",
+      "headRefName": "feat/multiamenaza-m1",
+      "headRefOid": "e2bd51a8c2468d0ba5a1df7780e124d5913abee2",
+      "isDraft": true,
+      "number": 25,
+      "state": "OPEN",
+      "title": "feat: ingesta M1 con archivo inmutable y adaptadores",
+      "updatedAt": "2026-10-27T19:10:19Z",
+      "url": "https://github.com/tuxevil/aegis/pull/25"
+    },
+    {
+      "baseRefName": "feature/guayaquil-replay-whatsapp",
+      "headRefName": "feat/multiamenaza-m0",
+      "headRefOid": "28c46a84db84ffca8f2f1e569ef16a55246b6f82",
+      "isDraft": true,
+      "number": 24,
+      "state": "OPEN",
+      "title": "feat: auditoría M0 de fuentes multiamenaza en DRY_RUN",
+      "updatedAt": "2026-10-27T19:06:57Z",
+      "url": "https://github.com/tuxevil/aegis/pull/24"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "feature/guayaquil-replay-whatsapp",
+      "headRefOid": "9e9ab91a29aeb4a3465d1c4eb16f9e7f37ed3361",
+      "isDraft": true,
+      "number": 23,
+      "state": "OPEN",
+      "title": "AEGIS Multiamenaza: cierre de planificación + handoff Codex, contratos y replay Guayaquil",
+      "updatedAt": "2026-10-27T20:30:39Z",
+      "url": "https://github.com/tuxevil/aegis/pull/23"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "dependabot/npm_and_yarn/npm_and_yarn-c8c5f42289",
+      "headRefOid": "195830bd19107d8803368a4826dff28f13da2583",
+      "isDraft": false,
+      "number": 22,
+      "state": "OPEN",
+      "title": "build(deps): bump fastify from 5.12.5 to 5.12.6 in the npm_and_yarn group across 1 directory",
+      "updatedAt": "2026-10-27T13:14:46Z",
+      "url": "https://github.com/tuxevil/aegis/pull/22"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-12",
+      "headRefName": "feat/aegis-5-pr-13",
+      "headRefOid": "f77212b56c1d67c6d92c4313cc21fed9e9c7dd9c",
+      "isDraft": false,
+      "number": 21,
+      "state": "OPEN",
+      "title": "feat: AEGIS 5 PR-13 public OpenAPI and read-only HA",
+      "updatedAt": "2026-10-23T01:01:28Z",
+      "url": "https://github.com/tuxevil/aegis/pull/21"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-11",
+      "headRefName": "feat/aegis-5-pr-12",
+      "headRefOid": "d3bf8309f748df63f70882f9b220bd88e5aefa72",
+      "isDraft": false,
+      "number": 20,
+      "state": "OPEN",
+      "title": "docs: AEGIS 5 PR-12 volume model validation no-go",
+      "updatedAt": "2026-10-23T00:54:13Z",
+      "url": "https://github.com/tuxevil/aegis/pull/20"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-10",
+      "headRefName": "feat/aegis-5-pr-11",
+      "headRefOid": "24934dc0b1088a326e715877df8abe3c77421e3e",
+      "isDraft": false,
+      "number": 19,
+      "state": "OPEN",
+      "title": "feat: AEGIS 5 PR-11 progressive infrastructure explorer",
+      "updatedAt": "2026-10-23T00:54:09Z",
+      "url": "https://github.com/tuxevil/aegis/pull/19"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-09",
+      "headRefName": "feat/aegis-5-pr-10",
+      "headRefOid": "b96ef31be6978b0d2c68ccba2c1b57f990f07f3a",
+      "isDraft": false,
+      "number": 18,
+      "state": "OPEN",
+      "title": "feat: AEGIS 5 PR-10 historical replay and safe exports",
+      "updatedAt": "2026-10-23T00:54:05Z",
+      "url": "https://github.com/tuxevil/aegis/pull/18"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-08",
+      "headRefName": "feat/aegis-5-pr-09",
+      "headRefOid": "751a09ff269d8dc9635547bb09e7a1be4f346c46",
+      "isDraft": false,
+      "number": 17,
+      "state": "OPEN",
+      "title": "docs: AEGIS 5 PR-09 social API feasibility no-go",
+      "updatedAt": "2026-10-23T00:54:01Z",
+      "url": "https://github.com/tuxevil/aegis/pull/17"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-07",
+      "headRefName": "feat/aegis-5-pr-08",
+      "headRefOid": "623aaa9932297b8990e626337fbdc72b3fc087d4",
+      "isDraft": false,
+      "number": 16,
+      "state": "OPEN",
+      "title": "feat: AEGIS 5 PR-08 permission-gated news feeds",
+      "updatedAt": "2026-10-23T00:53:57Z",
+      "url": "https://github.com/tuxevil/aegis/pull/16"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-06",
+      "headRefName": "feat/aegis-5-pr-07",
+      "headRefOid": "a7aac1f8aa1878d89962b901d60f7ae15d53b690",
+      "isDraft": false,
+      "number": 15,
+      "state": "OPEN",
+      "title": "feat: AEGIS 5 PR-07 private Sector Watch and opt-in Push",
+      "updatedAt": "2026-10-23T00:53:54Z",
+      "url": "https://github.com/tuxevil/aegis/pull/15"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-05",
+      "headRefName": "feat/aegis-5-pr-06",
+      "headRefOid": "0ba3e713ef1a2fbfb47eeaf4f10073d4be31e348",
+      "isDraft": false,
+      "number": 14,
+      "state": "OPEN",
+      "title": "feat: AEGIS 5 PR-06 official schedule capture",
+      "updatedAt": "2026-10-22T17:54:37Z",
+      "url": "https://github.com/tuxevil/aegis/pull/14"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-04",
+      "headRefName": "feat/aegis-5-pr-05",
+      "headRefOid": "c319262b576680b4d91f3fb5e0e318d3d5eb34d1",
+      "isDraft": false,
+      "number": 13,
+      "state": "OPEN",
+      "title": "feat: AEGIS 5 PR-05 evidence correlation and audit",
+      "updatedAt": "2026-10-22T17:35:26Z",
+      "url": "https://github.com/tuxevil/aegis/pull/13"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-03",
+      "headRefName": "feat/aegis-5-pr-04",
+      "headRefOid": "ac34312310d9f160bd31aa20f479d62cee41ba80",
+      "isDraft": false,
+      "number": 12,
+      "state": "OPEN",
+      "title": "feat: aegis 5 citizen reports, private receipts and moderation",
+      "updatedAt": "2026-10-22T13:33:15Z",
+      "url": "https://github.com/tuxevil/aegis/pull/12"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-02",
+      "headRefName": "feat/aegis-5-pr-03",
+      "headRefOid": "7e00437e567e9939b952ff6c06e4f7b4d84114b0",
+      "isDraft": false,
+      "number": 11,
+      "state": "OPEN",
+      "title": "feat: aegis 5 citizen map, public read API and isolated demo",
+      "updatedAt": "2026-10-22T13:31:09Z",
+      "url": "https://github.com/tuxevil/aegis/pull/11"
+    },
+    {
+      "baseRefName": "feat/aegis-5-pr-01",
+      "headRefName": "feat/aegis-5-pr-02",
+      "headRefOid": "ad85d8b3fad5b4de5fb14e135bea0d7aa233cf46",
+      "isDraft": false,
+      "number": 10,
+      "state": "OPEN",
+      "title": "feat: aegis 5 SQLite persistence, migrations and backups",
+      "updatedAt": "2026-10-22T13:25:02Z",
+      "url": "https://github.com/tuxevil/aegis/pull/10"
+    },
+    {
+      "baseRefName": "docs/aegis-5-implementation-blueprint",
+      "headRefName": "feat/aegis-5-pr-01",
+      "headRefOid": "be6d7ee2ced926ee1a32ec5726f442a644d5cee3",
+      "isDraft": false,
+      "number": 9,
+      "state": "OPEN",
+      "title": "feat: aegis 5 foundation and safe public API contracts",
+      "updatedAt": "2026-10-22T12:43:05Z",
+      "url": "https://github.com/tuxevil/aegis/pull/9"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "docs/aegis-5-implementation-blueprint",
+      "headRefOid": "f6c43eb28da8ba342a6a1ec735752192aacdbf81",
+      "isDraft": false,
+      "number": 8,
+      "state": "OPEN",
+      "title": "docs: AEGIS 5.0 roadmap, architecture and Codex handoff",
+      "updatedAt": "2026-10-21T22:12:31Z",
+      "url": "https://github.com/tuxevil/aegis/pull/8"
+    }
+  ]
+}

@@ -1,5 +1,16 @@
 # AEGIS Multiamenaza — START HERE (entrega de planificación a Codex)
 
+## Prioridad vigente: consolidación y preparación supervisada (28/10/2026)
+
+El propietario suspendió temporalmente el desarrollo intensivo de funcionalidades.
+Integrar AEGIS 5 (#8–#21) y Multiamenaza (#23–#31), preservar Grid/HA/cronogramas,
+probar contratos y preparar staging aislado. La [matriz de integración](../verification/integration/integration-matrix.md)
+y su snapshot registran heads/baselines reales. Los encargos históricos de empezar
+en PR-01/M0 son contexto, no reinician el trabajo. No añadir funciones ajenas a
+integración, validación, seguridad o reproducibilidad. Sin main/producción/SSH a
+Proxmox/puertos nuevos, datos reales, Push/WAHA o avisos reales. DRY_RUN obligatorio.
+El bloqueo anterior de certificación no impide esta nueva etapa autorizada.
+
 **Fecha del corte de decisiones:** 27 de octubre de 2026, Ecuador (America/Guayaquil).
 **Estado del producto:** planificación y diseño COMPLETADOS para iniciar implementación. Los conectores externos y las notificaciones públicas NO están certificados ni activados.
 **Repositorio:** \`tuxevil/aegis\`. **Rama de documentación y PoC:** \`feature/guayaquil-replay-whatsapp\`. **PR de contexto:** https://github.com/tuxevil/aegis/pull/23 (draft). \`main\` no debe fusionarse/desplegarse automáticamente por este handoff.
