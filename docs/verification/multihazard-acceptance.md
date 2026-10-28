@@ -1,6 +1,6 @@
 # Auditoría de aceptación Multiamenaza — M0–M4 en sombra
 
-Estado acumulado de desarrollo: 2026-10-28, PR #29 sobre #28/#27/#26/#25/#24.
+Estado acumulado de desarrollo: 2026-10-28, PR #30 sobre #29/#28/#27/#26/#25/#24.
 La planificación normativa sigue en START_HERE_CODEX y roadmap. Este documento
 reconcilia las entregas incrementales; los informes M0/M1/M2 anteriores describen
 su corte histórico, no una ausencia actual de código que apareció después.
@@ -73,7 +73,8 @@ Los apartados siguientes registran cortes históricos. Última verificación loc
 12 pruebas Amaru con credenciales ficticias), **6/6** Python, npm ci sin
 vulnerabilidades, check/replays/diff-check correctos. La sincronización de referencia
 9e9ab91 se conserva como merge de feature; no modifica main ni autoriza operación.
-CI de código previo 9af5017 success, run 40689017710; el nuevo head requiere su CI.
+CI del padre 7014ac0 success, run 40701560522; el incremento de retención se
+verifica además en el PR #30, sin trasladar automáticamente el resultado del padre.
 Las comprobaciones Chromium se documentan por módulo y alcance, sin trasladarlas
 a afirmaciones de geografía, entrega o licencia certificadas.
 
