@@ -21,6 +21,7 @@ import {AlertJournal} from "./alerts/journal.js";
 import {EditorialService} from "./alerts/editorial.js";
 import {DryRunOutbox} from "./alerts/outbox.js";
 import {archiveEvidenceVerifier} from "./alerts/evidence.js";
+import {TerritoryPreviewReader} from "./hazards/territory-preview.js";
 import {RawArtifactStore} from "./hazards/artifact-store.js";
 import {ZoneSubscriptions} from "./alerts/subscriptions.js";
 import {registerSubscriptionRoutes} from "./alerts/subscription-routes.js";
@@ -92,7 +93,7 @@ export async function createApp({
       const dataDir=process.env.DATA_DIR||path.join(directory,".data");
       const sourceStore=new RawArtifactStore(dataDir,{readOnly:true}),journal=new AlertJournal(dataDir);
       const verifyEvidence=archiveEvidenceVerifier(sourceStore);
-      services={sourceStore,editorial:new EditorialService({journal,verifyEvidence,now:alertNow}),outbox:new DryRunOutbox({journal,verifyEvidence,now:alertNow})};
+      services={sourceStore,territoryReader:new TerritoryPreviewReader({store:new RawArtifactStore(dataDir,{namespace:"layers",readOnly:true}),now:alertNow}),editorial:new EditorialService({journal,verifyEvidence,now:alertNow}),outbox:new DryRunOutbox({journal,verifyEvidence,now:alertNow})};
     }
     await registerAlertAdminRoutes(app,{...services,credentials,now:alertNow,zoneSubscriptions:subscriptionService});
   }

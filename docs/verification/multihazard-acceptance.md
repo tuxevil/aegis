@@ -260,3 +260,23 @@ código hazards/scripts actual y dependencias nativas de imagen local sin red,
 **6/6** Python, ambos replays y diff-check. Incluye rechazo de destino vía symlink
 y conservación de snapshotAtomicity. Solo archivos sintéticos; sin descarga de
 geometrías reales. CI anterior 9041b64 success, run 40684268535.
+
+## Vista gráfica territorial privada
+
+Implementada /editorial/territory/ y GET /api/admin/alerts/territory, detrás del
+flag editorial OFF por defecto y Bearer. Dibujo SVG local de la página, con huecos,
+selección por lista, categoría literal/DPA y procedencia. Sin colores de riesgo,
+mapas externos ni afirmación de límites/cobertura territorial. No hay geometrías
+en rutas hazards públicas; el archivo real no se sustituye por datos sintéticos.
+
+JSDOM y endpoint autenticado probados; Chromium 320/1280 pasó esquema/selección,
+referencia expandida, piloto sin colección, logout/teclado, sin overflow ni errores.
+Captura móvil inspeccionada, con aviso sintético visible; artefactos privados en
+/tmp/aegis-browser-territory-final-20261028. Cero geometrías reales nuevas o HTTP
+a proveedores. [Contrato de vista](../architecture/private-territory-preview.md).
+
+Validación: npm ci 0 vulnerabilidades, check, **220/220** Node, **165/165** en
+contenedor reconstruido y sin red, **6/6** Python, ambos replays y diff-check.
+Revisiones finales específicas: API sin inicializar archivo ausente y multipartes
+en DOM correctas. Grid /ui 200 y vista territorial 404 con flags OFF/directorio
+experimental oculto, sin red. CI de 4c9a9a5 success, run 40685382332.

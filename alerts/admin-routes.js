@@ -9,7 +9,7 @@ const id={type:"string",pattern:"^[a-f0-9]{64}$"};
 const query={...properties,properties:{limit:{type:"integer",minimum:1,maximum:50,default:20},offset:{type:"integer",minimum:0,maximum:10000,default:0}}};
 const empty={...properties,properties:{}};
 const page=(items,{limit=20,offset=0})=>({items:items.slice(offset,offset+limit),total:items.length,limit,offset,...safeMode});
-export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox,sourceStore,zoneSubscriptions=null,now=()=>new Date().toISOString()}) {
+export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox,sourceStore,zoneSubscriptions=null,territoryReader=null,now=()=>new Date().toISOString()}) {
   const authenticate=createAdminAuthenticator(credentials);
   if(!editorial||!outbox||!sourceStore||editorial.journal!==outbox.journal||sourceStore.origin!==editorial.journal.origin)throw new Error("invalid_admin_services");
   await app.register(async scope=>{
@@ -38,6 +38,12 @@ export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox
         }
       },handler});
     if(zoneSubscriptions)route("GET","/api/admin/alerts/demand",{querystring:empty},()=>zoneSubscriptions.demand());
+    route("GET","/api/admin/alerts/territory",{querystring:{...properties,required:["area","sourceId"],properties:{area,
+      sourceId:{type:"string",enum:["sngr.flood.layer","sngr.multihazard.layer"]},
+      limit:{type:"integer",minimum:1,maximum:50,default:20},offset:{type:"integer",minimum:0,maximum:100000,default:0}}}},async req=>{
+      if(!territoryReader||territoryReader.store?.origin!==sourceStore.origin)throw new Error("territory_archive_unavailable");
+      return territoryReader.read(req.query);
+    });
     route("GET","/api/admin/alerts/session",{querystring:empty},req=>({actor:req.alertActor,...safeMode}));
     route("GET","/api/admin/alerts",{querystring:query},async req=>page(await editorial.list(),req.query));
     route("GET","/api/admin/alerts/outbox",{querystring:query},async req=>page(await outbox.list(),req.query));
@@ -57,7 +63,7 @@ export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox
     route("POST","/api/admin/alerts/outbox/process",{querystring:empty,body:{...properties,required:["key"],properties:{key:{type:"string",minLength:1,maxLength:300}}}},req=>outbox.process(req.body.key,req.alertActor));
   });
   app.get("/editorial",(_,reply)=>reply.redirect("/editorial/"));
-  for(const [url,file,type] of [["/editorial/","editorial.html","text/html"],["/editorial/app.js","editorial.js","text/javascript"],["/editorial/style.css","editorial.css","text/css"]]) {
+  for(const [url,file,type] of [["/editorial/","editorial.html","text/html"],["/editorial/app.js","editorial.js","text/javascript"],["/editorial/style.css","editorial.css","text/css"],["/editorial/territory/","territory.html","text/html"],["/editorial/territory/app.js","territory.js","text/javascript"],["/editorial/territory/style.css","territory.css","text/css"]]) {
     app.get(url,(_,reply)=>reply.type(type).header("Cache-Control","no-store").header("Referrer-Policy","no-referrer")
       .header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
       .send(fs.readFileSync(new URL(`../public/${file}`,import.meta.url))));

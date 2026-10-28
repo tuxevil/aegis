@@ -7,13 +7,14 @@ import path from "node:path";
 import {createApp} from "../backend.js";
 import {HistoryStore} from "../history.js";
 import {AlertJournal} from "./journal.js";
+import {RawArtifactStore} from "../hazards/artifact-store.js";
 import {EditorialService} from "./editorial.js";
 import {DryRunOutbox} from "./outbox.js";
 import {archiveEvidenceVerifier} from "./evidence.js";
 import {captureRecord} from "../hazards/fixtures/captures.js";
 import {createAdminAuthenticator} from "./auth.js";
 const base={store:new HistoryStore(),mac:null,fetchUrl:async()=>({status:503,data:""}),hazardsEnabled:false};
-async function setup(t) {
+async function setup(t,{territoryReader=null}={}) {
   const root=await fs.mkdtemp(path.join(os.tmpdir(),"aegis-admin-"));t.after(()=>fs.rm(root,{recursive:true,force:true}));
   const tokens={editor:randomBytes(32).toString("base64url"),approver:randomBytes(32).toString("base64url")};
   const credentials=Object.entries(tokens).map(([role,token])=>({id:role,role,tokenSha256:createHash("sha256").update(token).digest("hex")}));
@@ -21,7 +22,7 @@ async function setup(t) {
   const sourceStore={origin:"synthetic_fixture",namespace:"sources",verify:async()=>{if(fail)throw new Error("private station secret do-not-leak");},records:async(index)=>index==="failures"?[]:[record]};
   let at="2026-10-27T18:05:00Z";
   const journal=new AlertJournal(root,{origin:"synthetic_fixture"}),verifyEvidence=archiveEvidenceVerifier(sourceStore),now=()=>at;
-  const services={sourceStore,editorial:new EditorialService({journal,verifyEvidence,now}),outbox:new DryRunOutbox({journal,verifyEvidence,now})};
+  const services={sourceStore,territoryReader,editorial:new EditorialService({journal,verifyEvidence,now}),outbox:new DryRunOutbox({journal,verifyEvidence,now})};
   const app=await createApp({...base,now:()=>new Date(now()),alertsAdminEnabled:true,alertsAdminCredentials:credentials,alertsAdminServices:services});t.after(()=>app.close());
   const inject=(url,{role="editor",method="GET",body,headers={},...rest}={})=>app.inject({url,method,remoteAddress:"192.0.2.15",headers:{authorization:`Bearer ${tokens[role]}`,...headers},...(body===undefined?{}:{payload:body}),...rest});
   return {app,inject,tokens,credentials,services,setAt:value=>at=value,setFail:()=>fail=true};
@@ -107,5 +108,25 @@ test("lector administrativo por defecto no crea archivos de fuente ausentes",asy
   const {credentials,tokens}=await setup(t),root=await fs.mkdtemp(path.join(os.tmpdir(),"aegis-admin-source-ro-"));t.after(()=>fs.rm(root,{recursive:true,force:true}));
   const previous=process.env.DATA_DIR;process.env.DATA_DIR=path.join(root,"missing");t.after(()=>{if(previous===undefined)delete process.env.DATA_DIR;else process.env.DATA_DIR=previous;});
   const app=await createApp({...base,alertsAdminEnabled:true,alertsAdminCredentials:credentials,zoneSubscriptionsEnabled:false});t.after(()=>app.close());
-  const response=await app.inject({url:"/api/admin/alerts/candidates?area=guayaquil",headers:{authorization:"Bearer "+tokens.editor}});assert.equal(response.statusCode,503);assert.deepEqual(await fs.readdir(root),[]);
+  const response=await app.inject({url:"/api/admin/alerts/candidates?area=guayaquil",headers:{authorization:"Bearer "+tokens.editor}});assert.equal(response.statusCode,503);
+  const territory=await app.inject({url:"/api/admin/alerts/territory?area=guayaquil&sourceId=sngr.flood.layer",headers:{authorization:"Bearer "+tokens.editor}});assert.equal(territory.statusCode,503);assert.deepEqual(await fs.readdir(root),[]);
+});
+
+test("geometría territorial solo tras Bearer, consulta cerrada y archivo verificado",async t=>{
+  const {LayerResearchService}=await import('../hazards/layer-research.js'),{SngrLayerAcquirer}=await import('../hazards/arcgis-acquirer.js');
+  const {layerFixtures}=await import('../hazards/fixtures/arcgis.js'),{TerritoryPreviewReader}=await import('../hazards/territory-preview.js');
+  const root=await fs.mkdtemp(path.join(os.tmpdir(),'aegis-admin-territory-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+  const store=new RawArtifactStore(root,{origin:'synthetic_fixture',namespace:'layers'});
+  await new LayerResearchService({store,acquirer:SngrLayerAcquirer.fromFixtures(layerFixtures())}).collect('sngr.flood.layer','guayaquil',{fixture:true});
+  const reader=new TerritoryPreviewReader({store:new RawArtifactStore(root,{origin:'synthetic_fixture',namespace:'layers',readOnly:true})});
+  const {app,inject}=await setup(t,{territoryReader:reader}),url='/api/admin/alerts/territory?area=guayaquil&sourceId=sngr.flood.layer';
+  assert.equal((await app.inject(url)).statusCode,401);
+  const response=await inject(url);assert.equal(response.statusCode,200);assert.equal(response.headers['cache-control'],'no-store');
+  assert.equal(response.json().features.length,3);assert.equal(response.json().recordOrigin,'synthetic_fixture');assert.equal(response.json().publicationBlocked,true);
+  assert.doesNotMatch(response.body,/storageKey|artifactIds/);
+  for(const suffix of ['&url=https://example.invalid','&limit=51','&offset=-1','&sourceId=other'])assert.equal((await inject(url+suffix)).statusCode,400);
+  assert.equal((await inject(url,{role:'approver'})).statusCode,200);
+  assert.match((await app.inject('/editorial/territory/')).headers['content-security-policy'],/connect-src 'self'/);
+  const record=(await store.records()).find(r=>r.envelope.details.captureRole==='features');await fs.writeFile(path.join(store.root,'raw',record.sha256),'broken');
+  const failure=await inject(url);assert.equal(failure.statusCode,503);assert.doesNotMatch(failure.body,/coordinates|private|sha256|broken/);
 });

@@ -12,6 +12,10 @@ import {AlertJournal} from "../alerts/journal.js";
 import {EditorialService} from "../alerts/editorial.js";
 import {archiveEvidenceVerifier} from "../alerts/evidence.js";
 import {DryRunOutbox} from "../alerts/outbox.js";
+import {LayerResearchService} from "../hazards/layer-research.js";
+import {SngrLayerAcquirer} from "../hazards/arcgis-acquirer.js";
+import {layerFixtures} from "../hazards/fixtures/arcgis.js";
+import {TerritoryPreviewReader} from "../hazards/territory-preview.js";
 import {ZoneSubscriptions} from "../alerts/subscriptions.js";
 const output=process.argv.find(a=>a.startsWith("--out="))?.slice(6);
 if(!output)throw new Error("Use --out=/new/private/screenshot-directory");
@@ -20,11 +24,14 @@ const {chromium}=await import(process.env.AEGIS_PLAYWRIGHT_MODULE||"playwright")
 const root=await fs.mkdtemp(path.join(os.tmpdir(),"aegis-browser-fixtures-"));
 const sourceStore=new RawArtifactStore(root,{origin:"synthetic_fixture"});
 await new GridWeatherBridge({store:sourceStore}).capture({weather:{timestamp:new Date().toISOString(),rainRateMmHr:9,rainDailyMm:null}},{fixture:true});
+const layerStore=new RawArtifactStore(root,{origin:"synthetic_fixture",namespace:"layers"});
+await new LayerResearchService({store:layerStore,acquirer:SngrLayerAcquirer.fromFixtures(layerFixtures())}).collect("sngr.flood.layer","guayaquil",{fixture:true});
+const territoryReader=new TerritoryPreviewReader({store:new RawArtifactStore(root,{origin:"synthetic_fixture",namespace:"layers",readOnly:true})});
 const journal=new AlertJournal(root,{origin:"synthetic_fixture"}),verifyEvidence=archiveEvidenceVerifier(sourceStore);
 const tokens={editor:randomBytes(32).toString("base64url"),approver:randomBytes(32).toString("base64url")};
 const credentials=Object.entries(tokens).map(([role,token])=>({id:role,role,tokenSha256:createHash("sha256").update(token).digest("hex")}));
 const app=await createApp({store:new HistoryStore(),mac:null,fetchUrl:async()=>({status:503,data:""}),hazardsEnabled:false,
-  alertsAdminEnabled:true,alertsAdminCredentials:credentials,alertsAdminServices:{sourceStore,editorial:new EditorialService({journal,verifyEvidence}),outbox:new DryRunOutbox({journal,verifyEvidence})},
+  alertsAdminEnabled:true,alertsAdminCredentials:credentials,alertsAdminServices:{sourceStore,territoryReader,editorial:new EditorialService({journal,verifyEvidence}),outbox:new DryRunOutbox({journal,verifyEvidence})},
   zoneSubscriptionsEnabled:true,zoneSubscriptionService:new ZoneSubscriptions({journal:new AlertJournal(root,{kind:"subscriptions",origin:"synthetic_fixture"})})});
 const address=await app.listen({host:"127.0.0.1",port:0});let browser;
 try {
@@ -35,7 +42,7 @@ try {
   const editor=await context.newPage(),approver=await context.newPage(),cities=await context.newPage();
   async function login(page,role) {await page.goto(address+"/editorial/");await page.fill("#credential",tokens[role]);await page.locator("#login button").click();await page.waitForFunction(()=>!document.querySelector("#private").hidden);assert.equal(await page.inputValue("#credential"),"");}
   async function fit(page) {assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
-  for(const width of [320,1280]) {
+  for(const width of (process.argv.includes("--territory-only")?[]:[320,1280])) {
     for(const page of [editor,approver,cities])await page.setViewportSize({width,height:900});
     await login(editor,"editor");
     if(width===320) {
@@ -78,6 +85,19 @@ try {
       await page.keyboard.press("Enter");assert.equal(await page.evaluate(()=>document.activeElement.id),target);
     }
   }
+  const territory=await context.newPage();
+  for(const width of [320,1280]) {
+    await territory.setViewportSize({width,height:900});await territory.goto(address+"/editorial/territory/");
+    await territory.fill("#credential",tokens.editor);await territory.locator("#login button").click();
+    await territory.waitForSelector("#map path");assert.equal(await territory.locator("#map path").count(),3);
+    await territory.locator("#features button").first().click();assert.equal(await territory.locator("#map path.selected").count(),1);
+    assert.equal(await territory.locator("#provenance a").count(),1);await territory.locator("#provenance summary").click();
+    await fit(territory);await territory.screenshot({path:path.join(output,`territory-${width}.png`),fullPage:true});
+    await territory.selectOption("#area","pallatanga");await territory.waitForFunction(()=>document.querySelector("#status").textContent.includes("Sin colección verificable"));
+    assert.equal(await territory.locator("#map path").count(),0);await territory.locator("#logout").click();
+    assert.equal(await territory.locator("#private").isHidden(),true);assert.equal(await territory.inputValue("#credential"),"");
+    await territory.reload();await territory.keyboard.press("Tab");await territory.keyboard.press("Enter");assert.equal(await territory.evaluate(()=>document.activeElement.id),"workspace");
+  }
   assert.deepEqual(errors,[]);
-  console.log("PASS: Chromium 320/1280px, independent editorial review, WAHA notice/retraction simulation, zone consent/revocation, keyboard/focus, no overflow/page errors; external requests blocked.");
+  console.log(process.argv.includes("--territory-only")?"PASS: Chromium 320/1280px private territory schematic/selection/provenance/fallback, keyboard/logout, no overflow/page errors; external requests blocked.":"PASS: Chromium 320/1280px, independent editorial review, WAHA notice/retraction simulation, private territory schematic/selection/fallback, zone consent/revocation, keyboard/focus, no overflow/page errors; external requests blocked.");
 } finally {await browser?.close();await app.close();await fs.rm(root,{recursive:true,force:true});}

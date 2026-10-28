@@ -2,8 +2,8 @@
 
 El archivo de investigación conserva páginas de polígonos y manifiestos completos,
 pero no tenía una salida verificada/acotada para revisión visual. Este incremento
-prepara ese límite de lectura, sin convertirlo en publicación de capas ni activar
-un mapa público. La interfaz gráfica de revisión queda como siguiente incremento.
+provee ese límite de lectura y una vista gráfica autenticada, sin convertirlo en
+publicación de capas ni activar un mapa público.
 
 `TerritoryPreviewReader({store})` exige namespace layers y readOnly=true. `read`
 acepta exclusivamente fuente de capa registrada, piloto, limit 1–50 y offset
@@ -49,7 +49,7 @@ resume estado, origen y paginación: no imprime geometría.
 
 Este archivo es material privado de revisión, no un recurso web público. La
 salida no es permiso de redistribuir geodatos; mantener gates de SNGR, cartografía
-y fuente original. No se añadieron endpoints ni lecturas desde rutas públicas.
+y fuente original. Las rutas públicas de hazards siguen sin geometrías.
 
 ## Verificación
 
@@ -58,3 +58,33 @@ archivo ausente sin inicializar, presupuestos, datos corruptos, vínculo de
 colección incorrecto pese a checksum recalculado, colección vacía, permisos,
 no sobrescritura y destino dentro del archivo rechazado. Captura/archivo y
 observations.json no se migran. No se solicitaron geometrías reales ni hubo HTTP.
+
+## Vista de revisión autenticada
+
+Con ALERTS_ADMIN_ENABLED y credenciales editoriales válidas, /editorial/territory/
+consulta GET /api/admin/alerts/territory con sourceId de las dos capas registradas,
+area piloto y paginación. Usa el archivo layers/readOnly del DATA_DIR por defecto;
+no inicializa archivos ausentes ni sustituye capturas reales por fixtures. Una
+inyección de servicio de laboratorio debe coincidir en origen con sourceStore.
+
+El endpoint exige Bearer también en localhost, valida campos cerrados, limita
+solicitudes y responde no-store. Los errores no devuelven geometrías parciales ni
+rutas privadas. HTML/JS/CSS son una carcasa sin datos: la geometría requiere sesión.
+Con el flag OFF no se registran vista ni endpoint. No cambia ningún GET público.
+
+La vista es un esquema local SVG de la página, sin mapas/tiles externos, límites
+administrativos inferidos, medición de distancias o colores de peligro. Conserva
+huecos/multipartes, muestra categoría literal, DPA, propietario, fecha, referencias
+y estado de topología/estabilidad/permiso. El resaltado representa selección,
+no severidad. Lista accesible equivalente y atributos por objeto. La selección
+de otro piloto o un fallo limpia el mapa anterior; colección desconocida no es
+cero susceptibilidad. El token solo vive en memoria; logout/401 y respuestas tardías
+no conservan ni repueblan geometría privada. CSP self, texto seguro y SVG creado
+solo con coordenadas numéricas verificadas, sin HTML/SVG fuente interpretado.
+
+Pruebas HTTP con archivo sintético verificado y Bearer; parámetros extra, corrupción,
+archivo ausente, cache y CSP. JSDOM cubre huecos, selección, texto no confiable,
+paginación, geometría inválida y revocación/respuesta tardía. Chromium 320/1280
+probó esquema, selección, referencia expandida, fallback por piloto, teclado y
+logout, sin overflow/page errors ni red externa. Artefactos solo sintéticos y
+privados. Esto no certifica cartografía real ni autoriza publicar capas SNGR.
