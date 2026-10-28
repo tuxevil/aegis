@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'feat/multiamenaza-*'
+      - 'integration/*'
   workflow_dispatch:
 permissions:
   contents: read
@@ -44,4 +45,11 @@ jobs:
       - run: docker run --rm --network none --entrypoint node aegis-offline-ci scripts/ingest-hazards.mjs
       - run: docker run --rm --network none --entrypoint node aegis-offline-ci scripts/example-source-adapter.mjs --run
       - run: docker run --rm --network none --entrypoint node aegis-offline-ci scripts/benchmark-hazards.mjs --baseline=replay/benchmarks/rain-watch-controls.baseline.v1.json > /dev/null
-      - run: docker run --rm --network none --entrypoint node aegis-offline-ci --test hazards/*.test.js alerts/*.test.js backup.test.js scripts/probe-amaru.test.mjs
+      - run: docker run --rm --network none --entrypoint node aegis-offline-ci --test
+      - run: docker compose -f deploy/staging/compose.yaml config --quiet
+      - run: docker tag aegis-offline-ci aegis-supervised-staging:candidate
+      - run: docker compose -f deploy/staging/compose.yaml up -d --no-build --wait --wait-timeout 90
+      - run: docker compose -f deploy/staging/compose.yaml exec -T aegis node scripts/staging-health.mjs
+      - name: Stop isolated staging without removing volumes
+        if: always()
+        run: docker compose -f deploy/staging/compose.yaml down

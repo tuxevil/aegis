@@ -258,10 +258,10 @@ export async function createApp({
     reply
       .header("Cache-Control", "no-cache")
       .type("text/html")
-      .send(fs.readFileSync(path.join(directory, "frontend.html"),"utf8").replace("<!-- HAZARDS_NAV -->",[
+      .send(fs.readFileSync(path.join(directory, "frontend.html"),"utf8").replace("<!-- HAZARDS_NAV -->",(()=>{const links=[
         hazardsEnabled?'<a href="/hazards/">Multiamenaza · fuentes</a>':"",
         zoneSubscriptionsEnabled?'<a href="/ciudades/">Ciudades · preferencias</a>':"",
-      ].filter(Boolean).join(" ")));
+      ].filter(Boolean).join(" ");return links?`<nav class="sentinel-links" aria-label="Módulos multiamenaza">${links}</nav>`:"";})()));
   app.get("/", serveUI);
   app.get("/ui", serveUI);
   if (features.BLACKOUT_MAP) app.get("/map", (_, reply) => reply
@@ -335,7 +335,16 @@ if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
+  process.umask(0o077);
   const app = await createApp();
   await app.listen({ port: Number(process.env.PORT || 3010), host: "0.0.0.0" });
+  let stopping=false;
+  const stop=async()=>{
+    if(stopping)return;stopping=true;
+    const deadline=setTimeout(()=>process.exit(1),10000);deadline.unref();
+    try {await app.close();clearTimeout(deadline);}
+    catch {console.error("AEGIS shutdown incomplete; verify staging persistence before backup");process.exitCode=1;}
+  };
+  process.once("SIGTERM",stop);process.once("SIGINT",stop);
   console.log(`AEGIS Grid disponible en puerto ${process.env.PORT || 3010}`);
 }

@@ -7,6 +7,11 @@
 > bloqueados en esta rama, incluso con configuración heredada de envío. La consulta
 > Sector Watch y sus pruebas sintéticas se conservan. No está desplegado.
 
+Consolidación: [staging aislado](docs/runbooks/supervised-staging.md),
+[validación ejecutada](docs/verification/integration/validation-report.md) y
+[preparación para piloto](docs/verification/integration/pilot-readiness.md).
+La preparación no habilita usuarios, fuentes o envíos reales.
+
 > **Ampliación AEGIS Multiamenaza (planificación cerrada, desarrollo por fases):** el punto de entrada para Codex es [START_HERE_CODEX](docs/handoff/START_HERE_CODEX.md), junto con las [decisiones](docs/design/architecture-decisions.md), el [roadmap M0–M5](docs/design/implementation-roadmap.md) y el [prompt preparado](docs/handoff/CODEX_START_PROMPT.md). El dashboard documentado a continuación corresponde al Grid Sentinel ya existente. Los módulos de alertas ciudadanas aún NO están operativos y ningún mensaje WhatsApp está activado.
 
 Para comparar reglas sin red: `npm run benchmark:compare` usa el [corpus público de controles sintéticos](replay/benchmarks/README.md). No certifica eficacia ni probabilidades de desastre.
