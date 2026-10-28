@@ -46,7 +46,7 @@ test('dos pilotos, archivo, replay, confirmación y reproceso conservan corrida 
   const root=await fs.mkdtemp(path.join(os.tmpdir(),'aegis-forecast-selection-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
   const store=new RawArtifactStore(root);let time=new Date(Date.now()-600001),calls=0;
   const service=new IngestionService({store,registry,networkEnabled:true,allowPendingLicense:true,now:()=>time,
-    http:{get:async(sourceId,request)=>{calls++;assert.equal(sourceId,id);return {bytes:Buffer.from(JSON.stringify(data)),mediaType:'application/json',retrievedAt:time.toISOString(),sourceUrl:registry.requestUrl(id,request)};}}});
+    http:{get:async(sourceId,request)=>{calls++;assert.equal(sourceId,id);return {bytes:Buffer.from(JSON.stringify({...data,latitude:Number(new URL(registry.requestUrl(id,request)).searchParams.get("latitude")),longitude:Number(new URL(registry.requestUrl(id,request)).searchParams.get("longitude"))})),mediaType:'application/json',retrievedAt:time.toISOString(),sourceUrl:registry.requestUrl(id,request)};}}});
   for(const area of ['guayaquil','pallatanga']) {
     assert.equal((await service.ingest(id,{...chosen,area})).status,'partial');time=new Date(time.getTime()+300001);
   }

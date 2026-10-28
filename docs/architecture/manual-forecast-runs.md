@@ -61,3 +61,7 @@ histórica en AEGIS ni derechos adicionales. Mantener el gate de validación ext
 El catálogo público enlaza la documentación oficial, no la URL de muestra de
 Guayaquil bajo la selección Pallatanga. Las URLs exactas permanecen en los envelopes
 privados y en la revisión editorial; no se sustituyen por documentación al auditar.
+
+La celda reportada se conserva separada del punto solicitado y se comprueba antes
+de evaluación. [Procedencia de celda](forecast-grid-provenance.md) explica el
+límite técnico, registros legados y reproceso sin renovar frescura.

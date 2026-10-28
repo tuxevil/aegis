@@ -1,3 +1,4 @@
+import {forecastLocation} from "./forecast-location.js";
 import {inspectPayload} from "../scripts/probe-aegis-sources.mjs";
 import {inspectWarningValidity} from "./warning-validity.js";
 import {extractPdfText} from "./pdf-text.js";
@@ -107,10 +108,16 @@ export class OpenMeteoSingleRunsAdapter {
     if(source.modelSelectionVerified&&echoedModel&&echoedModel!==source.requestedModel)throw new Error("forecast_model_mismatch");
     const selected=source.modelSelectionVerified&&new URL(source.url).searchParams.get("models")===source.requestedModel?source.requestedModel:null;
     const model=echoedModel||selected;
-    e.details={providerModel:model,modelIdentityBasis:echoedModel?"response_field":selected?"explicit_request":"unknown",runInitializedAt,time:p.hourly.time.map(t=>new Date(t+"Z").toISOString()),
+    const location=forecastLocation(source.url,p);
+    e.details={...location,providerModel:model,modelIdentityBasis:echoedModel?"response_field":selected?"explicit_request":"unknown",runInitializedAt,time:p.hourly.time.map(t=>new Date(t+"Z").toISOString()),
       precipitationMm:p.hourly.precipitation,unit:"mm"};
     e.quality.dataStatus="partial";
-    e.quality.blockers=["historical_availability_not_proven"];
+    e.quality.parserVersion="multihazard-forecast-1.1.0";
+    e.quality.blockers=["historical_availability_not_proven","model_grid_not_canton_coverage"];
+    if(location.gridLocationStatus!=="approximate") {
+      e.quality.dataStatus=location.gridLocationStatus==="missing"?"unknown":"invalid";
+      e.quality.blockers.push("forecast_grid_"+location.gridLocationStatus);
+    }
     if(!model) e.quality.blockers.push("model_identity_unknown");
     if(p.hourly.precipitation.includes(null)) e.quality.blockers.push("missing_forecast_values");
     if(Date.parse(runInitializedAt)>Date.parse(capture.retrievedAt)) {e.quality.dataStatus="invalid";e.quality.blockers.push("future_model_run");}

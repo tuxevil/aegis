@@ -2,6 +2,7 @@ import {createHash} from "node:crypto";
 import {SourceRegistry,safeMode} from "./registry.js";
 import {pilotArea} from "./areas.js";
 import {utcMillis} from "./time.js";
+import {forecastLocation} from "./forecast-location.js";
 import {candidateVersion} from "./candidate-version.js";
 import {selectKnownCaptures} from "./knowledge-cutoff.js";
 
@@ -85,15 +86,19 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
         facts:{authority:e.details.authority,bulletinNumber:e.details.bulletinNumber,phenomena:[...e.details.phenomena]},
         familyKey:`${e.sourceId}:${e.details.bulletinNumber}:${area.id}`};
     } else if(e.kind==="forecast_run") {
+      const location=forecastLocation(e.sourceUrl,{latitude:e.details.gridLatitude,longitude:e.details.gridLongitude});
+      if(location.gridLocationStatus!=="approximate"||Object.entries(location).some(([key,value])=>e.details[key]!==value)) {reject("forecast_grid_unverified");continue;}
+      const modelPoint={requestedLatitude:location.requestedLatitude,requestedLongitude:location.requestedLongitude,
+        gridLatitude:location.gridLatitude,gridLongitude:location.gridLongitude,locationStatus:location.gridLocationStatus};
       const signal=forecastSignal(e,cutoff);
       contexts.push({messageClass:"FORECAST",evidenceClass:"FORECAST",contextType:"model_forecast",recordOrigin,scope,
-        facts:{providerModel:e.details.providerModel,runInitializedAt:e.time.runInitializedAt,forecast24hMm:signal?.totalMm??null},sourceRefs:[sourceRef],publicationBlocked:true});
+        facts:{modelPoint,providerModel:e.details.providerModel,runInitializedAt:e.time.runInitializedAt,forecast24hMm:signal?.totalMm??null},sourceRefs:[sourceRef],publicationBlocked:true});
       if(!signal){reject("forecast_24h_coverage_unknown");continue;}
       if(signal.totalMm<shadowPolicy.forecast24hMm){reject("forecast_rule_not_triggered_not_all_clear");continue;}
       proposal={messageClass:"AEGIS_ASSESSMENT",evidenceClass:"FORECAST",phenomenon:"rainfall_watch",ruleId:"experimental-model-rain-24h",
         validFrom:signal.validFrom,validTo:signal.validTo,sourceRiskLevel:null,
         reasons:["Experimental monitoring rule: model precipitation >=20 mm over 24 complete hourly slots"],
-        facts:{providerModel:e.details.providerModel,runInitializedAt:e.time.runInitializedAt,availabilityVerifiedAt:e.time.availabilityVerifiedAt,
+        facts:{modelPoint,providerModel:e.details.providerModel,runInitializedAt:e.time.runInitializedAt,availabilityVerifiedAt:e.time.availabilityVerifiedAt,
           simulatedAvailabilityAt:recordOrigin==="synthetic_fixture"?record.fixtureForecastAvailabilityAt:null,forecast24hMm:signal.totalMm,
           precipitationTimeConvention:"preceding_hour_sum"},
         familyKey:`${e.sourceId}:${e.time.runInitializedAt}:${area.id}:${signal.validFrom}`};

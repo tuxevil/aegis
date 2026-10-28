@@ -182,3 +182,22 @@ Verificación acumulada: check, **197/197** Node, **142/142** con código actual
 y dependencias nativas de imagen local sin red, **6/6** Python, ambos replays
 y diff-check correctos; dependencias sin cambios desde npm ci (0 vulnerabilidades).
 CI de a713092: success Node 22/24 y contenedor, run 40608435679.
+
+## Coordenadas del proveedor conservadas y verificadas
+
+El pronóstico ya diferencia punto solicitado y celda devuelta; missing/null no se
+rellena con cero ni con coordenadas solicitadas. Nuevos campos discriminados,
+parser versionado y comprobación de coherencia en evaluación. Metadatos ausentes
+o contradictorios impiden proponer pronóstico; el límite técnico no certifica
+pertenencia cantonal ni riesgo. Legado legible, sin migración destructiva.
+Ver [diseño y límites](../architecture/forecast-grid-provenance.md).
+
+Reproceso privado real sin red: dos registros/un artefacto, SHA y captura original
+preservados, horarios originales de descarga/disponibilidad intactos. No renueva
+TTL, no hubo aprobación ni notificación. Evidencia sanitizada en source-probes.
+
+Verificación 28/10: npm ci 0 vulnerabilidades, check, **208/208** Node y **6/6**
+Python, replays/diff-check correctos. Imagen local anterior no disponible; se
+reconstruyó Docker correctamente y pasan **153/153** sin red. /ui 200 con flags
+OFF y directorio experimental oculto; CLI sin opciones no ingiere ni publica.
+CI anterior 7de9836 success Node 22/24 + contenedor, run 40609316312.
