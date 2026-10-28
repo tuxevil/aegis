@@ -68,6 +68,11 @@ análisis y copia forense autorizada; no sobrescribirlo para lograr un test verd
 
 ## Privacidad y retención
 
+Para inventariar un journal local sin modificarlo, usar el
+[diagnóstico privado de retención](../architecture/subscription-retention-review.md).
+Exige directorio/corte explícitos y produce únicamente agregados privados. No
+confundir sus conteos con autorización de purga ni con inspección de respaldos.
+
 Los respaldos contienen archivos privados y pueden conservar preferencias anteriores
 con hashes de gestión. Revocar vacía zonas activas, pero no borra el journal ni
 respaldos ya tomados. Retención/depuración/LOPDP deben revisarse antes de usuarios

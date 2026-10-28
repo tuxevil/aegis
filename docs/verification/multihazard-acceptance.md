@@ -1,6 +1,6 @@
 # Auditoría de aceptación Multiamenaza — M0–M4 en sombra
 
-Estado acumulado de desarrollo: 2026-10-28, PR #29 sobre #28/#27/#26/#25/#24.
+Estado acumulado de desarrollo: 2026-10-28, PR #30 sobre #29/#28/#27/#26/#25/#24.
 La planificación normativa sigue en START_HERE_CODEX y roadmap. Este documento
 reconcilia las entregas incrementales; los informes M0/M1/M2 anteriores describen
 su corte histórico, no una ausencia actual de código que apareció después.
@@ -51,7 +51,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M4 revisión humana, notas y ciclo | Probado: editorial tests; versiones, revisor distinto, corrección/expiración/retractación auditadas | Approved es revisión para simulación, nunca permiso de publicación |
 | M4 interfaz editorial/selector | Probado en JSDOM y Chromium 320/1280: roles, flujo simulado, consentimiento/baja, teclado/foco, sin overflow/page errors; vistas móviles inspeccionadas | QA local sintético; no certifica operación pública |
 | M4 CityChannel y enlaces | Parcial: directorio reportado, JID/OWNER/boundary null, propuesto | No hubo comprobación de sesión/roles, ni está autorizada |
-| M4 preferencias por zona y consentimiento | Probado: subscriptions/API/UI tests; secreto hash, opt-in, baja, expiración, sin domicilio/teléfono | Retención/depuración LOPDP y recuperación con usuarios no aprobadas |
+| M4 preferencias por zona y consentimiento | Probado: subscriptions/API/UI tests; secreto hash, opt-in, baja, expiración; inventario privado readOnly de estados e historial retenido | Retención/depuración LOPDP y recuperación con usuarios no aprobadas; inventario no es borrado ni revisión legal |
 | M4 antiabuso y demanda | Probado de laboratorio: desafío firmado/único, límites, sin IP durable; agregados privados suprimidos <5 | No certifica defensa ante botnets o personas únicas |
 | M4 PWA/WhatsApp opt-in independiente | Parcial: interés separado, serializador PWA simulado y enlaces manuales | Sin suscripción Push real, permiso navegador, JID o entrega verificada |
 | M4 Outbox durable/dedupe/retries/dead-letter | Probado: outbox tests, reinicio, cancelación por fuente/estado/caducidad | Solo serializadores puros sin transporte de red |
@@ -69,11 +69,12 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 ## Evidencia acumulada verificable
 
 Los apartados siguientes registran cortes históricos. Última verificación local:
-**252/252** Node, **197/197** en contenedor reconstruido sin red (incluye las
+**256/256** Node, **201/201** en contenedor reconstruido sin red (incluye las
 12 pruebas Amaru con credenciales ficticias), **6/6** Python, npm ci sin
 vulnerabilidades, check/replays/diff-check correctos. La sincronización de referencia
 9e9ab91 se conserva como merge de feature; no modifica main ni autoriza operación.
-CI de código previo 9af5017 success, run 40689017710; el nuevo head requiere su CI.
+CI del padre 7014ac0 success, run 40701560522; el incremento de retención se
+verifica además en el PR #30, sin trasladar automáticamente el resultado del padre.
 Las comprobaciones Chromium se documentan por módulo y alcance, sin trasladarlas
 a afirmaciones de geografía, entrega o licencia certificadas.
 
@@ -86,7 +87,9 @@ de daño, disponibilidad permanente, cumplimiento legal o entrega ciudadana.
 1. Tras ensayo integral local correcto, revisar procedimientos con operador y
    resolver infraestructura/retención antes de proponer simulacro operacional.
 2. Completar revisión de retención/seguridad del flujo público de preferencias;
-   la QA Chromium de ambas vistas ya pasó con datos sintéticos y red externa bloqueada.
+   el inventario privado readOnly ya permite medir estados/historial sin exportar
+   identificadores. La decisión de depuración y revisión competente sigue abierta.
+   La QA Chromium de ambas vistas pasó con datos sintéticos y red externa bloqueada.
 3. Buscar evidencia institucional accesible para cartografía/códigos y completar
    el corpus solo con procedencia verificable; no eludir 403 ni inventar negativos.
 4. Proponer activación únicamente después de resolver gates y contar con revisión
@@ -394,3 +397,20 @@ comparación produjo JSON idéntico en host/contenedor: 13 casos, 8 evaluados,
 5 con fuente no utilizable y 0 cambios frente al baseline inicial. IDs de snapshot
 opacos y prueba explícita evitan filtrar los nombres de controles/etiquetas al
 motor. Política/método activo sin cambios; dataset sintético, sin API o claves.
+
+## Diagnóstico privado de retención de preferencias
+
+Nuevo [inventario readOnly](../architecture/subscription-retention-review.md) para
+el gate de revisión de privacidad/retención M4. CLI exige directorio/corte UTC y
+separa origen real/sintético; no usa DATA_DIR implícito, red o escrituras. Cuenta
+estados activos, expirados y revocados, y eventos previos con zonas/interés Push.
+No exporta IDs, secretos, hashes de gestión o cantones individuales. No inspecciona
+respaldos ni certifica ausencia de datos personales; conteos exactos privados,
+no métricas públicas. Caducidad/baja no se presentan como borrado físico.
+
+Pruebas verifican bytes intactos, no creación de namespace ausente, errores
+saneados, rechazo de corrupción y de estado inválido aun con hash válido, corte
+anterior al snapshot y contadores por estados. Validación: npm ci 0
+vulnerabilidades, check, **256/256** Node, **201/201** en contenedor nuevo sin red,
+**6/6** Python, replay multiamenaza, benchmark y CLI de ayuda en contenedor.
+No cambia rutas, consentimiento, vencimientos, flags, transportes o reglas.
