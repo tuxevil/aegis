@@ -117,9 +117,9 @@ export class LayerResearchService {
       return snapshot;
     });
   }
-  async verify(sourceId,area) {
+  async verify(sourceId,area,{snapshotId}={}) {
     const territory=pilotArea(area);if(!territory)throw new Error("invalid_source_area");
-    const snapshot=(await this.snapshots()).filter(s=>s.sourceId===sourceId&&s.areaId===territory.id).at(-1);
+    const snapshot=(await this.snapshots()).filter(s=>s.sourceId===sourceId&&s.areaId===territory.id&&(snapshotId===undefined||s.id===snapshotId)).at(-1);
     if(!snapshot)throw new Error("unknown_collection");
     const records=await this.store.records(),actual=[];
     for(const id of snapshot.artifactIds) {

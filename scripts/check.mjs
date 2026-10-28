@@ -1,6 +1,6 @@
 import {readdirSync} from "node:fs";
 import {spawnSync} from "node:child_process";
-const directories=[".","public","hazards","replay","scripts"];
+const directories=[".","public","alerts","hazards","replay","scripts"];
 for(const directory of directories) {
   for(const file of readdirSync(directory,{withFileTypes:true})) {
     if(!file.isFile() || !/\.(?:m?js)$/.test(file.name)) continue;

@@ -29,6 +29,9 @@ const detailSchemas={
     exceededTransferLimit:{type:["boolean","null"]},sourceCrs:{type:["integer","null"]},geometryIncluded:{type:"boolean"},
     captureRole:{enum:["metadata","count","ids","features"]},targetCrs:{const:4326},transformEngine:{const:"proj4@2.22.0"}}},
   forecast_run:{type:"object",additionalProperties:false,required:["providerModel","runInitializedAt","time","precipitationMm","unit"],properties:{
+    requestedLatitude:{type:"number",minimum:-90,maximum:90},requestedLongitude:{type:"number",minimum:-180,maximum:180},
+    gridLatitude:{type:["number","null"],minimum:-90,maximum:90},gridLongitude:{type:["number","null"],minimum:-180,maximum:180},
+    gridLocationStatus:{enum:["approximate","missing","invalid","mismatch"]},
     providerModel:nullableText,modelIdentityBasis:{enum:["response_field","explicit_request","unknown"]},runInitializedAt:{type:"string",format:"date-time",pattern:"Z$"},unit:{const:"mm"},
     time:{type:"array",minItems:1,maxItems:240,items:{type:"string",format:"date-time",pattern:"Z$"}},
     precipitationMm:{type:"array",minItems:1,maxItems:240,items:{type:["number","null"],minimum:0}}}},

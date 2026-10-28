@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import {createHash,randomUUID} from "node:crypto";
+import {utcMillis} from "./time.js";
 import {validateEnvelope} from "./envelope.js";
 import {createImmutableFile as atomicCreate} from "./immutable-file.js";
 
@@ -8,19 +9,21 @@ const hash=bytes=>createHash("sha256").update(bytes).digest("hex");
 const origins=new Set(["captured_source","synthetic_fixture"]);
 const sourcePattern=/^[a-z0-9][a-z0-9._-]{1,99}$/;
 export class RawArtifactStore {
-  constructor(dataDir,{origin="captured_source",namespace="sources",maxCaptures=10000,maxBytes=256*1024*1024}={}) {
-    if(!origins.has(origin) || !["sources","layers"].includes(namespace) || !dataDir || !Number.isSafeInteger(maxCaptures) || maxCaptures<1 || !Number.isSafeInteger(maxBytes) || maxBytes<1)
+  constructor(dataDir,{origin="captured_source",namespace="sources",readOnly=false,maxCaptures=10000,maxBytes=256*1024*1024}={}) {
+    if(typeof readOnly!=="boolean" || !origins.has(origin) || !["sources","layers"].includes(namespace) || !dataDir || !Number.isSafeInteger(maxCaptures) || maxCaptures<1 || !Number.isSafeInteger(maxBytes) || maxBytes<1)
       throw new Error("invalid_store_configuration");
-    Object.assign(this,{origin,namespace,maxCaptures,maxBytes});
+    Object.assign(this,{origin,namespace,readOnly,maxCaptures,maxBytes});
     this.root=namespace==="sources"?path.join(path.resolve(dataDir),"hazards","v1",origin):path.join(path.resolve(dataDir),"hazards","layers","v1",origin);
   }
   async initialize() {
-    for(const directory of [this.root,path.join(this.root,"raw"),path.join(this.root,"captures"),path.join(this.root,"failures")])
-      await fs.mkdir(directory,{recursive:true,mode:0o700});
+    for(const directory of [this.root,path.join(this.root,"raw"),path.join(this.root,"captures"),path.join(this.root,"failures")]) {
+      if(this.readOnly) {if(!(await fs.stat(directory)).isDirectory())throw new Error("invalid_store_layout");}
+      else await fs.mkdir(directory,{recursive:true,mode:0o700});
+    }
     const format=path.join(this.root,"format.json");
     try { await fs.access(format); }
     catch(error) {
-      if(error.code!=="ENOENT") throw error;
+      if(error.code!=="ENOENT"||this.readOnly) throw error;
       try {await atomicCreate(format,JSON.stringify({version:1,origin:this.origin,namespace:this.namespace}));}
       catch(writeError) {if(writeError.code!=="EEXIST") throw writeError;}
     }
@@ -28,6 +31,7 @@ export class RawArtifactStore {
     if(existing.version!==1 || existing.origin!==this.origin || (existing.namespace===undefined?"sources":existing.namespace)!==this.namespace) throw new Error("unsupported_store_format");
   }
   async locked(action) {
+    if(this.readOnly)throw new Error("read_only_store");
     await this.initialize();
     let handle;
     try { handle=await fs.open(path.join(this.root,"writer.lock"),"wx",0o600); }
@@ -87,7 +91,7 @@ export class RawArtifactStore {
     });
   }
   async failure({sourceId,at,code,retryAt=null}) {
-    if(!sourcePattern.test(sourceId) || !Number.isFinite(Date.parse(at)) || !/^[a-z0-9_]{1,80}$/.test(code) || (retryAt!==null && !Number.isFinite(Date.parse(retryAt)))) throw new Error("invalid_failure");
+    if(typeof sourceId!=="string" || !sourcePattern.test(sourceId) || !Number.isFinite(utcMillis(at)) || typeof code!=="string" || !/^[a-z0-9_]{1,80}$/.test(code) || (retryAt!==null && !Number.isFinite(utcMillis(retryAt)))) throw new Error("invalid_failure");
     return this.locked(async()=>{
       const previous=await this.records("failures");
       if(previous.length>=this.maxCaptures) throw new Error("store_capacity_exceeded");

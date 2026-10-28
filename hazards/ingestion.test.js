@@ -181,3 +181,11 @@ test("reiniciar el CLI no elude Retry-After; latencia/HTTP quedan en el índice"
   const record=(await new RawArtifactStore(root).records())[0];
   assert.equal(record.transport.httpStatus,200);assert.equal(record.transport.elapsedMs,0);
 });
+
+test("journal de fallos exige UTC canónico y no escribe tiempos imposibles o sin zona",async t=>{
+  const root=await sandbox(t),store=new RawArtifactStore(root);
+  for(const at of ["2026-02-30T12:00:00Z","2026-10-27T12:00:00","2026-10-27T12:00:00-05:00"])
+    await assert.rejects(store.failure({sourceId:"inamhi.warning.pdf",at,code:"timeout"}),/invalid_failure/);
+  await assert.rejects(store.failure({sourceId:"inamhi.warning.pdf",at:date,code:"timeout",retryAt:"2026-02-30T12:00:00Z"}),/invalid_failure/);
+  assert.deepEqual(await fs.readdir(root),[]);
+});

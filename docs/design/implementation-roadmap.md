@@ -74,6 +74,20 @@ Se diseñaron 6 hitos con alcance y criterios de salida. Codex puede iniciar inm
 
 **Aceptación para proponer salida pública:** fuente y permiso verificados, niveles y geografía auditados, pruebas con incidentes/no-incidentes, aprobaciones de operador, publicación y retractación ensayadas, seguridad probada, redundancia funcional. Solicitar aprobación expresa separada para creación de canales y para cualquier envío real.
 
+## Criterio transversal: código abierto que acepte contribuciones
+
+Además de ingesta/avisos, AEGIS debe ofrecer **reglas inspeccionables, ejemplos reproducibles y un proceso sencillo de correcciones de terceros**, no solo publicar el código. Seguir [open-source-collaboration.md](open-source-collaboration.md) y [amaru-methodology-open-sources-2026-10-27.md](../research/amaru-methodology-open-sources-2026-10-27.md).
+
+**M0:** incluir resultados de Amaru como comparación de proveedor, nunca verdad-terreno; respetar 200 llamadas/mes. Revisar licencias de Google Flood (API piloto), RainViewer (restricciones actuales), MET Norway y Open-Meteo. La sonda Dev para Guayaquil ya devolvió una muestra válida, por lo que no repetir consultas solo por confirmación.
+
+**M1:** construir el primer conector con contrato probado y un ejemplo para futuros colaboradores.
+
+**M2:** exponer fuentes, fechas, atribuciones, limitaciones y enlaces a código y proceso de reporte de errores.
+
+**M3:** motor `HazardAssessor` versionado con razones de salida y conjunto de validación público, positivos y negativos; comparar antes/después con métricas de falsos avisos y omisiones.
+
+**M4:** revisión editorial protegida: que alguien pueda proponer una corrección no le da permiso a publicar avisos ni acceder a WAHA.
+
 ## Reglas para iteraciones de Codex
 
 1. **No hacer merge a \`main\` ni desplegar sin autorización.** Trabajo en rama de feature y PR. Un PR draft puede acumular la preparación; código nuevo preferiblemente en ramas nuevas respecto a la planificación según flujo local.

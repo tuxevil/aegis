@@ -105,3 +105,70 @@ M5 requiere las autorizaciones explícitas originales; no se activará por este 
 
 Rollback: apagar `HAZARDS_ENABLED`; queda v4 y se conserva DATA_DIR. No hay
 migración ni nueva escritura de observaciones históricas por la vista pública.
+
+
+Actualización de investigación posterior: se encontró y descargó de IEDG una
+capa institucional CONALI 2026 para revisión privada. Véase la
+[evidencia territorial](multihazard-territory-research.md). No cierra el gate:
+metadatos CRS contradictorios y alcance de publicación aún por aclarar. Los
+resultados y limitaciones iniciales anteriores se conservan como corte histórico.
+
+Revisión posterior de acceso público: se reprodujo que un GET con format.json
+presente y directorios faltantes inicializaba el almacén incidentalmente. El lector
+público usa ahora `readOnly:true`; health devuelve 503/unknown sin reparar. Catálogos
+fijos de fuentes/áreas se consultan sin acceder al archivo privado y conservan
+fallback de enlaces aun cuando este falle. Prueba de regresión verifica ausencia
+de escrituras; no se exponen artefactos ni se autoriza publicación.
+Resultado del incremento: check y **173/173** Node, **118/118** Docker sin red,
+**6/6** Python, replays y diff-check correctos.
+
+## Proyección territorial privada verificada
+
+Añadidos TerritoryPreviewReader y CLI inspect-territory: lectura estricta del
+archivo de capas, SHA/manifiesto/contentHash/DPA y presupuestos antes de generar
+páginas privadas de polígonos. Ausente unknown/total null se distingue de colección
+completa vacía, sin inferir seguridad. Salida nueva 0600 fuera de DATA_DIR y
+sin geometría en stdout; sin endpoints públicos ni solicitudes reales.
+[Interfaz y límites](../architecture/private-territory-preview.md). No se declara
+mapa público ni cartografía certificada; sigue pendiente la vista gráfica privada.
+
+Validación: npm ci 0 vulnerabilidades, check, **216/216** Node, **161/161** con
+código hazards/scripts actual y dependencias nativas de imagen local sin red,
+**6/6** Python, ambos replays y diff-check. Incluye rechazo de destino vía symlink
+y conservación de snapshotAtomicity. Solo archivos sintéticos; sin descarga de
+geometrías reales. CI anterior 9041b64 success, run 40684268535.
+
+## Vista gráfica territorial privada
+
+Implementada /editorial/territory/ y GET /api/admin/alerts/territory, detrás del
+flag editorial OFF por defecto y Bearer. Dibujo SVG local de la página, con huecos,
+selección por lista, categoría literal/DPA y procedencia. Sin colores de riesgo,
+mapas externos ni afirmación de límites/cobertura territorial. No hay geometrías
+en rutas hazards públicas; el archivo real no se sustituye por datos sintéticos.
+
+JSDOM y endpoint autenticado probados; Chromium 320/1280 pasó esquema/selección,
+referencia expandida, piloto sin colección, logout/teclado, sin overflow ni errores.
+Captura móvil inspeccionada, con aviso sintético visible; artefactos privados en
+/tmp/aegis-browser-territory-final-20261028. Cero geometrías reales nuevas o HTTP
+a proveedores. [Contrato de vista](../architecture/private-territory-preview.md).
+
+Validación: npm ci 0 vulnerabilidades, check, **220/220** Node, **165/165** en
+contenedor reconstruido y sin red, **6/6** Python, ambos replays y diff-check.
+Revisiones finales específicas: API sin inicializar archivo ausente y multipartes
+en DOM correctas. Grid /ui 200 y vista territorial 404 con flags OFF/directorio
+experimental oculto, sin red. CI de 4c9a9a5 success, run 40685382332.
+
+## Consistencia de colección al paginar
+
+La revisión territorial ya fija snapshotId entre páginas; no mezcla capturas si
+aparece una colección nueva. Consulta explícita/cambio de filtros carga la última.
+CLI admite --snapshot; API liga ID a fuente/piloto/origen y devuelve 404 sin
+fallback si no corresponde. Verificación SHA/manifiesto/contentHash se aplica a
+la colección elegida. Pruebas de archivo físico, API y DOM; ningún HTTP externo.
+
+Verificación: npm ci 0 vulnerabilidades, check, **222/222** Node, **167/167**
+en contenedor reconstruido sin red, **6/6** Python, ambos replays/diff-check.
+Chromium 320/1280 confirmó entrada de una nueva colección entre páginas,
+conservación de la anterior y carga explícita de la nueva. Captura móvil revisada,
+fixtures privados; sin overflow/page errors ni conexión externa. Artefactos:
+/tmp/aegis-browser-territory-pinned-20261028. CI ed780ca success, run 40686681755.

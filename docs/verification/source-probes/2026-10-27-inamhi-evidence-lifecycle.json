@@ -1,0 +1,51 @@
+{
+  "asOf": "2026-10-28T00:18:33.434Z",
+  "verification": {
+    "captures": 3,
+    "artifacts": 1
+  },
+  "captures": [
+    {
+      "retrievedAt": "2026-10-27T18:47:23.430Z"
+    },
+    {
+      "retrievedAt": "2026-10-27T18:47:23.430Z",
+      "processedAt": "2026-10-27T18:48:44.036Z"
+    },
+    {
+      "retrievedAt": "2026-10-28T00:15:02.013Z",
+      "processedAt": "2026-10-28T00:15:02.418Z"
+    }
+  ],
+  "failures": [],
+  "before": {
+    "status": "unknown",
+    "candidateCount": 0,
+    "excludedReasons": [
+      "invalid_capture_identity",
+      "capture_stale_at_cutoff"
+    ]
+  },
+  "after": {
+    "status": "partial",
+    "candidateCount": 1
+  },
+  "sameEdition": true,
+  "originalProof": {
+    "current": true,
+    "checkedAt": "2026-10-28T00:18:33.434Z",
+    "sourceRefs": [
+      {
+        "sourceId": "inamhi.warning.pdf",
+        "sha256": "8342ad850be3a3144f0e185857e60e0f58f711acfe186c9d436b30603207f429",
+        "sourceUrl": "https://www.inamhi.gob.ec/pronostico/advertencia.pdf",
+        "knownAt": "2026-10-28T00:15:02.418Z",
+        "issuedAt": "2026-10-25T19:00:00.000Z",
+        "retrievedAt": "2026-10-28T00:15:02.013Z",
+        "processedAt": "2026-10-28T00:15:02.418Z"
+      }
+    ]
+  },
+  "purpose": "Private research recapture; no publication, approval or notification",
+  "localDate": "2026-10-27 America/Guayaquil; timestamps UTC cross into October 28"
+}

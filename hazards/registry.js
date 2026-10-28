@@ -1,4 +1,5 @@
 import { probes } from "../scripts/probe-aegis-sources.mjs";
+import {utcMillis} from "./time.js";
 import {pilotArea} from "./areas.js";
 
 // No caller-supplied URLs. Polling remains opt-in and has no background scheduler.
@@ -25,18 +26,44 @@ const localSources=[{id:"grid.pallatanga.weather",type:"local-observation",inter
 const modelUrl=new URL(entries.find(e=>e.type==="forecast").url);modelUrl.searchParams.set("models","ecmwf_ifs");
 const modelSources=[{...entries.find(e=>e.type==="forecast"),id:"openmeteo.singlerun.ecmwf",url:modelUrl.href,
   title:"Corrida histórica ECMWF IFS · punto de Guayaquil",requestedModel:"ecmwf_ifs",modelSelectionVerified:true,
+  publicInfoUrl:"https://open-meteo.com/en/docs/single-runs-api",
   modelSelectionProof:"docs/verification/source-probes/2026-10-27-model-selection.json"}];
+const modelPoints={guayaquil:{latitude:"-2.19",longitude:"-79.88"},
+  pallatanga:{latitude:"-1.99856",longitude:"-78.96629"}};
 export class SourceRegistry {
+  forecastSource(id,request) {
+    const source=this.get(id);
+    if(id!=="openmeteo.singlerun.ecmwf"||!request||typeof request!=="object"||Array.isArray(request)||
+      Object.keys(request).length!==2||Object.keys(request).some(k=>!["run","area"].includes(k)))throw new Error("invalid_forecast_request");
+    const area=pilotArea(request.area),run=request.run;
+    if(!area||!modelPoints[area.id]||typeof run!=="string"||!/^\d{4}-\d{2}-\d{2}T(?:00|06|12|18):00$/.test(run)||
+      !Number.isFinite(utcMillis(run+":00Z"))||run<"2024-03-01T00:00")throw new Error("invalid_forecast_request");
+    const url=new URL(source.url);url.searchParams.set("run",run);
+    for(const [key,value] of Object.entries(modelPoints[area.id]))url.searchParams.set(key,value);
+    return {...source,url:url.href,areaIds:[area.id],forecastArea:area.id,
+      title:`Corrida ECMWF IFS · punto aproximado de ${area.name}`};
+  }
+  archivedSource(id,url) {
+    const source=this.get(id);if(source.url===url)return source;
+    if(id!=="openmeteo.singlerun.ecmwf")throw new Error("source_url_not_registered");
+    let actual;try {actual=new URL(url);}catch {throw new Error("source_url_not_registered");}
+    for(const area of Object.keys(modelPoints)) {
+      const selected=this.forecastSource(id,{run:actual.searchParams.get("run"),area});
+      if(selected.url===url)return selected;
+    }
+    throw new Error("source_url_not_registered");
+  }
   get(id) {
     const entry=[...entries,...layers,...localSources,...modelSources].find(e=>e.id===id);
     if(!entry) throw new Error("unknown_source");
     return structuredClone(entry);
   }
-  list() { return structuredClone([...entries.filter(e=>e.type!=="forecast"),...modelSources]); }
+  list() { return structuredClone([...entries.filter(e=>e.type!=="forecast"),...modelSources.map(s=>({...s,areaIds:Object.keys(modelPoints),title:"Pronóstico ECMWF IFS · pilotos (selección manual)"}))]); }
   layerSources() {return structuredClone(layers);}
   requestUrl(id,request) {
     const source=this.get(id);
     if(source.type==="local-observation")throw new Error("non_network_source");
+    if(source.id==="openmeteo.singlerun.ecmwf"&&request!==undefined)return this.forecastSource(id,request).url;
     if(!source.internal) {
       if(request!==undefined) throw new Error("invalid_source_request");
       return source.url;

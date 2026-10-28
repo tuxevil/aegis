@@ -1,0 +1,92 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {AMARU_ENDPOINT,buildRequestUrl,GUAYAQUIL_SAMPLE,probeAmaru,summarizeResponse} from "./probe-amaru.mjs";
+const TEST_KEY="amaru_testsecret000000";
+test("Endpoint exacto, HTTPS y parámetros; clave no se muestra en resumen",()=>{
+ const u=buildRequestUrl(TEST_KEY);
+ assert.equal(u.origin,"https://amaruapp.com");
+ assert.equal(u.pathname,new URL(AMARU_ENDPOINT).pathname);
+ assert.equal(u.searchParams.get("key"),TEST_KEY);
+ assert.equal(u.searchParams.get("lat"),String(GUAYAQUIL_SAMPLE.lat));
+ assert.throws(()=>buildRequestUrl("no"),/invalid_api_key/);
+});
+test("Respuesta básica del plan Dev y esquema parcial",()=>{
+ const input={ubicacion:{lat:-2.17,lon:-79.92,elevacion_m:8},clima:{temp_c:29,lluvia_mm:0,intensidad:"sin_lluvia"},riesgo:{indice:15,nivel:"Bajo"},solo_en_planes_de_pago:["factores","rio","reports"]};
+ const out=summarizeResponse(input);
+ assert.equal(out.risk.index,15);
+ assert.equal(out.risk.level,"Bajo");
+ assert.equal(out.climate.rainMmPerHour,0);
+ assert.equal(out.schemaObserved.hasPaywalledFieldsIndicator,true);
+ assert.ok(!JSON.stringify(out).includes(TEST_KEY));
+});
+test("No revela claves ni valores reflejados por el proveedor",async()=>{
+ const payload={riesgo:{indice:60,nivel:TEST_KEY},clima:{temp_c:30,key:TEST_KEY},key:TEST_KEY,
+  ubicacion:{lat:-2.17,lon:-79.92}};
+ const x=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>new Response(JSON.stringify(payload),{status:200})});
+ assert.equal(x.result,"sample_obtained");
+ assert.ok(!JSON.stringify(x).includes(TEST_KEY));
+ assert.equal(x.risk.level,null);
+});
+test("Una única petición GET, sin reintentos",async()=>{
+ let count=0;let method;
+ const x=await probeAmaru({key:TEST_KEY,fetchImpl:async(_url,options)=>{count++;method=options.method;return new Response(JSON.stringify({clima:{temp_c:25},riesgo:{indice:42,nivel:"Atención"}}),{status:200});}});
+ assert.equal(x.result,"sample_obtained");
+ assert.equal(count,1);assert.equal(method,"GET");
+});
+test("401 y 429 resultan en error no sensible",async()=>{
+ for(const [status,expected] of [[401,"unauthorized_401"],[429,"quota_or_rate_limit_429"]]){
+ const x=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>new Response(JSON.stringify({error:"echo:"+TEST_KEY}),{status})});
+ assert.equal(x.result,"unverified");
+ assert.equal(x.errorCode,expected);
+ assert.ok(!JSON.stringify(x).includes(TEST_KEY));
+ }
+});
+test("HTML inesperado o respuesta con error del proveedor",async()=>{
+ for(const [body,code] of [["<html>error</html>","invalid_json"],[JSON.stringify({error:TEST_KEY}),"provider_reported_error"]]){
+ const x=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>new Response(body,{status:200})});
+ assert.equal(x.errorCode,code);
+ assert.ok(!JSON.stringify(x).includes(TEST_KEY));
+ }
+});
+
+test("Clasifica error textual sin revelar datos del proveedor ni credencial", async()=>{
+  const x=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>new Response(
+    JSON.stringify({error:"Clave de API no autorizada: "+TEST_KEY}),{status:200})});
+  assert.equal(x.result,"unverified");
+  assert.equal(x.errorCode,"provider_reported_error");
+  assert.equal(x.providerErrorCategory,"api_key_or_authentication");
+  assert.equal(x.providerErrorCode,null);
+  assert.equal(x.httpStatus,200);
+  assert.ok(!JSON.stringify(x).includes(TEST_KEY));
+});
+test("Error del proveedor con codigo seguro y mensaje privado", async()=>{
+  const x=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>new Response(
+    JSON.stringify({error:{code:"domain_not_allowed",message:"Dominio asociado: example.com, clave "+TEST_KEY}}),{status:200})});
+  assert.equal(x.providerErrorCategory,"domain_or_origin_restriction");
+  assert.equal(x.providerErrorCode,"domain_not_allowed");
+  assert.ok(!JSON.stringify(x).includes("example.com"));
+  assert.ok(!JSON.stringify(x).includes(TEST_KEY));
+});
+test("Campo error null no invalida una respuesta con datos validos", async()=>{
+  const x=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>new Response(
+    JSON.stringify({error:null,riesgo:{indice:15,nivel:"Bajo"}}),{status:200})});
+  assert.equal(x.result,"sample_obtained");
+});
+
+test("Credencial reflejada como nombre de campo no aparece en el resumen",async()=>{
+  const key="amaru_fixtureABC12345",payload={[key]:true,riesgo:{indice:60,[key]:true},clima:{temp_c:29,[key]:true}};
+  const result=await probeAmaru({key,fetchImpl:async()=>new Response(JSON.stringify(payload))});
+  assert.equal(result.result,"sample_obtained");assert.ok(!JSON.stringify(result).includes(key));
+});
+test("Ubicación de salida se limita a lat/lon sin propagar datos internos del llamador",async()=>{
+  const location={lat:-2.17,lon:-79.92,internalNote:"synthetic-private-marker"};
+  const result=await probeAmaru({key:TEST_KEY,location,fetchImpl:async()=>new Response(JSON.stringify({riesgo:{indice:1}}))});
+  assert.deepEqual(result.queryLocation,{lat:location.lat,lon:location.lon});assert.ok(!JSON.stringify(result).includes("synthetic-private-marker"));
+});
+test("Tamaño se limita al leer el stream y cancela antes de materializar todo el cuerpo",async()=>{
+  let cancelled=false;
+  const response=new Response(new ReadableStream({pull(controller){controller.enqueue(new Uint8Array(100000));},cancel(){cancelled=true;}}));
+  response.text=async()=>{throw new Error("unbounded_text_read_forbidden");};
+  const result=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>response});
+  assert.equal(result.errorCode,"payload_size_limit");assert.equal(cancelled,true);
+});

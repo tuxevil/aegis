@@ -1,0 +1,45 @@
+{
+  "reportKind": "AEGIS_ARCHIVED_FORECAST_GRID_REPROCESS",
+  "producedAt": "2026-10-28T11:54:49.167Z",
+  "networkRequests": 0,
+  "sourceId": "openmeteo.singlerun.ecmwf",
+  "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-1.99856&longitude=-78.96629&run=2026-10-27T12%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+  "before": {
+    "captures": 1,
+    "artifacts": 1
+  },
+  "after": {
+    "captures": 2,
+    "artifacts": 1
+  },
+  "sha256": "6ef7bf5c2ac974d8af961c755742bf8f6e3be05817265481b991405720f2faf8",
+  "originalCaptureUnchanged": true,
+  "retrievedAt": "2026-10-28T00:24:00.019Z",
+  "processedAt": "2026-10-28T11:54:49.164Z",
+  "availabilityVerifiedAt": "2026-10-28T00:24:00.019Z",
+  "originalRetrievedAt": "2026-10-28T00:24:00.019Z",
+  "originalAvailabilityVerifiedAt": "2026-10-28T00:24:00.019Z",
+  "point": {
+    "requestedLatitude": -1.99856,
+    "requestedLongitude": -78.96629,
+    "gridLatitude": -2.0738137,
+    "gridLongitude": -79.02789,
+    "gridLocationStatus": "approximate"
+  },
+  "sourceQuality": {
+    "dataStatus": "partial",
+    "warnings": [],
+    "blockers": [
+      "historical_availability_not_proven",
+      "model_grid_not_canton_coverage",
+      "missing_forecast_values",
+      "license_not_verified_for_publication"
+    ],
+    "parserVersion": "multihazard-forecast-1.1.0",
+    "completenessRatio": null
+  },
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "humanApprovalPerformed": false,
+  "notificationPerformed": false
+}

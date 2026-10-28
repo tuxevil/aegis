@@ -15,7 +15,7 @@ export function captureRecord({id="capture-1",retrievedAt="2026-10-27T18:00:00.0
   } else if(kind==="forecast_run") {
     Object.assign(e.time,{runInitializedAt:"2026-10-25T00:00:00Z",availabilityVerifiedAt:origin==="captured_source"?retrievedAt:null});
     e.spatial.precision="point";e.spatial.areaNames=["Guayaquil · punto aproximado sintético"];
-    e.details={providerModel:"synthetic-test-model",runInitializedAt:e.time.runInitializedAt,time:["2026-10-25T12:00:00Z"],precipitationMm:[null],unit:"mm"};
+    e.details={requestedLatitude:-2.19,requestedLongitude:-79.88,gridLatitude:-2.19,gridLongitude:-79.88,gridLocationStatus:"approximate",providerModel:"synthetic-test-model",runInitializedAt:e.time.runInitializedAt,time:["2026-10-25T12:00:00Z"],precipitationMm:[null],unit:"mm"};
   } else if(kind==="observation") {
     e.spatial.precision="station";e.spatial.areaNames=["Pallatanga"];
     e.details={measuredAt:retrievedAt,rainRateMmHr:9,rainDailyMm:null,scope:"single_station",upstreamFailed:false};

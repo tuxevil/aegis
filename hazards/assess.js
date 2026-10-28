@@ -2,6 +2,8 @@ import {createHash} from "node:crypto";
 import {SourceRegistry,safeMode} from "./registry.js";
 import {pilotArea} from "./areas.js";
 import {utcMillis} from "./time.js";
+import {forecastLocation} from "./forecast-location.js";
+import {candidateVersion} from "./candidate-version.js";
 import {selectKnownCaptures} from "./knowledge-cutoff.js";
 
 const HOUR=3600000;
@@ -46,7 +48,7 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
   const byId=new Map(records.filter(r=>r&&typeof r.id==="string").map(r=>[r.id,r])),latest=new Map(),ambiguous=new Set(),excluded=[...selection.excluded],contexts=[];
   for(const ref of selection.known) {
     const record=byId.get(ref.captureId),e=record.envelope;
-    const key=[e.sourceId,e.kind,e.kind==="official_warning"?e.details.bulletinNumber:e.kind==="forecast_run"?e.details.runInitializedAt:e.kind==="observation"?e.details.measuredAt:record.id].join(":");
+    const key=[e.sourceId,e.kind,e.kind==="official_warning"?e.details.bulletinNumber:e.kind==="forecast_run"?[e.details.runInitializedAt,e.sourceUrl].join(":"):e.kind==="observation"?e.details.measuredAt:record.id].join(":");
     const prior=latest.get(key);
     if(prior&&prior.ref.sequence===ref.sequence&&prior.ref.knownAt===ref.knownAt)ambiguous.add(key);
     latest.set(key,{ref,e,record});
@@ -56,7 +58,7 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
     const reject=reason=>excluded.push({captureId:ref.captureId,reason});
     if(ambiguous.has(key)){reject("ambiguous_revision_order");continue;}
     let source;
-    try {source=registry.get(e.sourceId);}catch {reject("source_not_registered");continue;}
+    try {source=registry.get(e.sourceId);if(source.type==="forecast")source=registry.archivedSource(e.sourceId,e.sourceUrl);}catch {reject("source_not_registered");continue;}
     if(!sourceMatches(source,e)){reject("source_url_not_registered");continue;}
     const allowedKinds={pdf:"official_warning",forecast:"forecast_run","local-observation":"observation","arcgis-query":"static_exposure","arcgis-layer":"static_exposure"};
     if(allowedKinds[source.type]!==e.kind){reject("source_kind_mismatch");continue;}
@@ -66,6 +68,7 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
         featureCount:matched.length,completeness:"unverified_for_assessment",notForPrediction:true,publicationBlocked:true});
       continue;
     }
+    if(cutoff-utcMillis(record.retrievedAt)>source.ttlMs){reject("capture_stale_at_cutoff");continue;}
     const scope=scopeFor(e,source,area);
     if(!scope){reject("territory_not_supported");continue;}
     const sourceRef={captureId:record.id,sourceId:e.sourceId,sha256:record.sha256,sourceUrl:e.sourceUrl,knownAt:ref.knownAt,
@@ -75,22 +78,27 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
     if(recordOrigin!=="synthetic_fixture"&&["unknown","invalid","stale"].includes(e.quality.dataStatus)){reject("source_quality_not_usable");continue;}
     let proposal;
     if(e.kind==="official_warning") {
-      if(ref.activeAtCutoff!==true||!e.details.bulletinNumber||!e.details.sourceRiskLevel||!e.details.phenomena.length){reject("official_warning_not_current_or_complete");continue;}
-      proposal={messageClass:"OFFICIAL",evidenceClass:"OFFICIAL",phenomenon:"meteorological_warning",ruleId:"official-warning-current",
+      const from=utcMillis(e.time.validFrom),to=utcMillis(e.time.validTo),issued=utcMillis(e.time.issuedAt);
+      if(!Number.isFinite(from)||!Number.isFinite(to)||!Number.isFinite(issued)||issued>to||from>=to||to<=cutoff||!e.details.bulletinNumber||!e.details.sourceRiskLevel||!e.details.phenomena.length){reject("official_warning_expired_or_incomplete");continue;}
+      proposal={messageClass:"OFFICIAL",evidenceClass:"OFFICIAL",phenomenon:"meteorological_warning",ruleId:"official-warning-known-unexpired",
         validFrom:e.time.validFrom,validTo:e.time.validTo,sourceRiskLevel:e.details.sourceRiskLevel,
-        reasons:["Primary INAMHI warning is within its stated validity",`Source geographic precision: ${scope.precision}`],
+        reasons:["Primary INAMHI warning is known and unexpired; its stated validity is preserved",`Source geographic precision: ${scope.precision}`],
         facts:{authority:e.details.authority,bulletinNumber:e.details.bulletinNumber,phenomena:[...e.details.phenomena]},
         familyKey:`${e.sourceId}:${e.details.bulletinNumber}:${area.id}`};
     } else if(e.kind==="forecast_run") {
+      const location=forecastLocation(e.sourceUrl,{latitude:e.details.gridLatitude,longitude:e.details.gridLongitude});
+      if(location.gridLocationStatus!=="approximate"||Object.entries(location).some(([key,value])=>e.details[key]!==value)) {reject("forecast_grid_unverified");continue;}
+      const modelPoint={requestedLatitude:location.requestedLatitude,requestedLongitude:location.requestedLongitude,
+        gridLatitude:location.gridLatitude,gridLongitude:location.gridLongitude,locationStatus:location.gridLocationStatus};
       const signal=forecastSignal(e,cutoff);
       contexts.push({messageClass:"FORECAST",evidenceClass:"FORECAST",contextType:"model_forecast",recordOrigin,scope,
-        facts:{providerModel:e.details.providerModel,runInitializedAt:e.time.runInitializedAt,forecast24hMm:signal?.totalMm??null},sourceRefs:[sourceRef],publicationBlocked:true});
+        facts:{modelPoint,providerModel:e.details.providerModel,runInitializedAt:e.time.runInitializedAt,forecast24hMm:signal?.totalMm??null},sourceRefs:[sourceRef],publicationBlocked:true});
       if(!signal){reject("forecast_24h_coverage_unknown");continue;}
       if(signal.totalMm<shadowPolicy.forecast24hMm){reject("forecast_rule_not_triggered_not_all_clear");continue;}
       proposal={messageClass:"AEGIS_ASSESSMENT",evidenceClass:"FORECAST",phenomenon:"rainfall_watch",ruleId:"experimental-model-rain-24h",
         validFrom:signal.validFrom,validTo:signal.validTo,sourceRiskLevel:null,
         reasons:["Experimental monitoring rule: model precipitation >=20 mm over 24 complete hourly slots"],
-        facts:{providerModel:e.details.providerModel,runInitializedAt:e.time.runInitializedAt,availabilityVerifiedAt:e.time.availabilityVerifiedAt,
+        facts:{modelPoint,providerModel:e.details.providerModel,runInitializedAt:e.time.runInitializedAt,availabilityVerifiedAt:e.time.availabilityVerifiedAt,
           simulatedAvailabilityAt:recordOrigin==="synthetic_fixture"?record.fixtureForecastAvailabilityAt:null,forecast24hMm:signal.totalMm,
           precipitationTimeConvention:"preceding_hour_sum"},
         familyKey:`${e.sourceId}:${e.time.runInitializedAt}:${area.id}:${signal.validFrom}`};
@@ -108,12 +116,16 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
         facts:{measuredAt:e.details.measuredAt,rainRateMmHr:rate,rainDailyMm:daily},familyKey:`${e.sourceId}:${e.details.measuredAt}:${area.id}`};
       limitations.push("Single station does not represent the canton, basin or slope stability");
     } else {reject("unsupported_dynamic_evidence");continue;}
-    const familyId=hash(proposal.familyKey),revisionHash=hash({sha256:record.sha256,parser:e.quality.parserVersion,proposal,scope,policy:shadowPolicy.version});
+    const policyVersion=proposal.messageClass==="OFFICIAL"?"official-warning-known-1":shadowPolicy.version;
+    const familyId=hash(proposal.familyKey);
     delete proposal.familyKey;
-    candidates.push({...proposal,id:hash({familyId,revisionHash}),familyId,revisionHash,recordOrigin,areaId:area.id,dpaCode:area.dpaCode,
-      scope,policyVersion:shadowPolicy.version,severity:"watch",status:"draft",confidenceInEvidence:"partial",limitations:[...new Set(limitations)],
+    const candidate={...proposal,familyId,recordOrigin,areaId:area.id,dpaCode:area.dpaCode,
+      scope,policyVersion,severity:"watch",status:"draft",confidenceInEvidence:"partial",limitations:[...new Set(limitations)],
       sourceRefs:[sourceRef],recommendations:[{text:"Consulte la fuente original y siga las indicaciones oficiales.",sourceUrl:e.sourceUrl}],
-      evaluatedAt:asOf,publicationBlocked:true,...safeMode});
+      sourceQuality:{dataStatus:e.quality.dataStatus,parserVersion:e.quality.parserVersion,warnings:[...e.quality.warnings]},
+      evaluatedAt:asOf,publicationBlocked:true,...safeMode};
+    const revisionHash=hash(candidateVersion(candidate));
+    candidates.push({...candidate,id:hash({familyId,revisionHash}),revisionHash});
   }
   candidates.sort((a,b)=>a.id.localeCompare(b.id,"en"));
   return {...safeMode,recordOrigin,asOf,areaId:area.id,status:candidates.length?"partial":"unknown",candidates,contexts,excluded,

@@ -7,3 +7,5 @@ test
 docs/**
 !docs/contracts/
 !docs/contracts/source-envelope.v1.schema.json
+!docs/design/
+!docs/design/openalert-channels.json

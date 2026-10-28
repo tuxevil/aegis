@@ -16,6 +16,15 @@ import {
 import { buildAssessment } from "./assessment.js";
 import {registerHazardRoutes,hazardPaths} from "./hazards/routes.js";
 import {HazardPublicReader} from "./hazards/public-reader.js";
+import {registerAlertAdminRoutes} from "./alerts/admin-routes.js";
+import {AlertJournal} from "./alerts/journal.js";
+import {EditorialService} from "./alerts/editorial.js";
+import {DryRunOutbox} from "./alerts/outbox.js";
+import {archiveEvidenceVerifier} from "./alerts/evidence.js";
+import {TerritoryPreviewReader} from "./hazards/territory-preview.js";
+import {RawArtifactStore} from "./hazards/artifact-store.js";
+import {ZoneSubscriptions} from "./alerts/subscriptions.js";
+import {registerSubscriptionRoutes} from "./alerts/subscription-routes.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const localIP = (ip) => ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(ip);
@@ -36,6 +45,11 @@ export async function createApp({
   mac = process.env.AMBIENT_MAC,
   hazardsEnabled = process.env.HAZARDS_ENABLED === "true",
   hazardReader = null,
+  alertsAdminEnabled = process.env.ALERTS_ADMIN_ENABLED === "true",
+  alertsAdminCredentials = null,
+  alertsAdminServices = null,
+  zoneSubscriptionsEnabled = process.env.ZONE_SUBSCRIPTIONS_ENABLED === "true",
+  zoneSubscriptionService = null,
 } = {}) {
   const app = Fastify({ logger: false });
   await app.register(rateLimit, {
@@ -47,6 +61,8 @@ export async function createApp({
   app.addHook("onRequest", async (req, reply) => {
     const endpoint = req.url.split("?")[0];
     if (!endpoint.startsWith("/api/") || localIP(req.ip)) return;
+    if (zoneSubscriptionsEnabled && req.routeOptions.config.aegisSubscriptions === true) return;
+    if (alertsAdminEnabled && req.routeOptions.config.aegisAlertAdmin === true) return;
     if (hazardsEnabled && req.method === "GET" && hazardPaths.includes(endpoint) && req.routeOptions.config.aegisPublicRead === true) return;
     if (endpoint === "/api/status") {
       const host = originHost(req.headers.host || "");
@@ -63,6 +79,25 @@ export async function createApp({
       .send({ error: "Acceso al panorama desde el dashboard" });
   });
   if (hazardsEnabled) await registerHazardRoutes(app,{reader:hazardReader||new HazardPublicReader({dataDir:process.env.DATA_DIR||path.join(directory,".data"),now})});
+  const subscriptionService=zoneSubscriptionsEnabled?(zoneSubscriptionService||new ZoneSubscriptions({
+    journal:new AlertJournal(process.env.DATA_DIR||path.join(directory,".data"),{kind:"subscriptions"}),now:()=>now().toISOString()})):null;
+  if (alertsAdminEnabled) {
+    const alertNow=()=>now().toISOString();
+    let credentials=alertsAdminCredentials;
+    if(credentials===null) {
+      try {credentials=JSON.parse(process.env.ALERTS_ADMIN_CREDENTIALS_JSON||"null");}
+      catch {throw new Error("invalid_admin_credentials");}
+    }
+    let services=alertsAdminServices;
+    if(!services) {
+      const dataDir=process.env.DATA_DIR||path.join(directory,".data");
+      const sourceStore=new RawArtifactStore(dataDir,{readOnly:true}),journal=new AlertJournal(dataDir);
+      const verifyEvidence=archiveEvidenceVerifier(sourceStore);
+      services={sourceStore,territoryReader:new TerritoryPreviewReader({store:new RawArtifactStore(dataDir,{namespace:"layers",readOnly:true}),now:alertNow}),editorial:new EditorialService({journal,verifyEvidence,now:alertNow}),outbox:new DryRunOutbox({journal,verifyEvidence,now:alertNow})};
+    }
+    await registerAlertAdminRoutes(app,{...services,credentials,now:alertNow,zoneSubscriptions:subscriptionService});
+  }
+  if (zoneSubscriptionsEnabled) await registerSubscriptionRoutes(app,{service:subscriptionService});
   const caches = new Map();
   const inflight = new Map();
   const getText = async (url, options) => {
@@ -149,7 +184,7 @@ export async function createApp({
     reply
       .header("Cache-Control", "no-cache")
       .type("text/html")
-      .send(fs.readFileSync(path.join(directory, "frontend.html"),"utf8").replace("<!-- HAZARDS_NAV -->",hazardsEnabled?'<a href="/hazards/">Multiamenaza · fuentes</a>':""));
+      .send(fs.readFileSync(path.join(directory, "frontend.html"),"utf8").replace("<!-- HAZARDS_NAV -->",[hazardsEnabled?'<a href="/hazards/">Multiamenaza · fuentes</a>':"",zoneSubscriptionsEnabled?'<a href="/ciudades/">Ciudades · preferencias</a>':""].filter(Boolean).join(" ")));
   app.get("/", serveUI);
   app.get("/ui", serveUI);
   const assets = {

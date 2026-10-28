@@ -6,7 +6,7 @@ import {pilotAreas,pilotArea} from "./areas.js";
 
 export class HazardPublicReader {
   constructor({dataDir,now=()=>new Date(),registry=new SourceRegistry()}={}) {
-    this.store=dataDir?new RawArtifactStore(dataDir):null;
+    this.store=dataDir?new RawArtifactStore(dataDir,{readOnly:true}):null;
     Object.assign(this,{now,registry});
   }
   async records() {
@@ -18,30 +18,42 @@ export class HazardPublicReader {
       .finally(()=>{this.loading=null;});
     return this.loading;
   }
+  sourceFor(record) {
+    try {
+      const source=this.registry.get(record.sourceId);
+      return source.type==="forecast"?this.registry.archivedSource(record.sourceId,record.envelope.sourceUrl):source;
+    } catch {return null;}
+  }
   async loadRecords() {
     try { await fs.access(path.join(this.store.root,"format.json")); }
     catch(error) {if(error.code==="ENOENT") return [];throw error;}
     const records=await this.store.records();
     // Verify before projecting; a corrupt artifact never becomes public evidence.
-    // Only latest per source is projected. Historical full verification is a
+    // Only latest per source/model point is projected. Historical full verification is a
     // local operator task, not unbounded IO triggered by a public request.
     const latest=new Map();
     for(const r of records) {
-      const previous=latest.get(r.sourceId);
-      if(!previous || Date.parse(r.retrievedAt)>=Date.parse(previous.retrievedAt)) latest.set(r.sourceId,r);
+      const source=this.sourceFor(r);if(!source)continue;
+      const key=r.sourceId+"\n"+(source.type==="forecast"?source.areaIds.join(","):"");
+      const previous=latest.get(key);
+      if(!previous || Date.parse(r.retrievedAt)>Date.parse(previous.retrievedAt)||
+        (r.retrievedAt===previous.retrievedAt&&r.sequence>previous.sequence)) latest.set(key,r);
     }
     for(const r of latest.values()) await this.store.readRaw(r.sha256);
     return records;
   }
   async read(collection,{area,limit=20,offset=0}={}) {
     const sources=this.registry.list().filter(s=>!area || s.areaIds.includes(pilotArea(area)?.id));
-    const records=await this.records();
+    const records=collection==="health"?await this.records():[];
     let items=[];
     if(collection==="areas") items=pilotAreas().filter(a=>!area||a.id===pilotArea(area)?.id);
-    if(collection==="sources") items=sources.map(s=>({sourceId:s.id,title:s.title,owner:s.owner,sourceUrl:s.url,
+    if(collection==="sources") items=sources.map(s=>({sourceId:s.id,title:s.title,owner:s.owner,sourceUrl:s.publicInfoUrl??s.url,
       licensingStatus:s.licensing.status,coverageStatus:"limited",pollingEnabled:false}));
     if(collection==="health") items=sources.map(s=>{
-      const latest=records.filter(r=>r.sourceId===s.id).sort((a,b)=>Date.parse(a.retrievedAt)-Date.parse(b.retrievedAt)||a.sequence-b.sequence).at(-1);
+      const latest=records.filter(r=>{
+        if(r.sourceId!==s.id)return false;
+        const source=this.sourceFor(r);return source&&(!area||source.areaIds.includes(pilotArea(area)?.id));
+      }).sort((a,b)=>Date.parse(a.retrievedAt)-Date.parse(b.retrievedAt)||a.sequence-b.sequence).at(-1);
       const age=latest?this.now().getTime()-Date.parse(latest.retrievedAt):null;
       const expired=latest?.envelope.time.validTo && Date.parse(latest.envelope.time.validTo)<=this.now().getTime();
       return {sourceId:s.id,status:age===null||age<0?"unknown":age>s.ttlMs||expired?"stale":"degraded",

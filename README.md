@@ -2,6 +2,8 @@
 
 > **Ampliación AEGIS Multiamenaza (planificación cerrada, desarrollo por fases):** el punto de entrada para Codex es [START_HERE_CODEX](docs/handoff/START_HERE_CODEX.md), junto con las [decisiones](docs/design/architecture-decisions.md), el [roadmap M0–M5](docs/design/implementation-roadmap.md) y el [prompt preparado](docs/handoff/CODEX_START_PROMPT.md). El dashboard documentado a continuación corresponde al Grid Sentinel ya existente. Los módulos de alertas ciudadanas aún NO están operativos y ningún mensaje WhatsApp está activado.
 
+Para contribuir con una fuente, empieza por la [receta ejecutable sin red](docs/contributing/source-adapter-example.md): `npm run example:source`. Solo usa un fixture generado y no modifica el archivo real ni habilita avisos.
+
 Un observatorio público para entender las señales de energía de Ecuador y las condiciones locales de Pallatanga, con igual protagonismo. Su objetivo es ayudar a anticiparse: explicar qué cambió, por qué importa y qué datos faltan. No anuncia horarios de cortes ni calcula probabilidades de apagón o deslave.
 
 Avance multiamenaza en ramas de desarrollo: [auditoría M0](docs/research/source-validation-results.md),
@@ -15,6 +17,16 @@ internos, replay y métricas con brechas explícitas; no es un predictor calibra
 `/hazards/` y consultas GET `/api/hazards/{sources,areas,observations,bulletins,health}`.
 La activación de esa vista no inicia ingesta ni publica avisos. Las capturas de
 investigación permanecen privadas y la cobertura se declara limitada.
+El [centro editorial M4](docs/verification/multihazard-m4.md) permite revisión
+humana y outbox exclusivamente simulada. `ALERTS_ADMIN_ENABLED=false` por defecto;
+activarlo exige credenciales Bearer configuradas por hash. La carcasa `/editorial/`
+no contiene datos privados; todos sus endpoints requieren autenticación, incluso
+localmente. No hay transporte de envío ni integración con una sesión WhatsApp.
+`ZONE_SUBSCRIPTIONS_ENABLED=false` por defecto; su selector `/ciudades/` guarda
+preferencias piloto opt-in con secreto de gestión privado. No activa Push ni
+confirma seguimiento WhatsApp; véanse límites y retención en el informe M4.
+[Respaldo y restauración offline](docs/runbooks/multihazard-recovery.md),
+[Auditoría de aceptación y gates pendientes](docs/verification/multihazard-acceptance.md).
 Grid Sentinel conserva `/`, `/ui` y `/api/status`.
 
 ## La consola

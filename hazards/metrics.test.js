@@ -6,7 +6,7 @@ import {reportDocumentedCorpus} from "./corpus.js";
 
 const base={recordOrigin:"synthetic_fixture",verification:"synthetic",evaluationKey:"test-point-rain",coverageVerified:true,compatibilityVerified:true,
   decisionAt:"2026-10-25T18:00:00Z",windowFrom:"2026-10-25T19:00:00Z",windowTo:"2026-10-26T19:00:00Z",reviewedAt:"2026-10-27T00:00:00Z",
-  eventAt:"2026-10-26T12:00:00Z",firstSignalKnownAt:"2026-10-25T17:00:00Z",signalValidTo:"2026-10-26T19:00:00Z"};
+  eventAt:"2026-10-26T12:00:00Z",signalValidFrom:"2026-10-25T19:00:00Z",firstSignalKnownAt:"2026-10-25T17:00:00Z",signalValidTo:"2026-10-26T19:00:00Z"};
 const options={evaluationKey:base.evaluationKey,recordOrigin:"synthetic_fixture"};
 test("métricas de corpus sintético distinguen TP/FP/FN/TN con denominadores explícitos",()=>{
   const cases=[[true,true],[true,false],[false,true],[false,false]].map(([forecastPositive,outcome],i)=>({...base,id:`case-${i}`,forecastPositive,outcome}));
@@ -48,4 +48,19 @@ test("replay documental conserva brechas 21–27, no filtra impacto retrospectiv
   assert.equal(JSON.stringify(report.runs).includes("95.3"),false);
   assert.equal(report.metrics.falseAlertRate.value,null);assert.equal(report.metrics.missRate.value,null);
   assert.equal(report.recordOrigin,"documented_reference");
+});
+
+test("señales sin vigencia para toda la ventana no fabrican aciertos ni falsas alarmas",()=>{
+  const positive={...base,signalValidFrom:base.windowFrom,id:"temporal-scope",forecastPositive:true,outcome:true};
+  for(const patch of [
+    {signalValidTo:"2026-10-26T11:59:00Z"}, // expires before the actual event
+    {signalValidFrom:"2026-10-25T20:00:00Z"}, // starts after evaluation window
+    {signalValidFrom:null},
+    {signalValidTo:"2026-10-26T18:59:00Z",outcome:false}, // incomplete negative exposure
+  ]) {
+    const result=scoreReviewedCases([{...positive,...patch}],options);
+    assert.equal(result.evaluated.length,0);assert.equal(result.excluded[0].reason,"signal_window_not_covered");
+    assert.equal(result.falseAlertRate.value,null);assert.equal(result.missRate.value,null);assert.equal(result.leadTime.length,0);
+  }
+  const complete=scoreReviewedCases([positive],options);assert.equal(complete.confusion.tp,1);
 });

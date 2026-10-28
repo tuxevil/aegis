@@ -16,7 +16,7 @@ riesgo bajo o all_clear.
 
 | Entrada | Representación | Alcance |
 | --- | --- | --- |
-| Aviso primario INAMHI vigente | Candidato OFFICIAL, nivel fuente literal | Provincia/cantón explícito, no barrio |
+| Aviso primario INAMHI conocido y no vencido | Candidato OFFICIAL, nivel fuente literal | Provincia/cantón explícito, no barrio |
 | Modelo identificado y disponible | Contexto FORECAST y propuesta independiente AEGIS_ASSESSMENT | Punto aproximado |
 | Estación Pallatanga reciente | Contexto OBSERVATION y propuesta independiente AEGIS_ASSESSMENT | Una estación, no cantón/cuenca |
 | Susceptibilidad estática | STATIC_EXPOSURE, sin clase de aviso ni candidato dinámico | Contexto no predictivo |
@@ -119,3 +119,99 @@ Verificación local del incremento: `npm ci` (0 vulnerabilidades), `npm run chec
 `git diff --check` correctos. Imagen Docker construida; **60/60** pruebas de
 hazards con `--network none`. El alias `python` no existe en este laboratorio;
 se ejecutó con `python3` sin cambiar el workflow de Ubuntu.
+
+
+## Revisión de vigencia futura
+
+Un aviso primario ya conocido puede entrar a revisión preventiva antes de validFrom;
+no se espera al inicio del período para proponerlo internamente. La regla versionada
+`official-warning-known-unexpired` exige emisión/ventana completas y fin posterior
+al corte. Preserva las fechas originales, no anticipa la captura y no confirma un
+incidente. La identidad permanece estable al pasar de vigencia futura a efectiva;
+un aviso vencido o aún no conocido queda excluido. La regla oficial tiene versión
+`official-warning-known-1`, independiente de los umbrales experimentales de lluvia.
+
+Vista previa recibe corte explícito del procesador y distingue futuro/vencido;
+ningún texto equipara vigencia con daños. Cambio de política puede invalidar
+candidatos internos anteriores para nueva revisión; no reescribe bytes ni versiones
+fuente. La cancelación de outbox usa motivo general evidence_no_longer_eligible,
+pues una pérdida de elegibilidad no demuestra que el proveedor cambió el documento.
+Regresiones y suite completa: **175/175** Node, **120/120** Docker sin red,
+**6/6** Python, check/replays/diff-check correctos. Sin publicación o nuevos GET.
+
+## Corrección de frescura de captura
+
+El TTL declarado por fuente se aplica ahora además de la vigencia documental.
+Las evaluaciones anteriores de un PDF a más de una hora desde su descarga no
+prueban frescura bajo esta regla; conservan valor documental/histórico únicamente.
+La recaptura real y su comparación están registradas en
+[source-probes/2026-10-27-inamhi-evidence-lifecycle.json](source-probes/2026-10-27-inamhi-evidence-lifecycle.json).
+No se antedata disponibilidad ni se simula retrospectivamente una descarga.
+
+## Corridas manuales de los dos pilotos
+
+El perfil ECMWF admite selección UTC/piloto acotada, sin URLs ni coordenadas del
+operador. Reproceso y evaluación conservan URL/ámbito/disponibilidad, evitando
+confundir dos puntos en una corrida. No hay polling automático ni consultas reales
+nuevas en esta validación. Ver [diseño y uso](../architecture/manual-forecast-runs.md).
+La validación externa de nuevas combinaciones y derechos sigue pendiente.
+
+Validación de este incremento: npm ci sin vulnerabilidades, check, **194/194**
+Node, **139/139** en imagen local con dependencias nativas/código actual y red
+bloqueada, **6/6** Python, ambos replays y diff-check correctos. No se reconstruyó
+la imagen contra Docker Hub en este ensayo. CI de 90d25a3 pasó en Node 22/24 y
+contenedor (run 40608037142); el nuevo commit requiere su propia CI.
+
+## Validación real Pallatanga y aislamiento de frescura
+
+Un único GET de investigación para ECMWF/Pallatanga, corrida 27/10 12 UTC,
+respondió 200 en 1115 ms. Archivo privado verificado: 1 captura/1 artefacto,
+1993 bytes, 72 tiempos y 1 valor faltante. Disponibilidad comprobada realmente
+28/10 00:24:00.019Z (27 local), no al inicializar. Evaluación unknown/0 candidatos,
+no «sin riesgo». [Metadatos](source-probes/2026-10-27-pallatanga-manual-forecast.json);
+no se publican bytes ni se aprueban candidatos reales. Términos consultados:
+https://open-meteo.com/en/terms ; no se infieren permisos de operación/publicación.
+
+Se reprodujo con tres pruebas fallidas la mezcla de puntos en health: una captura
+reciente de Pallatanga renovaba el estado filtrado de Guayaquil y solo se verificaba
+el artefacto más reciente global. Corregido: selección y verificación por punto,
+unknown si falta el punto o URL registrada, sin recorrer cada corrida histórica.
+La salud sigue siendo de disponibilidad/captura, nunca de seguridad del territorio.
+
+Verificación acumulada: check, **197/197** Node, **142/142** con código actual
+y dependencias nativas de imagen local sin red, **6/6** Python, ambos replays
+y diff-check correctos; dependencias sin cambios desde npm ci (0 vulnerabilidades).
+CI de a713092: success Node 22/24 y contenedor, run 40608435679.
+
+## Coordenadas del proveedor conservadas y verificadas
+
+El pronóstico ya diferencia punto solicitado y celda devuelta; missing/null no se
+rellena con cero ni con coordenadas solicitadas. Nuevos campos discriminados,
+parser versionado y comprobación de coherencia en evaluación. Metadatos ausentes
+o contradictorios impiden proponer pronóstico; el límite técnico no certifica
+pertenencia cantonal ni riesgo. Legado legible, sin migración destructiva.
+Ver [diseño y límites](../architecture/forecast-grid-provenance.md).
+
+Reproceso privado real sin red: dos registros/un artefacto, SHA y captura original
+preservados, horarios originales de descarga/disponibilidad intactos. No renueva
+TTL, no hubo aprobación ni notificación. Evidencia sanitizada en source-probes.
+
+Verificación 28/10: npm ci 0 vulnerabilidades, check, **208/208** Node y **6/6**
+Python, replays/diff-check correctos. Imagen local anterior no disponible; se
+reconstruyó Docker correctamente y pasan **153/153** sin red. /ui 200 con flags
+OFF y directorio experimental oculto; CLI sin opciones no ingiere ni publica.
+CI anterior 7de9836 success Node 22/24 + contenedor, run 40609316312.
+
+## Compatibilidad temporal de métricas
+
+Se reprodujo un TP incorrecto cuando la señal vencía antes del evento: el control
+solo comprobaba vigencia mayor al inicio de ventana. Corregido para exigir toda
+la ventana homogénea, con signalValidFrom explícito. Cobertura parcial/desconocida
+se excluye de clasificación/denominadores/leadTime/latencia, sin inventar negativos.
+La política se declara en la salida. [Definición](../architecture/replay-metric-windows.md).
+Sin casos reales nuevos: las tasas históricas siguen desconocidas.
+
+Verificación del incremento: npm ci 0 vulnerabilidades, check, **209/209** Node,
+**154/154** con código hazards actual montado en imagen local/dependencias nativas
+y red bloqueada, **6/6** Python, ambos replays y diff-check. CI de 743607f terminó
+success en Node 22/24 y contenedor: run 40683853168. Nuevo head requiere su CI.

@@ -7,12 +7,15 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
 # Copy application code
-COPY backend.js celec.js mazar.js history.js sources.js assessment.js frontend.html ./
+COPY backend.js celec.js mazar.js history.js sources.js assessment.js backup.js backup.test.js frontend.html ./
 COPY public/ ./public/
 COPY hazards/ ./hazards/
+COPY alerts/ ./alerts/
+COPY docs/design/openalert-channels.json ./docs/design/
 COPY scripts/ ./scripts/
 COPY replay/ ./replay/
 COPY docs/contracts/source-envelope.v1.schema.json ./docs/contracts/
+COPY docs/contracts/examples/source-adapter.receipt.v1.json ./docs/contracts/examples/
 
 ENV DATA_DIR=/data
 VOLUME ["/data"]

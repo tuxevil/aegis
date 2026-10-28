@@ -123,3 +123,16 @@ test("portal móvil usa texto seguro, muestra fallos y conserva selección sin m
   assert.equal(d.querySelectorAll("canvas,iframe").length,0);
   assert.equal(d.querySelector('meta[name="viewport"]').content,"width=device-width,initial-scale=1");
 });
+
+test("GET público no repara ni inicializa un archivo con formato pero directorios faltantes",async t=>{
+  const root=await fs.mkdtemp(path.join(os.tmpdir(),"aegis-readonly-public-"));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+  const sourceRoot=path.join(root,"hazards","v1","captured_source");await fs.mkdir(sourceRoot,{recursive:true});
+  await fs.writeFile(path.join(sourceRoot,"format.json"),JSON.stringify({version:1,origin:"captured_source",namespace:"sources"}));
+  const app=await createApp({...appOptions,hazardsEnabled:true,hazardReader:new HazardPublicReader({dataDir:root})});t.after(()=>app.close());
+  const response=await app.inject({url:"/api/hazards/health",remoteAddress:"192.0.2.87"});
+  assert.equal(response.statusCode,503);assert.equal(response.json().coverageStatus,"unknown");assert.deepEqual(await fs.readdir(sourceRoot),["format.json"]);
+  for(const collection of ["sources","areas"]) {
+    const catalog=await app.inject({url:"/api/hazards/"+collection,remoteAddress:"192.0.2.87"});assert.equal(catalog.statusCode,200);assert.ok(catalog.json().items.length>0);
+  }
+  assert.deepEqual(await fs.readdir(sourceRoot),["format.json"]);
+});

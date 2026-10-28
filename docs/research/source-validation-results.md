@@ -6,6 +6,9 @@ v24.21.0; no es producción ni un LXC de AEGIS verificado. Rama de trabajo
 de `origin/feature/guayaquil-replay-whatsapp` (contexto PR #23).
 Árbol limpio al comenzar; `main` y producción sin cambios.
 
+> Informe histórico de M0. El estado acumulado posterior se contrasta en
+> [auditoría de aceptación](../verification/multihazard-acceptance.md).
+
 ## Resultado y alcance
 
 M0 ejecutado: baseline, seis GET predefinidos, evidencia sanitizada y pruebas
@@ -149,3 +152,25 @@ schema discriminado, persistencia y rollback sin tocar observations.json.
 M2–M4 no están implementados. Falta repetir validación desde el LXC objetivo con
 reloj verificado, resolver consulta SNGR, modelo explícito, permisos, CRS y corpus
 incidente/no incidente. Esos gates no autorizan publicaciones por omisión.
+
+## Actualización de contexto recibida el 28/10: Amaru y colaboración
+
+Se incorporó la rama de referencia 9e9ab91 y sus documentos de muestra Amaru,
+metodología abierta, CONTRIBUTING y templates. La respuesta del 27/10 20:19:56.942Z
+fue aportada por el operador: HTTP 200/sample_obtained, índice propio 60/Alerta,
+29.6 °C y 0.6 mm/h. Es señal modelada de tercero, no alerta oficial, observación
+verificada ni etiqueta de incidente. No se dispone aquí del valor íntegro de ts,
+plan o factores: no se infiere frescura, causalidad o derechos de redistribución.
+No se pidió, leyó o usó la credencial ni se consumió cuota para esta actualización.
+[Informe del operador y límites](amaru-api-evaluation-2026-10-27.md).
+
+Antes de ejecutar los nuevos tests offline se revisó el código de sonda. Tres
+regresiones reprodujeron reflejo de credencial sintética en nombres de campos,
+propagación de campos extra de ubicación y uso de lectura completa antes del
+límite. Corregidos: filtrado también por secreto conocido, proyección lat/lon y
+límite incremental de 150000 bytes con cancelación del cuerpo. error:null conserva
+su prueba positiva. Ningún test usa clave real o conecta con el proveedor.
+
+El portal de fuentes enlaza código en revisión, guía, correcciones con evidencia
+y reporte privado de seguridad. No se habilitó formulario de reportes sensibles
+ni se convirtió Amaru en dependencia, benchmark de verdad-terreno o disparador.
