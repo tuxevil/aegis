@@ -295,3 +295,17 @@ Chromium 320/1280 confirmó entrada de una nueva colección entre páginas,
 conservación de la anterior y carga explícita de la nueva. Captura móvil revisada,
 fixtures privados; sin overflow/page errors ni conexión externa. Artefactos:
 /tmp/aegis-browser-territory-pinned-20261028. CI ed780ca success, run 40686681755.
+
+## Exclusión de ingesta por host y archivo
+
+IngestionService ya coordina instancias/procesos antes del GET y hasta persistir
+el resultado. Competidor source_busy no consulta ni inventa fallo; otros hosts
+pueden avanzar. ReadOnly y capacidad de índices se comprueban antes de red.
+No expira/borra locks por edad ni elude Retry-After. Backup detecta la exclusión.
+Pruebas con proceso Node separado y transporte simulado, sin proveedores reales.
+[Alcance y recuperación](../architecture/ingestion-concurrency.md).
+
+Validación: npm ci 0 vulnerabilidades, check, **228/228** Node, **173/173** en
+contenedor reconstruido sin red, **6/6** Python, ambos replays/diff-check. El ensayo
+de proceso separado y backup es sintético; no se consultaron proveedores ni se
+eliminaron locks de archivos reales. CI de 37e2e03 success, run 40687614235.

@@ -153,3 +153,19 @@ verificar archivo y vigencia de captura, última edición de URL y fallos conoci
 Una captura exitosa posterior a fallo/Retry-After debe constar realmente.
 No reactivar automáticamente elementos cancelados del outbox ni reescribir
 candidatos aprobados: toda confirmación queda separada de su procedencia original.
+
+### Exclusión de ingesta manual detenida
+
+IngestionService usa ingestion-SHA256(host).lock dentro de su raíz. Su presencia
+produce source_busy; no hay caducidad o recuperación automática. Primero verificar
+el estado real de los trabajos/procesos de ingesta conocidos y detener nuevas
+invocaciones. Un archivo, su edad o un PID aislado no bastan para dar un proceso
+por vivo o terminado; contrastar el manejador del trabajo, proceso y registros.
+
+Solo después de confirmar quiescencia y la raíz concreta, revisar integridad con
+lector readOnly y retirar exclusivamente el lock abandonado identificado. No borrar
+capturas, fallos o writer.lock como atajo; no usar limpieza por glob/antigüedad.
+Un nuevo GET sigue sujeto a cooldown/Retry-After persistidos, límites y opt-in.
+Retirar el lock no demuestra recuperación del proveedor, no renueva retrievedAt/
+availabilityVerifiedAt y no reactiva simulaciones canceladas. Backup se niega mientras este
+lock exista, aunque se haya indicado quiesced=true.

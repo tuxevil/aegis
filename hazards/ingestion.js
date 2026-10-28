@@ -1,3 +1,6 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import {createHash} from "node:crypto";
 import {SourceRegistry,safeMode} from "./registry.js";
 import {SourceHttp} from "./http.js";
 import {InamhiPdfAdapter,SngrArcgisAdapter,OpenMeteoSingleRunsAdapter} from "./adapters.js";
@@ -22,20 +25,29 @@ export class IngestionService {
     if(!this.networkEnabled) throw new Error("network_opt_in_required");
     if(this.store.origin!=="captured_source") throw new Error("live_fixture_mixing_forbidden");
     if(source.licensing.status!=="verified" && !this.allowPendingLicense) throw new Error("research_archive_opt_in_required");
-    const captures=await this.store.records(),failures=await this.store.records("failures");
+    if(this.store.readOnly)throw new Error("read_only_store");
+    await this.store.initialize();
     const sourceHost=new URL(source.url).hostname;
-    const paused=failures.some(f=>{
-      try {return new URL(this.registry.get(f.sourceId).url).hostname===sourceHost && Date.parse(f.retryAt)>this.now().getTime();}
-      catch {return false;}
-    }) || captures.some(r=>r.sourceId===sourceId && r.operation!=="reprocess" && Date.parse(r.retrievedAt)+source.cooldownMs>this.now().getTime());
-    if(paused) return {...safeMode,sourceId,status:"unknown",errorCode:"source_cooldown"};
-    try { return await this.capture(source,await this.http.get(sourceId,request)); }
-    catch(error) {
-      const code=errorCodes.has(error.message)||/^http_\d{3}$/.test(error.message)?error.message:"ingestion_failed";
-      await this.store.failure({sourceId,at:this.now().toISOString(),code,
-        retryAt:this.http.nextAllowedAt?.(sourceId)||new Date(this.now().getTime()+source.cooldownMs).toISOString()});
-      return {...safeMode,sourceId,status:"unknown",errorCode:code};
-    }
+    const leaseFile=path.join(this.store.root,"ingestion-"+createHash("sha256").update(sourceHost).digest("hex")+".lock");
+    let lease;
+    try {lease=await fs.open(leaseFile,"wx",0o600);}
+    catch(error) {if(error.code==="EEXIST")return {...safeMode,sourceId,status:"unknown",errorCode:"source_busy"};throw error;}
+    try {
+      const captures=await this.store.records(),failures=await this.store.records("failures");
+      if(captures.length>=this.store.maxCaptures||failures.length>=this.store.maxCaptures)return {...safeMode,sourceId,status:"unknown",errorCode:"store_capacity_exceeded"};
+      const paused=failures.some(f=>{
+        try {return new URL(this.registry.get(f.sourceId).url).hostname===sourceHost && Date.parse(f.retryAt)>this.now().getTime();}
+        catch {return false;}
+      }) || captures.some(r=>r.sourceId===sourceId && r.operation!=="reprocess" && Date.parse(r.retrievedAt)+source.cooldownMs>this.now().getTime());
+      if(paused) return {...safeMode,sourceId,status:"unknown",errorCode:"source_cooldown"};
+      try { return await this.capture(source,await this.http.get(sourceId,request)); }
+      catch(error) {
+        const code=errorCodes.has(error.message)||/^http_\d{3}$/.test(error.message)?error.message:"ingestion_failed";
+        await this.store.failure({sourceId,at:this.now().toISOString(),code,
+          retryAt:this.http.nextAllowedAt?.(sourceId)||new Date(this.now().getTime()+source.cooldownMs).toISOString()});
+        return {...safeMode,sourceId,status:"unknown",errorCode:code};
+      }
+    } finally {await lease.close();await fs.unlink(leaseFile);}
   }
   async importFixture(sourceId,bytes,{mediaType,retrievedAt=this.now().toISOString()}={}) {
     if(this.store.origin!=="synthetic_fixture") throw new Error("live_fixture_mixing_forbidden");
