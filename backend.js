@@ -259,10 +259,6 @@ export async function createApp({
       .header("Cache-Control", "no-cache")
       .type("text/html")
       .send(fs.readFileSync(path.join(directory, "frontend.html"),"utf8").replace("<!-- HAZARDS_NAV -->",[
-        features.BLACKOUT_MAP?'<a href="/map">Mapa ciudadano · energía</a>':"",
-        features.TIME_MACHINE?'<a href="/history/">Histórico · evidencias</a>':"",
-        features.EXPLORER_3D?'<a href="/explorer/">Infraestructura</a>':"",
-        features.PUSH_ALERTS?'<a href="/watch/">Sector Watch · consulta web</a>':"",
         hazardsEnabled?'<a href="/hazards/">Multiamenaza · fuentes</a>':"",
         zoneSubscriptionsEnabled?'<a href="/ciudades/">Ciudades · preferencias</a>':"",
       ].filter(Boolean).join(" ")));

@@ -48,7 +48,7 @@ test("both lines compose behind independent contracts without exposing legacy/ad
     assert.equal((await app.inject({url:"/api/admin/alerts",remoteAddress})).statusCode,401);
   assert.equal((await app.inject({url:"/api/admin/alerts",remoteAddress:"198.51.100.20",headers:{authorization:`Bearer ${adminToken}`}})).statusCode,200);
   const home=(await app.inject("/ui")).body;
-  for(const url of ["/map","/history/","/explorer/","/watch/","/hazards/","/ciudades/"])assert.ok(home.includes(`href="${url}"`),url);
+  for(const url of ["/hazards/","/ciudades/"])assert.ok(home.includes(`href="${url}"`),url);
   assert.equal((await app.inject({url:"/api/hazards/sources",method:"POST",remoteAddress:"198.51.100.20"})).statusCode,403);
   const config=(await app.inject("/api/v1/push/public-key")).json();assert.equal(config.delivery_enabled,false);
   const dto=(await app.inject("/api/subscriptions/catalog")).json();assert.equal(dto.dispatchMode,"DRY_RUN");
