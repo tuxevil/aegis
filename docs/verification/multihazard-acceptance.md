@@ -46,19 +46,24 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M4 templates y rectificación | Probado: español, autoridad/clase/fechas/vigencia/alcance; revisión posterior rotulada RECTIFICACIÓN | No afirma una publicación o entrega previa inexistente |
 | M4 extremo a extremo | Probado: PDF sintético → archivo → motor → revisión → simulación; publishedAt null | No es ensayo de entrega operacional con proveedor |
 | Preservación v4/flags/seguridad | Probado: suite completa y /ui 200 sin red/directorio experimental con flags OFF | Excepción TLS CELEC/CENACE heredada sigue documentada |
+| Apertura M0: muestra Amaru documentada | Parcial: informe del operador 27/10 20:19:56.942Z, corrección error:null y tests sin clave real | No es ground truth; factores, ts completo, permiso de reproducción y cobertura restante desconocidos |
+| Apertura M1: ejemplo ejecutable para colaboradores | Parcial: adaptadores/inyección/importFixture y contratos probados | Falta receta autocontenida de contribución reproducible sin datos privados |
+| Apertura M2: enlaces a código/contribución/correcciones | Implementado: portal con PR, CONTRIBUTING, issue manual y seguridad privada | No formulario de reportes sensibles ni comunidad consolidada inferida |
+| Apertura M3: benchmark público independiente y comparación | Parcial: métricas, fixtures TP/FP/TN/FN y corpus documental separado | Falta runner/dataset público de benchmark con casos positivos/negativos y comparación antes/después; negativos históricos siguen sin prueba |
 | M5 redundancia/observabilidad/restauración | Parcial: runbook de recuperación/incidentes y diseño de continuidad; restauración local sintética probada | No infraestructura externa provisionada, failover o SLA ensayados |
 | M5 WAHA/OWNER/ToS/Meta y beta | Pendiente: prohibición expresa de usar sesión/crear canales/enviar | Requiere autorización separada, no implícita por disponer de enlaces |
 | M5 publicación, retractación, entrega y kill switch | Parcial: bloqueo global incondicional y simulaciones locales | No beta pública ni controles de envío real implementados/activados |
 
 ## Evidencia acumulada verificable
 
-Los apartados siguientes registran cortes históricos de cada incremento. La última
-verificación completa de código antes de esta revisión corresponde a 743607f:
-**208/208** Node, **153/153** contenedor construido sin red, **6/6** Python,
-npm ci sin vulnerabilidades, check/replays correctos; /ui 200 con flags OFF.
-Su CI remota se comprueba por SHA, sin trasladar un verde anterior a otro commit.
-Chromium 320/1280 del incremento 7de9836 cubre aviso/retractación simulados,
-consentimiento/baja/teclado/foco; no acredita geografía ni entrega operacional.
+Los apartados siguientes registran cortes históricos. Última verificación local:
+**240/240** Node, **185/185** en contenedor reconstruido sin red (incluye las
+12 pruebas Amaru con credenciales ficticias), **6/6** Python, npm ci sin
+vulnerabilidades, check/replays/diff-check correctos. La sincronización de referencia
+9e9ab91 se conserva como merge de feature; no modifica main ni autoriza operación.
+CI de código previo 9af5017 success, run 40689017710; el nuevo head requiere su CI.
+Las comprobaciones Chromium se documentan por módulo y alcance, sin trasladarlas
+a afirmaciones de geografía, entrega o licencia certificadas.
 
 No se tocaron canales. Bytes de proveedor y secretos permanecen privados.
 Tests de software no prueban derechos de uso, exactitud cartográfica, reducción
@@ -309,3 +314,25 @@ Validación: npm ci 0 vulnerabilidades, check, **228/228** Node, **173/173** en
 contenedor reconstruido sin red, **6/6** Python, ambos replays/diff-check. El ensayo
 de proceso separado y backup es sintético; no se consultaron proveedores ni se
 eliminaron locks de archivos reales. CI de 37e2e03 success, run 40687614235.
+
+## Sincronización de la rama de referencia y corrección de sonda Amaru
+
+Incorporada 9e9ab91 con documentación del operador, metodología abierta, contribución,
+templates y sonda opcional. No se leyó/usó clave ni se repitió consulta real. Tres
+regresiones se reprodujeron y corrigieron: secreto reflejado como nombre de campo,
+propagación de extras de ubicación y lectura del cuerpo antes del límite. El
+contenedor ahora ejecuta también los tests Amaru con red bloqueada. La muestra
+aportada se conserva como comparación de tercero, fuera del pipeline y sin usarla
+como observación o etiqueta de evento. Se corrigieron instrucciones históricas
+que podían inducir a repetir la muestra ya obtenida.
+
+El portal enlaza el código en revisión y la guía de contribución versionada, con
+ruta de reporte manual y aviso de privacidad; no crea issues ni envía mensajes.
+Los requisitos adicionales de apertura quedan en la tabla, sin declarar que el
+benchmark comparativo o todos los gates históricos/institucionales estén cerrados.
+
+Portal Chromium 320/1280 aprobado tras añadir contribución: selección de piloto,
+teclado/foco, sin overflow ni page errors, red externa bloqueada. Captura móvil
+inspeccionada; artefactos privados en /tmp/aegis-browser-contribution-20261028.
+Amaru solo se probó con fetch inyectado/credenciales sintéticas; no se ejecutó
+su CLI ni se consultó AMARU_API_KEY.

@@ -72,3 +72,21 @@ test("Campo error null no invalida una respuesta con datos validos", async()=>{
     JSON.stringify({error:null,riesgo:{indice:15,nivel:"Bajo"}}),{status:200})});
   assert.equal(x.result,"sample_obtained");
 });
+
+test("Credencial reflejada como nombre de campo no aparece en el resumen",async()=>{
+  const key="amaru_fixtureABC12345",payload={[key]:true,riesgo:{indice:60,[key]:true},clima:{temp_c:29,[key]:true}};
+  const result=await probeAmaru({key,fetchImpl:async()=>new Response(JSON.stringify(payload))});
+  assert.equal(result.result,"sample_obtained");assert.ok(!JSON.stringify(result).includes(key));
+});
+test("Ubicación de salida se limita a lat/lon sin propagar datos internos del llamador",async()=>{
+  const location={lat:-2.17,lon:-79.92,internalNote:"synthetic-private-marker"};
+  const result=await probeAmaru({key:TEST_KEY,location,fetchImpl:async()=>new Response(JSON.stringify({riesgo:{indice:1}}))});
+  assert.deepEqual(result.queryLocation,{lat:location.lat,lon:location.lon});assert.ok(!JSON.stringify(result).includes("synthetic-private-marker"));
+});
+test("Tamaño se limita al leer el stream y cancela antes de materializar todo el cuerpo",async()=>{
+  let cancelled=false;
+  const response=new Response(new ReadableStream({pull(controller){controller.enqueue(new Uint8Array(100000));},cancel(){cancelled=true;}}));
+  response.text=async()=>{throw new Error("unbounded_text_read_forbidden");};
+  const result=await probeAmaru({key:TEST_KEY,fetchImpl:async()=>response});
+  assert.equal(result.errorCode,"payload_size_limit");assert.equal(cancelled,true);
+});

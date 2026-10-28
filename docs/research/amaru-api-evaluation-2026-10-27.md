@@ -88,11 +88,11 @@ Ver también [metodología pública de Amaru y fuentes](amaru-methodology-open-s
 
 **Contraste de documentación oficial Amaru:** `/organizaciones.php` indica `GET /api/v1/status.php?lat=...&lon=...&key=amaru_...`, coincidente con la URL construida por nuestra sonda. El formulario de alta indica «el widget solo cargará en este dominio»: **la restricción de un dominio del plan Dev está expresamente explicada para el widget y no puede asumirse automáticamente para peticiones API desde un LXC**. La documentación pública antigua `/api-docs.php` muestra una ruta prefijada `/inundaciones/api/v1/status.php` pero su enlace «Probar Guayaquil» dirige a `/api/v1/status.php`.
 
-**Mejora de diagnóstico:** `scripts/probe-amaru.mjs` ahora extrae un `providerErrorCategory` y `providerErrorCode` seguro (si existe un token identificador no sensible) **sin imprimir el mensaje libre** porque podría incluir secretos. Ejecutar una sola vez nuevamente desde staging y registrar solamente esa salida saneada; si continúa sin categoría clara, contactar soporte con hora/endpoint sin revelar clave por chat.
+**Mejora de diagnóstico:** `scripts/probe-amaru.mjs` ahora extrae un `providerErrorCategory` y `providerErrorCode` seguro (si existe un token identificador no sensible) **sin imprimir el mensaje libre** porque podría incluir secretos. Esa repetición ya se realizó y se documentó arriba (20:19:56.942Z); no consumir otra llamada solo por confirmación. Como procedimiento futuro de diagnóstico, registrar solamente salida saneada; si continúa sin categoría clara, contactar soporte con hora/endpoint sin revelar clave por chat.
 
 ## Pendientes para Codex
 
-- [ ] Probar **exactamente una** llamada autenticada en staging; registrar salida sanitizada sin credenciales.
+- [x] Muestra autenticada reportada por el operador el 27/10 a las 20:19:56.942Z, HTTP 200/sample_obtained. No repetir por confirmación ni acceder a la clave.
 - [ ] Registrar los campos reales, fecha/hora de cada lectura, respuesta si hay, indicación de plan o campos restringidos.
 - [ ] Evaluar alcance y restricciones de uso y distribución del plan Dev con proveedor; el dominio registrado podría afectar widget o API, no asumir.
 - [ ] Medir si los datos están disponibles para dos pilotos sin exceder presupuesto mensual.

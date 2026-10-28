@@ -19,9 +19,9 @@ export function buildRequestUrl(key, location=GUAYAQUIL_SAMPLE) {
   return url;
 }
 
-const safeFieldNames=o=>o&&typeof o==="object"&&!Array.isArray(o)
+const safeFieldNames=(o,secret)=>o&&typeof o==="object"&&!Array.isArray(o)
   ?Object.keys(o).filter(s=>/^[a-zA-Z_][a-zA-Z_0-9]{0,79}$/.test(s)&&
-    !/(key|token|secret|password|authorization|credential)/i.test(s)).slice(0,60):[];
+    !/(key|token|secret|password|authorization|credential)/i.test(s)&&(!secret||!s.includes(secret))).slice(0,60):[];
 const safeNumber=v=>typeof v==="number"&&Number.isFinite(v)?v:null;
 const safeText=(v,secret)=>typeof v==="string"&&v.length<=70&&/^[\p{L}0-9 \t._\-]+$/u.test(v)&&(!secret||!v.includes(secret))?v:null;
 const asRecord=v=>v&&typeof v==="object"&&!Array.isArray(v)?v:{};
@@ -36,9 +36,9 @@ export function summarizeResponse(payload,{httpStatus=200,secret=null}={}) {
     source:"Amaru",reportKind:"SINGLE_READ_ONLY_SAMPLE",
     httpStatus,
     schemaObserved:{
-      topLevelFields:safeFieldNames(p),
-      riskFields:safeFieldNames(risk),
-      climateFields:safeFieldNames(climate),
+      topLevelFields:safeFieldNames(p,secret),
+      riskFields:safeFieldNames(risk,secret),
+      climateFields:safeFieldNames(climate,secret),
       hasPaywalledFieldsIndicator:gated!==undefined,
       hasRiverObject:p.riesgo_fluvial!==undefined||p.rios!==undefined,
       hasCommunityReportCount:p.reportes_cercanos_12h!==undefined||p.reportes!==undefined
@@ -92,8 +92,9 @@ export function describeProviderError(payload, key) {
 export async function probeAmaru({key,fetchImpl=fetch,location=GUAYAQUIL_SAMPLE,timeoutMs=12000}={}) {
   const u=buildRequestUrl(key,location);
   const start=Date.now();
+  const queryLocation={lat:location.lat,lon:location.lon};let response;
   try {
-    const response=await fetchImpl(u.toString(),{
+    response=await fetchImpl(u.toString(),{
       method:"GET",redirect:"manual",headers:{accept:"application/json"},
       signal:AbortSignal.timeout(timeoutMs)
     });
@@ -105,8 +106,12 @@ export async function probeAmaru({key,fetchImpl=fetch,location=GUAYAQUIL_SAMPLE,
     if(!response.ok)throw new Error("http_"+response.status);
     const declared=Number(response.headers.get("content-length"));
     if(declared>150_000)throw new Error("payload_size_limit");
-    const raw=await response.text();
-    if(Buffer.byteLength(raw)>150_000)throw new Error("payload_size_limit");
+    let size=0;const chunks=[];
+    for await(const chunk of response.body||[]) {
+      const part=Buffer.from(chunk);if(!part.length)continue;size+=part.length;
+      if(size>150_000)throw new Error("payload_size_limit");chunks.push(part);
+    }
+    const raw=Buffer.concat(chunks,size).toString("utf8");
     let payload;
     try{payload=JSON.parse(raw)}catch{throw new Error("invalid_json")}
     if(!payload||typeof payload!=="object"||Array.isArray(payload))throw new Error("invalid_json_shape");
@@ -114,13 +119,13 @@ export async function probeAmaru({key,fetchImpl=fetch,location=GUAYAQUIL_SAMPLE,
        (payload.erro!==null && payload.erro!==undefined && payload.erro!==false && payload.erro!=="")){
       const diagnostic=describeProviderError(payload,key);
       return {source:"Amaru",reportKind:"SINGLE_READ_ONLY_SAMPLE",result:"unverified",
-        queriedAt:new Date().toISOString(),queryLocation:location,
+        queriedAt:new Date().toISOString(),queryLocation,
         elapsedMs:Date.now()-start,httpStatus:response.status,
         errorCode:"provider_reported_error",...diagnostic};
     }
     if(!("clima" in payload)&&!("riesgo" in payload))throw new Error("unexpected_response_shape");
     return {...summarizeResponse(payload,{httpStatus:response.status,secret:key}),
-      queriedAt:new Date().toISOString(),queryLocation:location,
+      queriedAt:new Date().toISOString(),queryLocation,
       elapsedMs:Date.now()-start,result:"sample_obtained"};
   } catch(err){
     // Never return exceptions' raw message (it might contain an authentication URL).
@@ -131,10 +136,10 @@ export async function probeAmaru({key,fetchImpl=fetch,location=GUAYAQUIL_SAMPLE,
     const code=known.has(message)?message:/^http_[45][0-9]{2}$/.test(message)?message
       :err?.name==="TimeoutError"?"timeout":"network_or_unknown_error";
     return {source:"Amaru",reportKind:"SINGLE_READ_ONLY_SAMPLE",result:"unverified",
-      queriedAt:new Date().toISOString(),queryLocation:location,
+      queriedAt:new Date().toISOString(),queryLocation,
       elapsedMs:Date.now()-start,errorCode:code,
       note:"No se obtuvo una respuesta utilizable; revisar clave, dominio registrado, endpoint, conectividad y cuota. No implica riesgo bajo."};
-  }
+  } finally {if(response?.body&&!response.bodyUsed)await response.body.cancel().catch(()=>{});}
 }
 
 export async function main(args=process.argv.slice(2)) {
