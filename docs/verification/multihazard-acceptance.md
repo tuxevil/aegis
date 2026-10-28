@@ -244,3 +244,19 @@ Verificación del incremento: npm ci 0 vulnerabilidades, check, **209/209** Node
 **154/154** con código hazards actual montado en imagen local/dependencias nativas
 y red bloqueada, **6/6** Python, ambos replays y diff-check. CI de 743607f terminó
 success en Node 22/24 y contenedor: run 40683853168. Nuevo head requiere su CI.
+
+## Proyección territorial privada verificada
+
+Añadidos TerritoryPreviewReader y CLI inspect-territory: lectura estricta del
+archivo de capas, SHA/manifiesto/contentHash/DPA y presupuestos antes de generar
+páginas privadas de polígonos. Ausente unknown/total null se distingue de colección
+completa vacía, sin inferir seguridad. Salida nueva 0600 fuera de DATA_DIR y
+sin geometría en stdout; sin endpoints públicos ni solicitudes reales.
+[Interfaz y límites](../architecture/private-territory-preview.md). No se declara
+mapa público ni cartografía certificada; sigue pendiente la vista gráfica privada.
+
+Validación: npm ci 0 vulnerabilidades, check, **216/216** Node, **161/161** con
+código hazards/scripts actual y dependencias nativas de imagen local sin red,
+**6/6** Python, ambos replays y diff-check. Incluye rechazo de destino vía symlink
+y conservación de snapshotAtomicity. Solo archivos sintéticos; sin descarga de
+geometrías reales. CI anterior 9041b64 success, run 40684268535.
