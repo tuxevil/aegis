@@ -1,0 +1,63 @@
+name: aegis-supervised-staging
+x-isolation: &isolation
+  image: aegis-supervised-staging:${AEGIS_STAGING_TAG:-candidate}
+  user: "1000:1000"
+  network_mode: none
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 96
+  cpus: "0.50"
+  mem_limit: 384m
+  init: true
+  tmpfs: ["/tmp:rw,noexec,nosuid,size=96m"]
+  logging:
+    driver: local
+    options: {max-size: "2m", max-file: "3"}
+services:
+  aegis:
+    <<: *isolation
+    build: {context: ../..}
+    labels: {org.aegis.stage: supervised-offline}
+    restart: on-failure:3
+    stop_grace_period: 20s
+    environment:
+      NODE_OPTIONS: --max-old-space-size=192
+      PORT: "3010"
+      DATA_DIR: /data
+      DB_DIR: /data/v5
+      DB_MAX_BYTES: "67108864"
+      PUBLIC_API_V1: "true"
+      SQLITE_STORAGE: "true"
+      BLACKOUT_MAP: "true"
+      BLACKOUT_DEMO: "false"
+      CITIZEN_REPORTS: "false"
+      EVENT_CORRELATION: "false"
+      OFFICIAL_SCHEDULES: "true"
+      PUSH_ALERTS: "false"
+      PUSH_DELIVERY: "false"
+      OSINT_NEWS: "false"
+      OSINT_X: "false"
+      TIME_MACHINE: "true"
+      EXPLORER_3D: "true"
+      HAZARDS_ENABLED: "true"
+      ALERTS_ADMIN_ENABLED: "false"
+      ZONE_SUBSCRIPTIONS_ENABLED: "false"
+      ALERTS_PUBLISH_ENABLED: "false"
+    volumes: [stage-data:/data]
+    healthcheck:
+      test: [CMD, node, scripts/staging-health.mjs]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+  maintenance:
+    <<: *isolation
+    profiles: [tools]
+    restart: "no"
+    entrypoint: [node, scripts/staging-snapshot.mjs]
+    volumes: [stage-data:/data:ro, stage-backups:/backups, stage-recovery:/restore]
+volumes:
+  stage-data:
+  stage-backups:
+  stage-recovery:

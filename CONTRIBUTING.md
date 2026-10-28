@@ -4,12 +4,17 @@ Small, focused PRs. One source or one endpoint per change.
 
 ## Workflow
 
-1. Create a branch from `main`.
-2. Copy config: `cp .env.example .env` and set a test `AMBIENT_MAC`.
-3. Run: `npm install && npm start`, open `http://localhost:3010/`.
-4. Verify the affected endpoint directly:
+1. While consolidation PRs are open, branch from the reviewed integration head
+   (`integration/aegis-staging`); after approved integration, use `main`. See the
+   [integration matrix](docs/verification/integration/integration-matrix.md).
+2. Use Node >=22.16. No `.env`, station identifier or private service is required
+   for tests: `npm ci && npm run check && npm test`.
+3. Run `npm run example:source` and `npm run benchmark:compare` offline. Optional
+   local UI: `npm start`; weather without a station key remains unknown.
+4. Verify the affected endpoint using injected fixtures or isolated staging:
    - `/api/weather`, `/api/dams`, `/api/cenace`, `/api/enso`, `/api/status`.
-5. Syntax check: `node --check backend.js`.
+5. Run the relevant regression plus the full checks above. Never enable real Push
+   or messaging; synthetic providers/keys are test-only.
 6. Open a PR describing: source touched, how you verified it, and sample
    output (redact any real station MAC).
 

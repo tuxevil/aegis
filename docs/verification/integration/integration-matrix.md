@@ -104,3 +104,14 @@ Faltan por ejecutar en consolidación: suite combinada y contratos, E2E de ambos
 namespaces, bloqueo de env de envío, ejemplo contribuyente, export OpenAPI/HA,
 contenedor sin red, reinicio/restauración y recursos. La matriz se actualizará con
 resultados reales; no declara un merge ya probado.
+
+## Resultado posterior de consolidación
+
+PR #32 documenta esta matriz; PR #33 integra ambas líneas (55eb011, corrección
+fb64ced de contrato HTML), con CI Node22/24 y contenedor aprobada. La rama hija
+integration/aegis-staging añade Compose aislado, verificación/recuperación conjunta,
+medición y QA visual. Se ejecutaron 422 pruebas combinadas en host/contenedor,
+6 contratos Python y flujo de contribución sin secretos. Ver
+[validación detallada](validation-report.md), [evidencia JSON](validation-evidence.json)
+y [decisión de piloto](pilot-readiness.md). Los pendientes enumerados arriba son
+el corte inicial; esos informes distinguen qué se ejecutó después y qué sigue abierto.

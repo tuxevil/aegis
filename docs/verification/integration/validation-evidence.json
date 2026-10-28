@@ -1,0 +1,424 @@
+{
+  "scope": "development_only_no_Proxmox_or_production",
+  "baselines": {
+    "v5": {
+      "sha": "f77212b56c1d67c6d92c4313cc21fed9e9c7dd9c",
+      "nodeTests": 193,
+      "audit": {
+        "moderate": 1,
+        "high": 1
+      }
+    },
+    "multihazard": {
+      "sha": "8d5da1a3f3f2f8a5f395254cf0483f7d50496084",
+      "nodeTests": 258,
+      "auditVulnerabilities": 0
+    }
+  },
+  "integratedVerification": {
+    "hostNode": "v24.21.0",
+    "containerNode": "v22.23.4",
+    "nodeTestsHost": 422,
+    "nodeTestsContainerNoNetwork": 422,
+    "pythonContracts": 6,
+    "auditVulnerabilities": 0,
+    "openApiPublicGetPaths": 14,
+    "openApiMatchesV5Published": true,
+    "sourceAdapterReceiptIdenticalHostContainer": true,
+    "haYamlJinjaOffline": "passed"
+  },
+  "observations": {
+    "idle": {
+      "measuredAt": "2026-10-28T19:44:02.623Z",
+      "profile": "local_development_supervised_offline",
+      "imageId": "sha256:ecace9d904e5c78e5d3fc249ee2ab7b33714d8d104606cab3264501137e15971",
+      "status": "running",
+      "health": "healthy",
+      "limits": {
+        "memoryBytes": 402653184,
+        "cpuCores": 0.5
+      },
+      "sample": {
+        "cpuPercent": "0.00%",
+        "memory": "64.2MiB / 384MiB",
+        "memoryPercent": "16.72%",
+        "pids": "8",
+        "networkIO": "0B / 0B",
+        "blockIO": "13.8MB / 0B",
+        "dataAllocatedKiB": 31
+      },
+      "application": {
+        "generated_at": "2026-10-28T19:44:02.535Z",
+        "uptime_seconds": 84,
+        "scope": "registered-public-get-only",
+        "requests": 2,
+        "errors_4xx": 0,
+        "errors_5xx": 0,
+        "rate_limited": 0,
+        "sources": {
+          "attempts": 0,
+          "failures": 0,
+          "last_attempt_at": null,
+          "last_success_at": null
+        }
+      },
+      "networkMode": "none",
+      "publishedHostPorts": 0,
+      "powerWatts": null,
+      "energyWh": null,
+      "caveats": [
+        "One Docker sample, not load capacity or a long-term/energy measurement",
+        "Source attempts include failures; network isolation does not imply no attempted fetches",
+        "No battery, solar inverter, HA, WAHA or Proxmox measurements were accessed"
+      ],
+      "dispatchMode": "DRY_RUN"
+    },
+    "afterRestart": {
+      "measuredAt": "2026-10-28T19:48:32.593Z",
+      "profile": "local_development_supervised_offline",
+      "imageId": "sha256:ecace9d904e5c78e5d3fc249ee2ab7b33714d8d104606cab3264501137e15971",
+      "status": "running",
+      "health": "healthy",
+      "limits": {
+        "memoryBytes": 402653184,
+        "cpuCores": 0.5
+      },
+      "sample": {
+        "cpuPercent": "0.03%",
+        "memory": "72.6MiB / 384MiB",
+        "memoryPercent": "18.91%",
+        "pids": "8",
+        "networkIO": "0B / 0B",
+        "blockIO": "9.93MB / 0B",
+        "dataAllocatedKiB": 31
+      },
+      "application": {
+        "generated_at": "2026-10-28T19:48:32.510Z",
+        "uptime_seconds": 7,
+        "scope": "registered-public-get-only",
+        "requests": 1,
+        "errors_4xx": 0,
+        "errors_5xx": 0,
+        "rate_limited": 0,
+        "sources": {
+          "attempts": 0,
+          "failures": 0,
+          "last_attempt_at": null,
+          "last_success_at": null
+        }
+      },
+      "networkMode": "none",
+      "publishedHostPorts": 0,
+      "powerWatts": null,
+      "energyWh": null,
+      "caveats": [
+        "One Docker sample, not load capacity or a long-term/energy measurement",
+        "Source attempts include failures; network isolation does not imply no attempted fetches",
+        "No battery, solar inverter, HA, WAHA or Proxmox measurements were accessed"
+      ],
+      "dispatchMode": "DRY_RUN"
+    },
+    "after30LocalGets": {
+      "measuredAt": "2026-10-28T19:49:34.218Z",
+      "profile": "local_development_supervised_offline",
+      "imageId": "sha256:ecace9d904e5c78e5d3fc249ee2ab7b33714d8d104606cab3264501137e15971",
+      "status": "running",
+      "health": "healthy",
+      "limits": {
+        "memoryBytes": 402653184,
+        "cpuCores": 0.5
+      },
+      "sample": {
+        "cpuPercent": "0.03%",
+        "memory": "63.77MiB / 384MiB",
+        "memoryPercent": "16.61%",
+        "pids": "8",
+        "networkIO": "0B / 0B",
+        "blockIO": "9.95MB / 0B",
+        "dataAllocatedKiB": 35
+      },
+      "application": {
+        "generated_at": "2026-10-28T19:49:34.131Z",
+        "uptime_seconds": 68,
+        "scope": "registered-public-get-only",
+        "requests": 23,
+        "errors_4xx": 0,
+        "errors_5xx": 0,
+        "rate_limited": 0,
+        "sources": {
+          "attempts": 0,
+          "failures": 0,
+          "last_attempt_at": null,
+          "last_success_at": null
+        }
+      },
+      "networkMode": "none",
+      "publishedHostPorts": 0,
+      "powerWatts": null,
+      "energyWh": null,
+      "caveats": [
+        "One Docker sample, not load capacity or a long-term/energy measurement",
+        "Source attempts include failures; network isolation does not imply no attempted fetches",
+        "No battery, solar inverter, HA, WAHA or Proxmox measurements were accessed"
+      ],
+      "dispatchMode": "DRY_RUN"
+    },
+    "latestImage": {
+      "measuredAt": "2026-10-28T19:56:46.653Z",
+      "profile": "local_development_supervised_offline",
+      "imageId": "sha256:a7ee82e1f40b9588fe5f67318278b5e8ee2b3245e4a00d53b7b629f19aa82a92",
+      "status": "running",
+      "health": "healthy",
+      "limits": {
+        "memoryBytes": 402653184,
+        "cpuCores": 0.5
+      },
+      "sample": {
+        "cpuPercent": "0.00%",
+        "memory": "72.85MiB / 384MiB",
+        "memoryPercent": "18.97%",
+        "pids": "8",
+        "networkIO": "0B / 0B",
+        "blockIO": "9.92MB / 0B",
+        "dataAllocatedKiB": 31
+      },
+      "application": {
+        "generated_at": "2026-10-28T19:56:46.570Z",
+        "uptime_seconds": 7,
+        "scope": "registered-public-get-only",
+        "requests": 1,
+        "errors_4xx": 0,
+        "errors_5xx": 0,
+        "rate_limited": 0,
+        "sources": {
+          "attempts": 0,
+          "failures": 0,
+          "last_attempt_at": null,
+          "last_success_at": null
+        }
+      },
+      "networkMode": "none",
+      "publishedHostPorts": 0,
+      "powerWatts": null,
+      "energyWh": null,
+      "caveats": [
+        "One Docker sample, not load capacity or a long-term/energy measurement",
+        "Source attempts include failures; network isolation does not imply no attempted fetches",
+        "No battery, solar inverter, HA, WAHA or Proxmox measurements were accessed"
+      ],
+      "dispatchMode": "DRY_RUN"
+    }
+  },
+  "runtime": {
+    "node": "v22.23.4",
+    "uid": 1000,
+    "sqliteBytes": 450560
+  },
+  "combinedBackup": {
+    "version": 1,
+    "status": "verified",
+    "fileCount": 1,
+    "directoryCount": 1,
+    "byteLength": 450560,
+    "createdAt": "2026-10-28T19:46:45.407Z",
+    "consistency": "quiescence_asserted_double_inventory_verified",
+    "domainChecks": {
+      "scope": "all_bytes_and_known_v1_readers_only",
+      "history": "absent",
+      "sources": [],
+      "layers": [],
+      "journals": []
+    },
+    "alertsPublishEnabled": false,
+    "dispatchMode": "DRY_RUN",
+    "sqlite": {
+      "status": "integrity_and_migrations_verified",
+      "migrationCount": 6
+    },
+    "scope": "combined_staging_DATA_DIR_with_v5_child",
+    "serviceStarted": false
+  },
+  "combinedRestore": {
+    "version": 1,
+    "status": "restored_to_new_directory",
+    "fileCount": 1,
+    "directoryCount": 1,
+    "byteLength": 450560,
+    "createdAt": "2026-10-28T19:46:45.407Z",
+    "consistency": "quiescence_asserted_double_inventory_verified",
+    "domainChecks": {
+      "scope": "all_bytes_and_known_v1_readers_only",
+      "history": "absent",
+      "sources": [],
+      "layers": [],
+      "journals": []
+    },
+    "alertsPublishEnabled": false,
+    "dispatchMode": "DRY_RUN",
+    "serviceStarted": false,
+    "sqlite": {
+      "status": "integrity_and_migrations_verified",
+      "migrationCount": 6
+    },
+    "scope": "combined_staging_DATA_DIR_with_v5_child"
+  },
+  "browser": {
+    "results": [
+      {
+        "page": "grid",
+        "width": 320,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "map",
+        "width": 320,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "report",
+        "width": 320,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "watch",
+        "width": 320,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "history",
+        "width": 320,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "explorer",
+        "width": 320,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "hazards",
+        "width": 320,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "cities",
+        "width": 320,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "grid",
+        "width": 1280,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "map",
+        "width": 1280,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "report",
+        "width": 1280,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "watch",
+        "width": 1280,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "history",
+        "width": 1280,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "explorer",
+        "width": 1280,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "hazards",
+        "width": 1280,
+        "status": 200,
+        "horizontalOverflow": false
+      },
+      {
+        "page": "cities",
+        "width": 1280,
+        "status": 200,
+        "horizontalOverflow": false
+      }
+    ],
+    "externalNetwork": "blocked",
+    "listeningPorts": 0,
+    "fixtures": "synthetic_only",
+    "realPush": "blocked",
+    "pageErrors": 0
+  },
+  "syntheticBenchmark": {
+    "caseCount": 13,
+    "groups": [
+      {
+        "target": "synthetic-model-rain-24h",
+        "areaId": "guayaquil",
+        "caseCount": 6,
+        "unknownSourceCases": [
+          "forecast-missing-input",
+          "forecast-after-cutoff"
+        ],
+        "evaluated": 4
+      },
+      {
+        "target": "synthetic-station-monitoring",
+        "areaId": "pallatanga",
+        "caseCount": 7,
+        "unknownSourceCases": [
+          "station-missing-input",
+          "station-stale-input",
+          "station-upstream-failed"
+        ],
+        "evaluated": 4
+      }
+    ],
+    "changes": [],
+    "dependencyLockChanged": true,
+    "historicalValidationStatus": "not_established",
+    "operationalProbability": null
+  },
+  "caveats": [
+    "Docker observations are individual development samples, not performance/energy guarantees",
+    "Image IDs identify measured builds; later documentation does not change those past measurements",
+    "Staging volume contained only an empty v5 database; fuller Grid/source/editorial recovery is tested with synthetic fixtures",
+    "No provider raw data, citizen identifiers, secrets or real deployment are included"
+  ],
+  "rollbackBootOnRestoredCopy": {
+    "status": "restored_copy_boot_verified",
+    "schema": 6,
+    "allowMigrations": false,
+    "uid": 1000,
+    "appHealth": 200,
+    "listeningPorts": 0,
+    "dispatchMode": "DRY_RUN"
+  },
+  "smallReadExercise": {
+    "count": 30,
+    "mode": "sequential local GETs, no source refresh",
+    "p50Ms": 2.285618000000113,
+    "p95Ms": 77.21370999999999,
+    "maxMs": 709.216359,
+    "hostLoadIsolation": false,
+    "energyMeasurement": null
+  }
+}

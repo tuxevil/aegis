@@ -11,6 +11,14 @@ integración, validación, seguridad o reproducibilidad. Sin main/producción/SS
 Proxmox/puertos nuevos, datos reales, Push/WAHA o avisos reales. DRY_RUN obligatorio.
 El bloqueo anterior de certificación no impide esta nueva etapa autorizada.
 
+Entregas de consolidación: PR #32 (matriz), PR #33 (runtime conjunto, ambos
+ancestros conservados) y rama `integration/aegis-staging` (aislamiento/recuperación).
+Consultar [validación ejecutada](../verification/integration/validation-report.md),
+[runbook de staging](../runbooks/supervised-staging.md) y
+[preparación para piloto](../verification/integration/pilot-readiness.md).
+No confundir el entorno offline comprobado con despliegue autorizado o precisión
+operacional. Retomar desde esos resultados y los heads actuales de GitHub.
+
 **Fecha del corte de decisiones:** 27 de octubre de 2026, Ecuador (America/Guayaquil).
 **Estado del producto:** planificación y diseño COMPLETADOS para iniciar implementación. Los conectores externos y las notificaciones públicas NO están certificados ni activados.
 **Repositorio:** \`tuxevil/aegis\`. **Rama de documentación y PoC:** \`feature/guayaquil-replay-whatsapp\`. **PR de contexto:** https://github.com/tuxevil/aegis/pull/23 (draft). \`main\` no debe fusionarse/desplegarse automáticamente por este handoff.

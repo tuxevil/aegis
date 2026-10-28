@@ -2633,3 +2633,11 @@ html[data-crt="on"] .metric-strip strong {
   background: #b7ef6a18;
   box-shadow: 0 0 12px #b7ef6a25;
 }
+.sentinel-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+.sentinel-links a { color: var(--teal); }

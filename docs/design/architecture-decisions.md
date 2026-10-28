@@ -48,6 +48,21 @@ Push real heredado debe quedar bloqueado en esta etapa aunque un env antiguo
 solicite activarlo. Staging aislado sin puertos publicados ni acceso al Proxmox del
 propietario. [Evidencia y matriz](../verification/integration/integration-matrix.md).
 
+### ADR-13 · Staging offline y respaldo conjunto, 28/10/2026
+
+Compose usa volúmenes nuevos de proyecto, usuario1000, límites CPU/RAM/PIDs,
+rootfs readOnly, red none y ningún puerto host. Health verifica aplicación, no
+riesgo ni fuentes. No se monta socket Docker o configuración del propietario.
+El staging persistente mantiene formularios/admin/Push OFF; QA aislada usa solo
+fixtures/roles sintéticos. No nuevo proceso de polling de proveedores.
+
+Reusar backup de archivos y verificación SQLite existente, sin migrar formatos.
+Para una copia conjunta coherente se exige detener escritores y ausencia de
+WAL/SHM/journal. SQLite readonly genera sidecars: verificar una copia scratch
+privada para preservar el inventario SHA del backup. Restaurar solo a raíz nueva,
+sin arrancarla ni conmutar montajes automáticamente. Hashes no son firmas;
+copias locales no son redundancia externa. [Receta y límites](../runbooks/supervised-staging.md).
+
 Estos puntos son **gates de fase, no preguntas que el agente debe devolver al usuario antes de empezar**:
 
 - Frecuencia de polling por proveedor: determinar respetando metadatos, ToS y tiempos medidos; nunca presumir intervalos del catálogo preliminar.

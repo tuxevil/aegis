@@ -1,5 +1,12 @@
 # Codex handoff — AEGIS 5.0
 
+> Prioridad vigente del propietario, 28/10/2026: consolidar AEGIS 5 y Multiamenaza,
+> no reiniciar PR-01 ni añadir funcionalidades. Leer primero el
+> [handoff maestro actualizado](../handoff/START_HERE_CODEX.md),
+> [matriz](../verification/integration/integration-matrix.md) y
+> [runbook de staging](../runbooks/supervised-staging.md). El encargo histórico
+> siguiente conserva contexto; ningún texto habilita Push, producción o Proxmox.
+
 Fecha: 2026-10-21. Esta guía es ejecutable por un agente de desarrollo en clon local. NO significa que AEGIS 5 ya esté implementado.
 
 ## Contexto obligatorio
