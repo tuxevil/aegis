@@ -2,10 +2,10 @@
   'use strict';
   const $=id=>document.getElementById(id),node=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
   const svgNode=tag=>document.createElementNS('http://www.w3.org/2000/svg',tag);
-  let token='',generation=0,offset=0;
+  let token='',generation=0,offset=0,snapshotId=null;
   const status=text=>$('status').textContent=text;
   function clear() {for(const id of ['map','features','selection','provenance'])$(id).replaceChildren();$('page-info').textContent='';$('previous').disabled=true;$('next').disabled=true;}
-  function disconnect() {generation++;token='';$('credential').value='';clear();$('private').hidden=true;$('logout').hidden=true;status('Sin sesión. Vista privada limpiada.');}
+  function disconnect() {generation++;snapshotId=null;token='';$('credential').value='';clear();$('private').hidden=true;$('logout').hidden=true;status('Sin sesión. Vista privada limpiada.');}
   async function api(path,current) {
     const response=await fetch('/api/admin/alerts'+path,{credentials:'omit',cache:'no-store',redirect:'error',headers:{Authorization:'Bearer '+token}});
     if(current!==generation)throw new Error('Consulta anterior descartada.');
@@ -20,8 +20,11 @@
   }
   function render(data) {
     if(data.alertsPublishEnabled!==false||data.notForPrediction!==true||!['synthetic_fixture','captured_source'].includes(data.recordOrigin)||data.privateReviewOnly!==true||data.publicationBlocked!==true||data.dispatchMode!=='DRY_RUN'||data.evidenceClass!=='STATIC_EXPOSURE'||!Array.isArray(data.features)||data.features.length>50)throw new Error('Respuesta territorial no verificable.');
+    if(data.areaId!==$('area').value||data.sourceId!==$('source').value)throw new Error('Respuesta de otro territorio o capa descartada.');
     $('provenance').append(node('p',data.recordOrigin==='synthetic_fixture'?'DATOS SINTÉTICOS DE PRUEBA; no representan un mapa real.':'Archivo de investigación privado; no autorizado para publicación.'),node('p',data.notice));
-    if(!data.snapshot){status('Sin colección verificable para esta consulta. No significa ausencia de amenaza.');return;}
+    if(!data.snapshot){snapshotId=null;status('Sin colección verificable para esta consulta. No significa ausencia de amenaza.');return;}
+    if(typeof data.snapshot.id!=='string'||(snapshotId&&snapshotId!==data.snapshot.id))throw new Error('La colección cambió. Consulte nuevamente el archivo.');
+    snapshotId=data.snapshot.id;
     $('provenance').append(node('p',`Fuente: ${data.owner}. Piloto: ${data.areaId} · DPA ${data.dpaCode}. Archivo: ${data.snapshot.completedAt}. Revisión ${data.snapshot.revision}.`),
       node('p',`Origen CRS ${data.snapshot.sourceCrs} → ${data.snapshot.targetCrs}. Topología: ${data.snapshot.topologyStatus}. Estabilidad de captura: ${data.snapshot.snapshotAtomicity}. Derechos: ${data.licensingStatus}.`));
     const trace=node('details');trace.append(node('summary','Referencia de la colección'),node('pre',JSON.stringify({snapshotId:data.snapshot.id,contentHash:data.snapshot.contentHash,sourceUrl:data.sourceUrl},null,2)));$('provenance').append(trace);
@@ -56,12 +59,13 @@
   async function refresh() {
     if(!token)throw new Error('Conecte una sesión editorial.');const current=++generation;clear();status('Leyendo archivo territorial privado…');
     const params=new URLSearchParams({area:$('area').value,sourceId:$('source').value,limit:'20',offset:String(offset)});
+    if(snapshotId)params.set('snapshotId',snapshotId);
     const data=await api('/territory?'+params,current);try {render(data);}catch(error){clear();throw error;}
   }
-  $('login').addEventListener('submit',run(async()=>{generation++;clear();$('private').hidden=true;token=$('credential').value.trim();$('credential').value='';const current=generation;await api('/session',current);$('private').hidden=false;$('logout').hidden=false;offset=0;await refresh();}));
+  $('login').addEventListener('submit',run(async()=>{generation++;clear();$('private').hidden=true;token=$('credential').value.trim();$('credential').value='';const current=generation;await api('/session',current);$('private').hidden=false;$('logout').hidden=false;offset=0;snapshotId=null;await refresh();}));
   $('logout').addEventListener('click',disconnect);
-  $('filters').addEventListener('submit',run(async()=>{offset=0;await refresh();}));
-  for(const id of ['area','source'])$(id).addEventListener('change',run(async()=>{offset=0;await refresh();}));
+  $('filters').addEventListener('submit',run(async()=>{offset=0;snapshotId=null;await refresh();}));
+  for(const id of ['area','source'])$(id).addEventListener('change',run(async()=>{offset=0;snapshotId=null;await refresh();}));
   $('previous').addEventListener('click',run(async()=>{offset=Math.max(0,offset-20);await refresh();}));
   $('next').addEventListener('click',run(async()=>{offset+=20;await refresh();}));
 })();

@@ -18,7 +18,7 @@ export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox
       if(error.validation||error.statusCode===400||error.statusCode===413)return reply.code(error.statusCode===413?413:400).send({error:"invalid_admin_request"});
       const code=typeof error.message==="string"?error.message:"";
       if(/^(editorial_forbidden|outbox_forbidden)$/.test(code))return reply.code(403).send({error:"admin_forbidden"});
-      if(/^(editorial_not_found|outbox_not_found|candidate_not_current)$/.test(code))return reply.code(404).send({error:"admin_not_found"});
+      if(/^(editorial_not_found|outbox_not_found|candidate_not_current|territory_snapshot_not_found)$/.test(code))return reply.code(404).send({error:"admin_not_found"});
       if(/^(invalid_editorial_|editorial_candidate_too_large|outbox_target_not_allowed|invalid_outbox_kind)/.test(code))return reply.code(400).send({error:"invalid_admin_request"});
       if(/^(editorial_(version_conflict|active_revision_exists|candidate_collision|transition_not_allowed|terminal_state|candidate_expired|not_expired|independent_review_required|evidence_not_current)|outbox_(not_approved|not_retracted|no_prior_simulation|expired|evidence_changed))$/.test(code))return reply.code(409).send({error:code});
       return reply.code(503).send({error:"admin_archive_unavailable"});
@@ -39,7 +39,7 @@ export async function registerAlertAdminRoutes(app,{credentials,editorial,outbox
       },handler});
     if(zoneSubscriptions)route("GET","/api/admin/alerts/demand",{querystring:empty},()=>zoneSubscriptions.demand());
     route("GET","/api/admin/alerts/territory",{querystring:{...properties,required:["area","sourceId"],properties:{area,
-      sourceId:{type:"string",enum:["sngr.flood.layer","sngr.multihazard.layer"]},
+      sourceId:{type:"string",enum:["sngr.flood.layer","sngr.multihazard.layer"]},snapshotId:{type:"string",pattern:"^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$"},
       limit:{type:"integer",minimum:1,maximum:50,default:20},offset:{type:"integer",minimum:0,maximum:100000,default:0}}}},async req=>{
       if(!territoryReader||territoryReader.store?.origin!==sourceStore.origin)throw new Error("territory_archive_unavailable");
       return territoryReader.read(req.query);

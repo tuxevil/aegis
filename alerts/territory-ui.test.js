@@ -4,7 +4,7 @@ const flush=()=>new Promise(r=>setTimeout(r,20));
 async function browser(t) {
   const dom=new JSDOM(html,{url:'https://aegis.example/editorial/territory/',runScripts:'outside-only'});t.after(()=>dom.window.close());const w=dom.window,requests=[];
   let failure=false,block=null;
-  const data={alertsPublishEnabled:false,notForPrediction:true,privateReviewOnly:true,publicationBlocked:true,dispatchMode:'DRY_RUN',evidenceClass:'STATIC_EXPOSURE',recordOrigin:'synthetic_fixture',notice:'Static test, not prediction',areaId:'guayaquil',dpaCode:'0901',owner:'SNGR',licensingStatus:'pending',snapshot:{completedAt:'2026-10-28T12:00:00Z',revision:1,sourceCrs:32717,targetCrs:4326,topologyStatus:'unverified',snapshotAtomicity:'unknown'},
+  const data={alertsPublishEnabled:false,notForPrediction:true,privateReviewOnly:true,publicationBlocked:true,dispatchMode:'DRY_RUN',evidenceClass:'STATIC_EXPOSURE',recordOrigin:'synthetic_fixture',notice:'Static test, not prediction',sourceId:'sngr.flood.layer',areaId:'guayaquil',dpaCode:'0901',owner:'SNGR',licensingStatus:'pending',snapshot:{id:'11111111-1111-4111-8111-111111111111',completedAt:'2026-10-28T12:00:00Z',revision:1,sourceCrs:32717,targetCrs:4326,topologyStatus:'unverified',snapshotAtomicity:'unknown'},
     features:[{id:1,type:'Feature',properties:{categoryRaw:'<img src=x onerror=alert(1)>',cantonCode:'0901'},geometry:{type:'Polygon',coordinates:[[[0,0],[1,0],[1,1],[0,1],[0,0]],[[.2,.2],[.2,.4],[.4,.4],[.4,.2],[.2,.2]]]}}],pagination:{total:21,hasMore:true}};
   w.fetch=async(url,options)=>{requests.push({url,options});if(block&&url.includes('/territory?'))await block;
     return {ok:!failure,status:failure?401:200,json:async()=>url.endsWith('/session')?{actor:{role:'editor'}}:structuredClone(data)};};
@@ -18,7 +18,7 @@ test('mapa privado conserva huecos, atributos seguros y selección por lista; cr
   const path=d.querySelector('#map path');assert.equal(path.getAttribute('fill-rule'),'evenodd');assert.equal((path.getAttribute('d').match(/M/g)||[]).length,2);
   assert.equal(d.querySelector('#features img'),null);assert.match(d.getElementById('features').textContent,/<img src=x/);
   const button=d.querySelector('#features button');button.click();assert.equal(button.getAttribute('aria-pressed'),'true');assert.equal(path.classList.contains('selected'),true);
-  assert.match(d.getElementById('selection').textContent,/<img src=x/);d.getElementById('next').click();await flush();assert.ok(requests.some(r=>r.url.includes('offset=20')));
+  assert.match(d.getElementById('selection').textContent,/<img src=x/);d.getElementById('next').click();await flush();assert.ok(requests.some(r=>r.url.includes('offset=20')&&r.url.includes('snapshotId=11111111-1111-4111-8111-111111111111')));
   const rings=data.features[0].geometry.coordinates;data.features[0].geometry={type:'MultiPolygon',coordinates:[rings,[[[2,0],[3,0],[3,1],[2,1],[2,0]]]]};
   d.getElementById('filters').dispatchEvent(new w.Event('submit',{cancelable:true}));await flush();assert.equal((d.querySelector('#map path').getAttribute('d').match(/M/g)||[]).length,3);
   d.getElementById('logout').click();assert.equal(d.querySelector('#map svg'),null);assert.equal(d.getElementById('private').hidden,true);
@@ -34,4 +34,12 @@ test('respuesta tardía tras logout y credencial revocada limpian geometría pri
   w.document.getElementById('filters').dispatchEvent(new w.Event('submit',{cancelable:true}));await flush();w.document.getElementById('logout').click();release();await flush();
   assert.equal(w.document.querySelector('#map svg'),null);assert.equal(w.document.getElementById('private').hidden,true);
   const second=await browser(t);await second.login();second.setFailure();second.w.document.getElementById('filters').dispatchEvent(new second.w.Event('submit',{cancelable:true}));await flush();assert.equal(second.w.document.getElementById('private').hidden,true);
+});
+
+test('respuesta con otra colección se descarta al paginar; consulta explícita carga una nueva',async t=>{
+  const {w,data,login,requests}=await browser(t);await login();
+  data.snapshot.id='22222222-2222-4222-8222-222222222222';w.document.getElementById('next').click();await flush();
+  assert.equal(w.document.querySelector('#map svg'),null);assert.match(w.document.getElementById('status').textContent,/colección cambió/);
+  w.document.getElementById('filters').dispatchEvent(new w.Event('submit',{cancelable:true}));await flush();
+  assert.ok(w.document.querySelector('#map svg'));assert.equal(new URL(requests.at(-1).url,'https://aegis.example').searchParams.has('snapshotId'),false);
 });

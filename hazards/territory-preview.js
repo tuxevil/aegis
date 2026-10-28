@@ -24,19 +24,21 @@ export class TerritoryPreviewReader {
       !Number.isSafeInteger(maxBytes)||maxBytes<1||maxBytes>2000000)throw new Error('invalid_territory_reader_configuration');
     Object.assign(this,{store,registry,now,maxPoints,maxBytes});
   }
-  async read({sourceId,area,limit=20,offset=0}={}) {
+  async read({sourceId,area,limit=20,offset=0,snapshotId}={}) {
     const territory=pilotArea(area),source=this.registry.get(sourceId);
     if(!territory||source.type!=='arcgis-layer'||!Number.isSafeInteger(limit)||limit<1||limit>50||!Number.isSafeInteger(offset)||offset<0||offset>100000)throw new Error('invalid_territory_request');
+    if(snapshotId!==undefined&&(typeof snapshotId!=='string'||!(/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/).test(snapshotId)))throw new Error('invalid_territory_request');
     const generatedAt=this.now();if(!Number.isFinite(utcMillis(generatedAt)))throw new Error('invalid_territory_clock');
     const service=new LayerResearchService({store:this.store,registry:this.registry});
-    const snapshot=(await service.snapshots()).filter(s=>s.sourceId===sourceId&&s.areaId===territory.id).at(-1);
+    const snapshot=(await service.snapshots()).filter(s=>s.sourceId===sourceId&&s.areaId===territory.id&&(snapshotId===undefined||s.id===snapshotId)).at(-1);
     const base={schemaVersion:'1.0',generatedAt,...safeMode,publicationBlocked:true,privateReviewOnly:true,recordOrigin:this.store.origin,
       evidenceClass:'STATIC_EXPOSURE',notForPrediction:true,areaId:territory.id,dpaCode:territory.dpaCode,boundaryVersion:null,
       sourceId,sourceUrl:source.url,owner:source.owner,licensingStatus:source.licensing.status,
       notice:'Susceptibilidad estática para revisión privada. No confirma un incidente ni predice una inundación o deslizamiento. Límites y derechos de publicación pendientes.'};
+    if(!snapshot&&snapshotId!==undefined)throw new Error('territory_snapshot_not_found');
     if(!snapshot)return {...base,status:'unknown',snapshot:null,features:[],pagination:{limit,offset,total:null,hasMore:false}};
     if(snapshot.dpaCode!==territory.dpaCode||!Number.isFinite(utcMillis(snapshot.completedAt))||utcMillis(snapshot.completedAt)>utcMillis(generatedAt))throw new Error('invalid_territory_snapshot');
-    await service.verify(sourceId,territory.id);
+    await service.verify(sourceId,territory.id,{snapshotId:snapshot.id});
     const byId=new Map((await this.store.records()).map(r=>[r.id,r]));
     const selected=snapshot.artifactIds.map(id=>byId.get(id));
     if(hash(selected.map(r=>({sha256:r.sha256,url:r.envelope.sourceUrl})))!==snapshot.contentHash)throw new Error('invalid_territory_snapshot');

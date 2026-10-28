@@ -122,7 +122,10 @@ test("geometría territorial solo tras Bearer, consulta cerrada y archivo verifi
   const {app,inject}=await setup(t,{territoryReader:reader}),url='/api/admin/alerts/territory?area=guayaquil&sourceId=sngr.flood.layer';
   assert.equal((await app.inject(url)).statusCode,401);
   const response=await inject(url);assert.equal(response.statusCode,200);assert.equal(response.headers['cache-control'],'no-store');
-  assert.equal(response.json().features.length,3);assert.equal(response.json().recordOrigin,'synthetic_fixture');assert.equal(response.json().publicationBlocked,true);
+  assert.equal(response.json().features.length,3);
+  const pinned=url+'&snapshotId='+response.json().snapshot.id;assert.equal((await inject(pinned)).statusCode,200);
+  assert.equal((await inject(url+'&snapshotId=00000000-0000-0000-0000-000000000000')).statusCode,404);
+  assert.equal((await inject(url+'&snapshotId=bad')).statusCode,400);assert.equal(response.json().recordOrigin,'synthetic_fixture');assert.equal(response.json().publicationBlocked,true);
   assert.doesNotMatch(response.body,/storageKey|artifactIds/);
   for(const suffix of ['&url=https://example.invalid','&limit=51','&offset=-1','&sourceId=other'])assert.equal((await inject(url+suffix)).statusCode,400);
   assert.equal((await inject(url,{role:'approver'})).statusCode,200);

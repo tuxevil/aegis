@@ -280,3 +280,18 @@ contenedor reconstruido y sin red, **6/6** Python, ambos replays y diff-check.
 Revisiones finales específicas: API sin inicializar archivo ausente y multipartes
 en DOM correctas. Grid /ui 200 y vista territorial 404 con flags OFF/directorio
 experimental oculto, sin red. CI de 4c9a9a5 success, run 40685382332.
+
+## Consistencia de colección al paginar
+
+La revisión territorial ya fija snapshotId entre páginas; no mezcla capturas si
+aparece una colección nueva. Consulta explícita/cambio de filtros carga la última.
+CLI admite --snapshot; API liga ID a fuente/piloto/origen y devuelve 404 sin
+fallback si no corresponde. Verificación SHA/manifiesto/contentHash se aplica a
+la colección elegida. Pruebas de archivo físico, API y DOM; ningún HTTP externo.
+
+Verificación: npm ci 0 vulnerabilidades, check, **222/222** Node, **167/167**
+en contenedor reconstruido sin red, **6/6** Python, ambos replays/diff-check.
+Chromium 320/1280 confirmó entrada de una nueva colección entre páginas,
+conservación de la anterior y carga explícita de la nueva. Captura móvil revisada,
+fixtures privados; sin overflow/page errors ni conexión externa. Artefactos:
+/tmp/aegis-browser-territory-pinned-20261028. CI ed780ca success, run 40686681755.

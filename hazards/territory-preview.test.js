@@ -64,3 +64,14 @@ test('colección completa vacía se distingue de archivo ausente sin inferir rie
   assert.equal(result.status,'partial');assert.equal(result.pagination.total,0);assert.ok(result.snapshot);
   assert.equal(result.notForPrediction,true);assert.equal(result.publicationBlocked,true);
 });
+
+test('paginación fija la colección y no mezcla una captura posterior',async t=>{
+  const {reader,store,root,parent}=await setup(t);const first=await reader.read({sourceId,area:'guayaquil',limit:2});
+  await new LayerResearchService({store,acquirer:SngrLayerAcquirer.fromFixtures(layerFixtures({count:4}))}).collect(sourceId,'guayaquil',{fixture:true});
+  const old=await reader.read({sourceId,area:'guayaquil',limit:2,offset:2,snapshotId:first.snapshot.id});
+  assert.equal(old.snapshot.id,first.snapshot.id);assert.equal(old.pagination.total,3);assert.deepEqual(old.features.map(f=>f.id),[3]);
+  const fresh=await reader.read({sourceId,area:'guayaquil',limit:2,offset:2});assert.notEqual(fresh.snapshot.id,first.snapshot.id);assert.equal(fresh.pagination.total,4);
+  const output=path.join(parent,'pinned.json');await run(process.execPath,['scripts/inspect-territory.mjs',`--data-dir=${root}`,`--source=${sourceId}`,'--area=guayaquil','--fixture',`--snapshot=${first.snapshot.id}`,`--out=${output}`]);assert.equal(JSON.parse(await fs.readFile(output,'utf8')).snapshot.id,first.snapshot.id);
+  await assert.rejects(()=>reader.read({sourceId,area:'pallatanga',snapshotId:first.snapshot.id}),/territory_snapshot_not_found/);
+  await assert.rejects(()=>reader.read({sourceId,area:'guayaquil',snapshotId:'../../private'}),/invalid_territory_request/);
+});

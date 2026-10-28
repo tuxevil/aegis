@@ -25,7 +25,7 @@ const root=await fs.mkdtemp(path.join(os.tmpdir(),"aegis-browser-fixtures-"));
 const sourceStore=new RawArtifactStore(root,{origin:"synthetic_fixture"});
 await new GridWeatherBridge({store:sourceStore}).capture({weather:{timestamp:new Date().toISOString(),rainRateMmHr:9,rainDailyMm:null}},{fixture:true});
 const layerStore=new RawArtifactStore(root,{origin:"synthetic_fixture",namespace:"layers"});
-await new LayerResearchService({store:layerStore,acquirer:SngrLayerAcquirer.fromFixtures(layerFixtures())}).collect("sngr.flood.layer","guayaquil",{fixture:true});
+await new LayerResearchService({store:layerStore,acquirer:SngrLayerAcquirer.fromFixtures(layerFixtures({count:21,pageSize:10}))}).collect("sngr.flood.layer","guayaquil",{fixture:true});
 const territoryReader=new TerritoryPreviewReader({store:new RawArtifactStore(root,{origin:"synthetic_fixture",namespace:"layers",readOnly:true})});
 const journal=new AlertJournal(root,{origin:"synthetic_fixture"}),verifyEvidence=archiveEvidenceVerifier(sourceStore);
 const tokens={editor:randomBytes(32).toString("base64url"),approver:randomBytes(32).toString("base64url")};
@@ -85,12 +85,23 @@ try {
       await page.keyboard.press("Enter");assert.equal(await page.evaluate(()=>document.activeElement.id),target);
     }
   }
-  const territory=await context.newPage();
+  const territory=await context.newPage();let territoryCount=21;
   for(const width of [320,1280]) {
     await territory.setViewportSize({width,height:900});await territory.goto(address+"/editorial/territory/");
+    const firstRead=territory.waitForResponse(r=>r.url().includes("/api/admin/alerts/territory?"));
     await territory.fill("#credential",tokens.editor);await territory.locator("#login button").click();
-    await territory.waitForSelector("#map path");assert.equal(await territory.locator("#map path").count(),3);
+    await territory.waitForSelector("#map path");assert.equal(await territory.locator("#map path").count(),20);
+    const initialSnapshot=(await (await firstRead).json()).snapshot.id;
     await territory.locator("#features button").first().click();assert.equal(await territory.locator("#map path.selected").count(),1);
+    territoryCount++;
+    await new LayerResearchService({store:layerStore,acquirer:SngrLayerAcquirer.fromFixtures(layerFixtures({count:territoryCount,pageSize:10}))}).collect("sngr.flood.layer","guayaquil",{fixture:true});
+    const nextRead=territory.waitForResponse(r=>r.url().includes("/api/admin/alerts/territory?"));await territory.locator("#next").click();
+    const pinnedData=await (await nextRead).json();assert.equal(pinnedData.snapshot.id,initialSnapshot);assert.equal(pinnedData.pagination.total,territoryCount-1);
+    await territory.waitForFunction(n=>document.querySelectorAll("#map path").length===n,territoryCount-21);
+    const latestRead=territory.waitForResponse(r=>r.url().includes("/api/admin/alerts/territory?"));await territory.locator("#filters button").click();
+    const latestData=await (await latestRead).json();assert.notEqual(latestData.snapshot.id,initialSnapshot);assert.equal(latestData.pagination.total,territoryCount);
+    await territory.waitForFunction(()=>document.querySelectorAll("#map path").length===20);
+    await territory.locator("#features button").first().click();
     assert.equal(await territory.locator("#provenance a").count(),1);await territory.locator("#provenance summary").click();
     await fit(territory);await territory.screenshot({path:path.join(output,`territory-${width}.png`),fullPage:true});
     await territory.selectOption("#area","pallatanga");await territory.waitForFunction(()=>document.querySelector("#status").textContent.includes("Sin colección verificable"));
@@ -99,5 +110,5 @@ try {
     await territory.reload();await territory.keyboard.press("Tab");await territory.keyboard.press("Enter");assert.equal(await territory.evaluate(()=>document.activeElement.id),"workspace");
   }
   assert.deepEqual(errors,[]);
-  console.log(process.argv.includes("--territory-only")?"PASS: Chromium 320/1280px private territory schematic/selection/provenance/fallback, keyboard/logout, no overflow/page errors; external requests blocked.":"PASS: Chromium 320/1280px, independent editorial review, WAHA notice/retraction simulation, private territory schematic/selection/fallback, zone consent/revocation, keyboard/focus, no overflow/page errors; external requests blocked.");
+  console.log(process.argv.includes("--territory-only")?"PASS: Chromium 320/1280px private territory schematic/selection/provenance/pinned pagination/fallback, keyboard/logout, no overflow/page errors; external requests blocked.":"PASS: Chromium 320/1280px, independent editorial review, WAHA notice/retraction simulation, private territory schematic/selection/fallback, zone consent/revocation, keyboard/focus, no overflow/page errors; external requests blocked.");
 } finally {await browser?.close();await app.close();await fs.rm(root,{recursive:true,force:true});}
