@@ -48,6 +48,19 @@ try {
       await approver.getByRole("button",{name:"Encolar simulación WAHA",exact:true}).click();
       await approver.getByRole("button",{name:"Procesar simulación",exact:true}).click();
       await approver.waitForFunction(()=>document.querySelector("#outbox").textContent.includes("simulated"));
+      await approver.locator("#alerts textarea").fill("QA sintético: retirar revisión propia; no cancela un aviso oficial.");
+      await approver.getByRole("button",{name:"Retractar revisión",exact:true}).click();
+      await approver.getByRole("button",{name:"Encolar retractación simulada WAHA",exact:true}).click();
+      await approver.getByRole("button",{name:"Procesar simulación",exact:true}).click();
+      await approver.waitForFunction(()=>document.querySelectorAll("#outbox article").length===2&&[...document.querySelectorAll("#outbox h3")].every(e=>e.textContent.includes("simulated")));
+      const previews=approver.locator("#outbox details");
+      for(let i=0;i<await previews.count();i++)await previews.nth(i).locator("summary").click();
+      assert.match(await approver.locator("#outbox").textContent(),/RETRACTACIÓN/);
+      assert.match(await approver.locator("#outbox").textContent(),/No demuestra cancelación oficial ni fin de la amenaza/);
+      const items=await app.inject({url:"/api/admin/alerts/outbox",headers:{authorization:"Bearer "+tokens.approver}});
+      assert.equal(items.statusCode,200);assert.equal(items.json().items.length,2);
+      assert.ok(items.json().items.every(item=>item.state==="simulated"&&item.sent===false&&item.result.providerMessageId===null));
+
     } else await login(approver,"approver");
     await fit(editor);await fit(approver);
     await approver.screenshot({path:path.join(output,`editorial-${width}.png`),fullPage:true});
@@ -66,5 +79,5 @@ try {
     }
   }
   assert.deepEqual(errors,[]);
-  console.log("PASS: Chromium 320/1280px, independent editorial review and WAHA simulation, zone consent/revocation, keyboard/focus, no overflow/page errors; external requests blocked.");
+  console.log("PASS: Chromium 320/1280px, independent editorial review, WAHA notice/retraction simulation, zone consent/revocation, keyboard/focus, no overflow/page errors; external requests blocked.");
 } finally {await browser?.close();await app.close();await fs.rm(root,{recursive:true,force:true});}

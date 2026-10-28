@@ -47,7 +47,7 @@ export class HazardPublicReader {
     const records=collection==="health"?await this.records():[];
     let items=[];
     if(collection==="areas") items=pilotAreas().filter(a=>!area||a.id===pilotArea(area)?.id);
-    if(collection==="sources") items=sources.map(s=>({sourceId:s.id,title:s.title,owner:s.owner,sourceUrl:s.url,
+    if(collection==="sources") items=sources.map(s=>({sourceId:s.id,title:s.title,owner:s.owner,sourceUrl:s.publicInfoUrl??s.url,
       licensingStatus:s.licensing.status,coverageStatus:"limited",pollingEnabled:false}));
     if(collection==="health") items=sources.map(s=>{
       const latest=records.filter(r=>{

@@ -26,6 +26,7 @@ const localSources=[{id:"grid.pallatanga.weather",type:"local-observation",inter
 const modelUrl=new URL(entries.find(e=>e.type==="forecast").url);modelUrl.searchParams.set("models","ecmwf_ifs");
 const modelSources=[{...entries.find(e=>e.type==="forecast"),id:"openmeteo.singlerun.ecmwf",url:modelUrl.href,
   title:"Corrida histórica ECMWF IFS · punto de Guayaquil",requestedModel:"ecmwf_ifs",modelSelectionVerified:true,
+  publicInfoUrl:"https://open-meteo.com/en/docs/single-runs-api",
   modelSelectionProof:"docs/verification/source-probes/2026-10-27-model-selection.json"}];
 const modelPoints={guayaquil:{latitude:"-2.19",longitude:"-79.88"},
   pallatanga:{latitude:"-1.99856",longitude:"-78.96629"}};

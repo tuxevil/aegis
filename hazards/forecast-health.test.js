@@ -39,3 +39,12 @@ test('lector verifica último artefacto por punto, sin recorrer todas las corrid
   reader.store.readRaw=async sha=>{if(sha==='2')throw new Error('artifact_corrupt');};
   await assert.rejects(()=>reader.loadRecords(),/artifact_corrupt/);
 });
+
+test('catálogo de cada piloto enlaza documentación del modelo, no la muestra de otro punto',async()=>{
+  const reader=new HazardPublicReader();
+  for(const area of ['guayaquil','pallatanga']) {
+    const source=(await reader.read('sources',{area})).items.find(s=>s.sourceId===sourceId);
+    assert.equal(source.sourceUrl,'https://open-meteo.com/en/docs/single-runs-api');
+    assert.equal(new URL(source.sourceUrl).search,'');
+  }
+});

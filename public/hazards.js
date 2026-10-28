@@ -1,6 +1,6 @@
 (() => {
   const labels={unknown:"Sin datos suficientes",degraded:"Validación incompleta",stale:"Datos antiguos",healthy:"Fuente disponible"};
-  const allowedHosts=new Set(["www.inamhi.gob.ec","sgrportal.gestionderiesgos.gob.ec","single-runs-api.open-meteo.com"]);
+  const allowedHosts=new Set(["www.inamhi.gob.ec","sgrportal.gestionderiesgos.gob.ec","single-runs-api.open-meteo.com","open-meteo.com"]);
   const byId=id=>document.getElementById(id);
   let generation=0;
   async function read(collection,area) {

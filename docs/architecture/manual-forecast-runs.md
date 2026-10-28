@@ -57,3 +57,7 @@ revisión/aprobación humana ni notificación. Otras combinaciones siguen pendie
 Referencia primaria revisada: [Open-Meteo Single Runs](https://open-meteo.com/en/docs/single-runs-api).
 La documentación describe selección por inicialización; no demuestra disponibilidad
 histórica en AEGIS ni derechos adicionales. Mantener el gate de validación externa.
+
+El catálogo público enlaza la documentación oficial, no la URL de muestra de
+Guayaquil bajo la selección Pallatanga. Las URLs exactas permanecen en los envelopes
+privados y en la revisión editorial; no se sustituyen por documentación al auditar.

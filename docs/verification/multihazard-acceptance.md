@@ -192,3 +192,24 @@ Validación: npm ci 0 vulnerabilidades, check, **202/202** Node, **147/147** en
 imagen local con código actual y dependencias nativas/red bloqueada, **6/6** Python,
 ambos replays y diff-check. UI nueva verificada en DOM; no se afirma nuevo ensayo
 Chromium de estos controles. CI anterior 149e15f success, run 40608697068.
+
+## Chromium del flujo de retractación y enlace territorial
+
+El script reproducible verify-alerts-browser.mjs ahora recorre aviso y retractación
+simulados en WAHA, verifica ambos ítems mediante API autenticada y ausencia de
+envío/ID de proveedor. Chromium pasó 320/1280 px, consentimiento/baja, teclado,
+foco, sin overflow ni errores de página; toda conexión fuera de localhost bloqueada.
+Captura móvil inspeccionada con ambas vistas previas expandidas: origen sintético,
+ninguna difusión y retiro editorial sin cancelación oficial explícitos. Artefactos
+privados en /tmp/aegis-browser-retractions-20261027; no se publican capturas.
+
+Reproducido y corregido: el catálogo filtrado Pallatanga enlazaba el JSON de muestra
+histórica de Guayaquil. Ahora ambos pilotos enlazan la documentación oficial de
+Single Runs; los envelopes internos mantienen URL exacta de corrida/punto. La
+allowlist del navegador admite el dominio oficial y sigue excluyendo credenciales.
+No se consultó ninguna corrida nueva para esta corrección.
+
+Check, **203/203** Node, **148/148** en imagen local con código actual/dependencias
+nativas y sin red, **6/6** Python, ambos replays y diff-check correctos. Dependencias
+sin cambios desde npm ci sin vulnerabilidades del incremento anterior. CI de
+abd33fc terminó success (Node 22/24 + contenedor), run 40609038855.
