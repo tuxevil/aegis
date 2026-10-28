@@ -1,9 +1,20 @@
 # Auditoría de aceptación Multiamenaza — M0–M4 en sombra
 
-Estado acumulado de desarrollo: 2026-10-28, PR #28 sobre #27/#26/#25/#24.
+Estado acumulado de desarrollo: 2026-10-28, PR #29 sobre #28/#27/#26/#25/#24.
 La planificación normativa sigue en START_HERE_CODEX y roadmap. Este documento
 reconcilia las entregas incrementales; los informes M0/M1/M2 anteriores describen
 su corte histórico, no una ausencia actual de código que apareció después.
+
+Revisión complementaria M0 del 28/10: solo documentación pública de proveedores,
+sin consultas a APIs de datos, cuentas, solicitudes de acceso ni contactos. El
+[informe de acceso y términos](../research/complementary-source-access-review-2026-10-28.md)
+separa licencia de datos, condiciones del servicio y disponibilidad no probada.
+No incorpora nuevos conectores ni modifica la política de evaluación.
+
+Baseline repetido para esta revisión: npm ci sin vulnerabilidades, check,
+**252/252** Node, **6/6** Python, replay Guayaquil y benchmark comparativo correctos.
+Las cifras de contenedor posteriores en este documento pertenecen al cambio de
+código anterior; esta revisión documental no repitió su construcción.
 
 **Resultado: no está probado el cierre integral del objetivo.** Hay software
 probado para diagnóstico, archivo, consulta, evaluación y flujo editorial simulado.
@@ -19,6 +30,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M0 seis GET y diagnóstico real sanitizado | Probado: source-probes initial/detailed y reportes posteriores | Éxito HTTP no certifica operación permanente |
 | M0 fallos HTTP/PDF/JSON/TTL/modelo/reloj | Probado: sondas, warning-validity, ingestion tests | Fixtures identificados, no incidentes reales |
 | M0 permisos/tasas/restricciones | Parcial: política conservadora, pausa 403/429; términos consultados | Permiso definitivo INAMHI/SNGR pendiente |
+| Apertura M0: fuentes complementarias | Revisión documental de Google Flood, RainViewer, MET Norway y Open-Meteo: [evidencia y decisiones](../research/complementary-source-access-review-2026-10-28.md) | Sin prueba de APIs/cobertura Ecuador; acceso piloto, restricciones y contradicciones no equivalen a permiso operacional |
 | Dependencias y errores preexistentes | Probado: npm ci actual 0 vulnerabilidades; cuatro iniciales corregidas en f22e4cc | GitHub aún informa una baja en main, que no se ha modificado |
 | M1 Registry y HTTP aislado | Probado: registry/http; URLs cerradas, GET, límites, TLS verificado nuevo, cooldown durable | No scheduler operacional ni frecuencia certificada |
 | M1 artefactos/versiones/capturas/reproceso | Probado: artifact-store, immutable-file, ingestion tests; PDF real M1 verificado | Archivo real de laboratorio en /tmp, no volumen resiliente |

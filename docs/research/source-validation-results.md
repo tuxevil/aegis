@@ -8,6 +8,9 @@ de `origin/feature/guayaquil-replay-whatsapp` (contexto PR #23).
 
 > Informe histórico de M0. El estado acumulado posterior se contrasta en
 > [auditoría de aceptación](../verification/multihazard-acceptance.md).
+> La revisión complementaria del 28/10 de Google Flood, RainViewer, MET Norway
+> y Open-Meteo está en [este informe documental](complementary-source-access-review-2026-10-28.md).
+> No repite las sondas ni acredita salud o cobertura de sus APIs.
 
 ## Resultado y alcance
 
