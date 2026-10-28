@@ -1,3 +1,4 @@
+export const CELEC_REFRESH_FAILURE=Symbol.for("aegis.celec.refresh-failure");
 // CELEC consulta un día civil de Ecuador, independientemente del TZ del servidor.
 const ecuadorDate = new Intl.DateTimeFormat("en-GB", {
   timeZone: "America/Guayaquil",
@@ -36,6 +37,7 @@ export async function fetchMrid(
 ) {
   // A medianoche el día nuevo puede no tener muestras aún. El rango ISO
   // conserva el mismo instante final al consultar el día anterior.
+  let refreshFailed=false;
   for (let day = 0; day < Math.max(2, days); day++) {
     const dayDate = new Date(nowDate.getTime() - day * 86400_000);
     try {
@@ -45,7 +47,7 @@ export async function fetchMrid(
           rejectUnauthorized: false,
         },
       );
-      if (res.status !== 200) break;
+      if (res.status !== 200) {refreshFailed=true;break;}
       const items = JSON.parse(res.data).items || [];
       const valid = items
         .filter(
@@ -62,10 +64,12 @@ export async function fetchMrid(
         if (days === 1) return store.read(String(mrid)).at(-1) ?? null;
       }
     } catch {
-      break;
+      refreshFailed=true;break;
     }
   }
   // No reemplazar una medición válida por null. Se conserva su fecha original
   // para que el dashboard pueda indicar la antigüedad real del dato.
-  return store.read(String(mrid)).at(-1) ?? null;
+  const previous=store.read(String(mrid)).at(-1) ?? null;
+  if(previous&&refreshFailed)Object.defineProperty(previous,CELEC_REFRESH_FAILURE,{value:true});
+  return previous;
 }

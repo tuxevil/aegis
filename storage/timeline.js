@@ -1,0 +1,302 @@
+import { labelKey } from "../schedules/eeasa.js";
+import { provider } from "../schedules/providers.js";
+import { utcDate } from "./repositories.js";
+export function createTimeline(db, { synthetic, available, now, getReader }) {
+  const safeId = (v) =>
+    typeof v === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(v);
+  return {
+    listSchedules({
+      area_id,
+      from,
+      to,
+      known_at = now().toISOString(),
+      limit = 20,
+      offset = 0,
+    }) {
+      available();
+      if (
+        !safeId(area_id) ||
+        !Number.isInteger(limit) ||
+        limit < 1 ||
+        limit > 50 ||
+        !Number.isInteger(offset) ||
+        offset < 0 ||
+        offset > 10000
+      )
+        throw Error("Consulta temporal inválida");
+      const lower = utcDate(from),
+        upper = utcDate(to),
+        known = utcDate(known_at);
+      if (
+        lower >= upper ||
+        Date.parse(upper) - Date.parse(lower) > 90 * 86400000 ||
+        known > now().toISOString()
+      )
+        throw Error("Rango temporal inválido");
+      const candidates = db
+        .prepare(
+          `SELECT r.*,h.area_id,h.reviewed_at,e.provider_id,a.name AS area_name,ar.source_published_at,ar.sha256,ar.fetched_at
+        FROM schedule_revisions r JOIN schedule_entries e ON e.id=r.entry_id
+        JOIN schedule_reviews h ON h.revision_id=r.id AND h.review_no=(SELECT MAX(v.review_no) FROM schedule_reviews v WHERE v.revision_id=r.id AND v.reviewed_at<=?)
+        JOIN schedule_reviews current ON current.revision_id=r.id AND current.review_no=(SELECT MAX(v.review_no) FROM schedule_reviews v WHERE v.revision_id=r.id)
+        JOIN areas a ON a.id=h.area_id JOIN artifacts ar ON ar.id=r.artifact_id
+        WHERE r.synthetic=? AND h.area_id=? AND h.decision='reviewed' AND h.rights_reviewed=1
+        AND current.decision='reviewed' AND current.rights_reviewed=1 AND current.area_id=h.area_id
+        AND r.revision_no=(SELECT MAX(v.revision_no) FROM schedule_revisions v WHERE v.entry_id=r.entry_id AND v.imported_at<=?)
+        AND r.row_present=1 AND r.parser_confidence=1 AND r.start_at<? AND r.end_at>?
+        ORDER BY r.start_at,r.id LIMIT ? OFFSET ?`,
+        )
+        .all(
+          known,
+          Number(synthetic),
+          area_id,
+          known,
+          upper,
+          lower,
+          limit,
+          offset,
+        );
+      const data = [];
+      for (const row of candidates) {
+        const binding = db
+          .prepare(
+            "SELECT area_id FROM schedule_bindings WHERE provider_id=? AND label_key=? ORDER BY binding_no DESC LIMIT 1",
+          )
+          .get(row.provider_id, labelKey(row.sector_label));
+        if (binding?.area_id !== area_id) continue;
+        const cancellation = db
+          .prepare(
+            "SELECT confirmed_at FROM schedule_cancellations WHERE revision_id=? AND confirmed_at<=?",
+          )
+          .get(row.id, known);
+        data.push({
+          entry_id: row.entry_id,
+          artifact_id: row.artifact_id,
+          sha256: row.sha256,
+          area_id,
+          area_name: row.area_name,
+          revision_no: row.revision_no,
+          type: row.type,
+          start_at: row.start_at,
+          end_at: row.end_at,
+          reviewed_at: row.reviewed_at,
+          source_url: provider(row.provider_id).url,
+          source_published_at: row.source_published_at,
+          fetched_at: row.fetched_at,
+          status: cancellation
+            ? "historical_cancelled"
+            : "historical_scheduled",
+          duration_seconds: null,
+          synthetic,
+        });
+      }
+      return {
+        data,
+        meta: {
+          known_at: known,
+          from: lower,
+          to: upper,
+          next_offset:
+            candidates.length === limit && offset + limit <= 10000
+              ? offset + limit
+              : null,
+          synthetic,
+          coverage: "unknown",
+          nature: "scheduled-not-observed",
+        },
+      };
+    },
+    list({
+      area_id,
+      from,
+      to,
+      known_at = now().toISOString(),
+      limit = 20,
+      offset = 0,
+    }) {
+      available();
+      if (
+        !safeId(area_id) ||
+        !Number.isInteger(limit) ||
+        limit < 1 ||
+        limit > 50 ||
+        !Number.isInteger(offset) ||
+        offset < 0 ||
+        offset > 10000
+      )
+        throw Error("Consulta temporal inválida");
+      const lower = utcDate(from),
+        upper = utcDate(to),
+        known = utcDate(known_at);
+      if (
+        lower >= upper ||
+        Date.parse(upper) - Date.parse(lower) > 90 * 86400000 ||
+        known > now().toISOString()
+      )
+        throw Error("Rango temporal inválido");
+      const reader = getReader(),
+        rows = db
+          .prepare(
+            `SELECT r.*,a.name AS area_name FROM correlation_revisions r
+ JOIN events e ON e.id=r.event_id JOIN areas a ON a.id=e.area_id
+ WHERE e.synthetic=? AND e.area_id=? AND r.recorded_at<=?
+ AND r.revision=(SELECT MAX(p.revision) FROM correlation_revisions p WHERE p.event_id=r.event_id AND p.recorded_at<=?)
+ ORDER BY r.recorded_at DESC,r.event_id LIMIT ? OFFSET ?`,
+          )
+          .all(Number(synthetic), area_id, known, known, limit, offset);
+      const data = [];
+      for (const revision of rows) {
+        const current = reader.getEvent(revision.event_id);
+        if (!current) continue;
+        const snapshot = JSON.parse(revision.snapshot_json),
+          event = snapshot.event;
+        const groups = snapshot.facts.groups || [],
+          included = new Set(groups.map((g) => g.observation_id));
+        const publicEvidence = reader.listEvidence(event.id, {
+          limit: 500,
+          offset: 0,
+        });
+        const ids = publicEvidence.map((e) => e.id),
+          links = ids.length
+            ? db
+                .prepare(
+                  `SELECT id,observation_id FROM evidence WHERE id IN (${ids.map(() => "?").join(",")})`,
+                )
+                .all(...ids)
+            : [];
+        const lookup = new Map(links.map((l) => [l.id, l.observation_id]));
+        const allowed = new Set(links.map((l) => l.observation_id)),
+          held = Boolean(
+            db
+              .prepare(
+                "SELECT review_hold FROM correlation_cases WHERE event_id=?",
+              )
+              .get(event.id)?.review_hold,
+          );
+        const redacted =
+          held ||
+          groups.some((g) => g.active && !allowed.has(g.observation_id));
+        const state = redacted
+          ? {
+              ...event,
+              status: "unknown",
+              start_at: null,
+              end_at: null,
+              start_basis: "unknown",
+              end_basis: "unknown",
+            }
+          : event;
+        const evidence = publicEvidence
+          .filter(
+            (e) =>
+              included.has(lookup.get(e.id)) &&
+              e.ingested_at <= revision.recorded_at,
+          )
+          .slice(0, 100)
+          .map((e) => ({
+            source_name: e.source_name,
+            source_url: e.source_url,
+            source_published_at: e.source_published_at,
+            ingested_at: e.ingested_at,
+            relation: e.relation,
+          }));
+        if (
+          state.start_at &&
+          (state.start_at >= upper || (state.end_at && state.end_at <= lower))
+        )
+          continue;
+        const duration =
+          state.type !== "scheduled" &&
+          state.status === "ended" &&
+          state.start_at &&
+          state.end_at &&
+          state.start_basis !== "unknown" &&
+          state.end_basis !== "unknown"
+            ? Math.max(
+                0,
+                (Date.parse(state.end_at) - Date.parse(state.start_at)) / 1000,
+              )
+            : null;
+        data.push({
+          event_id: event.id,
+          area_id: event.area_id,
+          area_name: revision.area_name,
+          type: state.type,
+          status: state.status,
+          start_at: state.start_at,
+          end_at: state.end_at,
+          start_basis: state.start_basis,
+          end_basis: state.end_basis,
+          recorded_at: revision.recorded_at,
+          revision: revision.revision,
+          duration_seconds: duration,
+          evidence,
+          synthetic,
+          coverage: "unknown",
+          redacted,
+        });
+      }
+      return {
+        data,
+        next_offset:
+          rows.length === limit && offset + limit <= 10000
+            ? offset + limit
+            : null,
+        known_at: known,
+        from: lower,
+        to: upper,
+      };
+    },
+  };
+}
+export function timelineCsv(rows, context = {}) {
+  const columns = [
+    "event_id",
+    "area_name",
+    "type",
+    "status",
+    "start_at",
+    "end_at",
+    "recorded_at",
+    "revision",
+    "duration_seconds",
+    "synthetic",
+    "sources",
+    "start_basis",
+    "end_basis",
+    "known_at",
+    "from",
+    "to",
+    "evidence_json",
+  ];
+  const cell = (value) => {
+    let s = value === null || value === undefined ? "" : String(value);
+    if (/^[\s]*[=+@-]/.test(s)) s = "'" + s;
+    return '"' + s.replaceAll('"', '""') + '"';
+  };
+  return (
+    columns.map(cell).join(",") +
+    "\r\n" +
+    rows
+      .map((row) =>
+        columns
+          .map((key) =>
+            cell(
+              key === "evidence_json"
+                ? JSON.stringify(row.evidence)
+                : ["known_at", "from", "to"].includes(key)
+                  ? context[key]
+                  : key === "sources"
+                    ? row.evidence
+                        .map((e) => e.source_url)
+                        .filter(Boolean)
+                        .join(" | ")
+                    : row[key],
+            ),
+          )
+          .join(","),
+      )
+      .join("\r\n") +
+    "\r\n"
+  );
+}

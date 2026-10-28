@@ -1,0 +1,5547 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AEGIS public read API",
+    "version": "1.0.0",
+    "description": "Rutas GET públicas habilitadas en este proceso. No certifica cobertura/frescura; datos ausentes no son cero. Funciones v5 permanecen detrás de flags y gates."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [],
+  "paths": {
+    "/api/v1/openapi.json": {
+      "get": {
+        "operationId": "read__api_v1_openapi_json",
+        "summary": "/api/v1/openapi.json",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/health/quality": {
+      "get": {
+        "operationId": "read__api_v1_health_quality",
+        "summary": "/api/v1/health/quality",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "generated_at",
+                    "uptime_seconds",
+                    "scope",
+                    "requests",
+                    "errors_4xx",
+                    "errors_5xx",
+                    "rate_limited",
+                    "sources"
+                  ],
+                  "properties": {
+                    "generated_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "uptime_seconds": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "scope": {
+                      "const": "registered-public-get-only",
+                      "type": "string"
+                    },
+                    "requests": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "errors_4xx": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "errors_5xx": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "rate_limited": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "sources": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "attempts",
+                        "failures",
+                        "last_attempt_at",
+                        "last_success_at"
+                      ],
+                      "properties": {
+                        "attempts": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "failures": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "last_attempt_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        },
+                        "last_success_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/health/public": {
+      "get": {
+        "operationId": "read__api_v1_health_public",
+        "summary": "/api/v1/health/public",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "api_version",
+                    "status",
+                    "timestamp",
+                    "coverage"
+                  ],
+                  "properties": {
+                    "api_version": {
+                      "const": "1",
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "foundation",
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "coverage": {
+                      "const": "unknown",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/infrastructure": {
+      "get": {
+        "operationId": "read__api_v1_infrastructure",
+        "summary": "/api/v1/infrastructure",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "generated_at",
+                    "measurement",
+                    "observations",
+                    "references",
+                    "synthetic",
+                    "limitations"
+                  ],
+                  "properties": {
+                    "generated_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "measurement": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "value_m",
+                        "observed_at",
+                        "state",
+                        "source_url"
+                      ],
+                      "properties": {
+                        "value_m": {
+                          "type": [
+                            "number",
+                            "null"
+                          ]
+                        },
+                        "observed_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "current",
+                            "stale",
+                            "missing",
+                            "failed"
+                          ]
+                        },
+                        "source_url": {
+                          "type": "string",
+                          "const": "https://generacioncsr.celec.gob.ec/"
+                        }
+                      }
+                    },
+                    "observations": {
+                      "type": "array",
+                      "maxItems": 200,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "value_m",
+                          "observed_at"
+                        ],
+                        "properties": {
+                          "value_m": {
+                            "type": "number"
+                          },
+                          "observed_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "references": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "safety_m",
+                        "design_min_m",
+                        "design_max_m",
+                        "unit",
+                        "volume_model",
+                        "geometry"
+                      ],
+                      "properties": {
+                        "safety_m": {
+                          "type": "number",
+                          "const": 2115
+                        },
+                        "design_min_m": {
+                          "type": "number",
+                          "const": 2098
+                        },
+                        "design_max_m": {
+                          "type": "number",
+                          "const": 2153
+                        },
+                        "unit": {
+                          "type": "string",
+                          "const": "m"
+                        },
+                        "volume_model": {
+                          "type": "string",
+                          "const": "unavailable"
+                        },
+                        "geometry": {
+                          "type": "string",
+                          "const": "illustrative-no-dem"
+                        }
+                      }
+                    },
+                    "synthetic": {
+                      "type": "boolean"
+                    },
+                    "limitations": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/timeline": {
+      "get": {
+        "operationId": "read__api_v1_timeline",
+        "summary": "/api/v1/timeline",
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "area_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,128}$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "known_at",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "csv"
+              ],
+              "default": "json"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "\"event_id\",\"area_name\",\"type\",\"status\"\r\n"
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 50,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "event_id",
+                          "area_id",
+                          "area_name",
+                          "type",
+                          "status",
+                          "start_at",
+                          "end_at",
+                          "start_basis",
+                          "end_basis",
+                          "recorded_at",
+                          "revision",
+                          "duration_seconds",
+                          "evidence",
+                          "synthetic",
+                          "coverage",
+                          "redacted"
+                        ],
+                        "properties": {
+                          "event_id": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                          },
+                          "area_id": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                          },
+                          "area_name": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "scheduled",
+                              "unplanned",
+                              "unknown"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "reported",
+                              "corroborated",
+                              "official",
+                              "ended",
+                              "unknown"
+                            ]
+                          },
+                          "start_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "end_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "start_basis": {
+                            "type": "string"
+                          },
+                          "end_basis": {
+                            "type": "string"
+                          },
+                          "recorded_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "revision": {
+                            "type": "integer"
+                          },
+                          "duration_seconds": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "synthetic": {
+                            "type": "boolean"
+                          },
+                          "coverage": {
+                            "const": "unknown",
+                            "type": "string"
+                          },
+                          "redacted": {
+                            "type": "boolean"
+                          },
+                          "evidence": {
+                            "type": "array",
+                            "maxItems": 100,
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "source_name",
+                                "source_url",
+                                "source_published_at",
+                                "ingested_at",
+                                "relation"
+                              ],
+                              "properties": {
+                                "source_name": {
+                                  "type": "string",
+                                  "maxLength": 2000
+                                },
+                                "source_url": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "maxLength": 2048
+                                },
+                                "source_published_at": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "format": "date-time"
+                                },
+                                "ingested_at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "relation": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "known_at",
+                        "from",
+                        "to",
+                        "generated_at",
+                        "next_offset",
+                        "synthetic",
+                        "coverage"
+                      ],
+                      "properties": {
+                        "known_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "from": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "to": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "next_offset": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        },
+                        "synthetic": {
+                          "type": "boolean"
+                        },
+                        "coverage": {
+                          "type": "string",
+                          "const": "unknown"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/timeline/schedules": {
+      "get": {
+        "operationId": "read__api_v1_timeline_schedules",
+        "summary": "/api/v1/timeline/schedules",
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "area_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,128}$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "known_at",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 50,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "entry_id",
+                          "artifact_id",
+                          "sha256",
+                          "area_id",
+                          "area_name",
+                          "revision_no",
+                          "type",
+                          "start_at",
+                          "end_at",
+                          "reviewed_at",
+                          "source_url",
+                          "source_published_at",
+                          "fetched_at",
+                          "status",
+                          "duration_seconds",
+                          "synthetic"
+                        ],
+                        "properties": {
+                          "entry_id": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                          },
+                          "artifact_id": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                          },
+                          "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          },
+                          "area_id": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                          },
+                          "area_name": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "revision_no": {
+                            "type": "integer"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "maintenance",
+                              "industrial",
+                              "residential",
+                              "unknown"
+                            ]
+                          },
+                          "start_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "end_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "reviewed_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "source_url": {
+                            "type": "string",
+                            "const": "https://www.eeasa.com.ec/trabajos-programadas/"
+                          },
+                          "source_published_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "fetched_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "historical_scheduled",
+                              "historical_cancelled"
+                            ]
+                          },
+                          "duration_seconds": {
+                            "type": "null"
+                          },
+                          "synthetic": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "known_at",
+                        "from",
+                        "to",
+                        "next_offset",
+                        "synthetic",
+                        "coverage",
+                        "nature"
+                      ],
+                      "properties": {
+                        "known_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "from": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "to": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "next_offset": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        },
+                        "synthetic": {
+                          "type": "boolean"
+                        },
+                        "coverage": {
+                          "type": "string",
+                          "const": "unknown"
+                        },
+                        "nature": {
+                          "type": "string",
+                          "const": "scheduled-not-observed"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/push/public-key": {
+      "get": {
+        "operationId": "read__api_v1_push_public_key",
+        "summary": "/api/v1/push/public-key",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "public_key": {
+                      "type": "string"
+                    },
+                    "consent_version": {
+                      "type": "string"
+                    },
+                    "max_sectors": {
+                      "type": "integer"
+                    },
+                    "delivery_enabled": {
+                      "type": "boolean"
+                    },
+                    "synthetic": {
+                      "type": "boolean"
+                    },
+                    "policy": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "public_key",
+                    "consent_version",
+                    "max_sectors",
+                    "delivery_enabled",
+                    "synthetic",
+                    "policy"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/schedules": {
+      "get": {
+        "operationId": "read__api_v1_schedules",
+        "summary": "/api/v1/schedules",
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "area_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "residential",
+                "industrial",
+                "maintenance",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 50,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "issuer",
+                          "area_id",
+                          "start_at",
+                          "end_at",
+                          "original_zone",
+                          "original_time_string",
+                          "type",
+                          "artifact_id",
+                          "evidence_ids",
+                          "parser_confidence",
+                          "review_state",
+                          "effective_status",
+                          "revision_no",
+                          "predecessor_id",
+                          "imported_at",
+                          "synthetic",
+                          "entry_id",
+                          "area_name",
+                          "source_url",
+                          "sha256",
+                          "fetched_at",
+                          "source_published_at",
+                          "last_checked_at",
+                          "source_status",
+                          "latest_revision_no",
+                          "parser_version",
+                          "acquisition"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "issuer": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          },
+                          "area_id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "start_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "end_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "original_zone": {
+                            "type": "string",
+                            "const": "America/Guayaquil"
+                          },
+                          "original_time_string": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "residential",
+                              "industrial",
+                              "maintenance",
+                              "unknown"
+                            ]
+                          },
+                          "artifact_id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "evidence_ids": {
+                            "type": "array",
+                            "maxItems": 100,
+                            "uniqueItems": true,
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128,
+                              "pattern": "^[a-zA-Z0-9_-]+$"
+                            }
+                          },
+                          "parser_confidence": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "review_state": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "reviewed",
+                              "rejected"
+                            ]
+                          },
+                          "effective_status": {
+                            "type": "string",
+                            "enum": [
+                              "published",
+                              "revised",
+                              "cancelled",
+                              "unverified"
+                            ]
+                          },
+                          "revision_no": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "predecessor_id": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "imported_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "synthetic": {
+                            "type": "boolean"
+                          },
+                          "acquisition": {
+                            "type": "string",
+                            "enum": [
+                              "local_import",
+                              "https"
+                            ]
+                          },
+                          "entry_id": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+                          },
+                          "area_name": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "source_url": {
+                            "type": "string",
+                            "const": "https://www.eeasa.com.ec/trabajos-programadas/"
+                          },
+                          "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          },
+                          "fetched_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "source_published_at": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "last_checked_at": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "source_status": {
+                            "type": "string",
+                            "enum": [
+                              "current",
+                              "missing",
+                              "changed",
+                              "failed",
+                              "stale"
+                            ]
+                          },
+                          "latest_revision_no": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "parser_version": {
+                            "type": "string",
+                            "const": "eeasa-html-1"
+                          }
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "api_version",
+                        "synthetic",
+                        "coverage",
+                        "generated_at",
+                        "last_checked_at",
+                        "source_status",
+                        "limit",
+                        "offset",
+                        "next_offset"
+                      ],
+                      "properties": {
+                        "api_version": {
+                          "type": "string",
+                          "const": "1"
+                        },
+                        "synthetic": {
+                          "type": "boolean"
+                        },
+                        "coverage": {
+                          "type": "string",
+                          "const": "unknown"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "last_checked_at": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "source_status": {
+                          "type": "string",
+                          "enum": [
+                            "failed",
+                            "stale",
+                            "available"
+                          ]
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "offset": {
+                          "type": "integer"
+                        },
+                        "next_offset": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/areas": {
+      "get": {
+        "operationId": "read__api_v1_areas",
+        "summary": "/api/v1/areas",
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          },
+          {
+            "in": "query",
+            "name": "id",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          {
+            "in": "query",
+            "name": "parent_id",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "province",
+                "canton",
+                "parish",
+                "sector"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 50,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "name",
+                          "parent_id",
+                          "type",
+                          "location_precision",
+                          "code",
+                          "polygon_ref",
+                          "polygon_version",
+                          "synthetic",
+                          "map_ref"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          },
+                          "parent_id": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "province",
+                              "canton",
+                              "parish",
+                              "sector"
+                            ]
+                          },
+                          "location_precision": {
+                            "type": "string",
+                            "enum": [
+                              "administrative_area",
+                              "generalized_sector"
+                            ]
+                          },
+                          "code": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 32
+                          },
+                          "polygon_ref": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 256
+                          },
+                          "polygon_version": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "synthetic": {
+                            "type": "boolean"
+                          },
+                          "map_ref": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "enum": [
+                              "pallatanga-canton",
+                              null
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "api_version",
+                        "mode",
+                        "synthetic",
+                        "coverage",
+                        "generated_at",
+                        "limit",
+                        "offset",
+                        "next_offset"
+                      ],
+                      "properties": {
+                        "api_version": {
+                          "type": "string",
+                          "const": "1"
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "demo",
+                            "live"
+                          ]
+                        },
+                        "synthetic": {
+                          "type": "boolean"
+                        },
+                        "coverage": {
+                          "type": "string",
+                          "const": "unknown"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "offset": {
+                          "type": "integer"
+                        },
+                        "next_offset": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/outages": {
+      "get": {
+        "operationId": "read__api_v1_outages",
+        "summary": "/api/v1/outages",
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          },
+          {
+            "in": "query",
+            "name": "area_id",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "layer",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "official",
+                "citizen",
+                "osint"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "bbox",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 7,
+              "maxLength": 100,
+              "pattern": "^-?[0-9.]+,-?[0-9.]+,-?[0-9.]+,-?[0-9.]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 50,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "area_id",
+                          "type",
+                          "status",
+                          "start_at",
+                          "end_at",
+                          "start_basis",
+                          "end_basis",
+                          "last_evidence_at",
+                          "evidence_ids",
+                          "confidence_explanation",
+                          "created_at",
+                          "updated_at",
+                          "synthetic",
+                          "area_name",
+                          "map_ref"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "area_id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "scheduled",
+                              "unplanned",
+                              "unknown"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "reported",
+                              "corroborated",
+                              "official",
+                              "ended",
+                              "unknown"
+                            ]
+                          },
+                          "start_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "end_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "start_basis": {
+                            "type": "string",
+                            "enum": [
+                              "observed",
+                              "reported",
+                              "official",
+                              "unknown"
+                            ]
+                          },
+                          "end_basis": {
+                            "type": "string",
+                            "enum": [
+                              "observed",
+                              "reported",
+                              "official",
+                              "unknown"
+                            ]
+                          },
+                          "last_evidence_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "evidence_ids": {
+                            "type": "array",
+                            "maxItems": 100,
+                            "uniqueItems": true,
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128,
+                              "pattern": "^[a-zA-Z0-9_-]+$"
+                            }
+                          },
+                          "confidence_explanation": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updated_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "synthetic": {
+                            "type": "boolean"
+                          },
+                          "area_name": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "map_ref": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "enum": [
+                              "pallatanga-canton",
+                              null
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "api_version",
+                        "mode",
+                        "synthetic",
+                        "coverage",
+                        "generated_at",
+                        "limit",
+                        "offset",
+                        "next_offset"
+                      ],
+                      "properties": {
+                        "api_version": {
+                          "type": "string",
+                          "const": "1"
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "demo",
+                            "live"
+                          ]
+                        },
+                        "synthetic": {
+                          "type": "boolean"
+                        },
+                        "coverage": {
+                          "type": "string",
+                          "const": "unknown"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "offset": {
+                          "type": "integer"
+                        },
+                        "next_offset": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/events/{id}": {
+      "get": {
+        "operationId": "read__api_v1_events_id_",
+        "summary": "/api/v1/events/{id}",
+        "security": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "area_id",
+                        "type",
+                        "status",
+                        "start_at",
+                        "end_at",
+                        "start_basis",
+                        "end_basis",
+                        "last_evidence_at",
+                        "evidence_ids",
+                        "confidence_explanation",
+                        "created_at",
+                        "updated_at",
+                        "synthetic",
+                        "area_name",
+                        "map_ref"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128,
+                          "pattern": "^[a-zA-Z0-9_-]+$"
+                        },
+                        "area_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128,
+                          "pattern": "^[a-zA-Z0-9_-]+$"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "scheduled",
+                            "unplanned",
+                            "unknown"
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "reported",
+                            "corroborated",
+                            "official",
+                            "ended",
+                            "unknown"
+                          ]
+                        },
+                        "start_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        },
+                        "end_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        },
+                        "start_basis": {
+                          "type": "string",
+                          "enum": [
+                            "observed",
+                            "reported",
+                            "official",
+                            "unknown"
+                          ]
+                        },
+                        "end_basis": {
+                          "type": "string",
+                          "enum": [
+                            "observed",
+                            "reported",
+                            "official",
+                            "unknown"
+                          ]
+                        },
+                        "last_evidence_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        },
+                        "evidence_ids": {
+                          "type": "array",
+                          "maxItems": 100,
+                          "uniqueItems": true,
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          }
+                        },
+                        "confidence_explanation": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "synthetic": {
+                          "type": "boolean"
+                        },
+                        "area_name": {
+                          "type": "string",
+                          "maxLength": 2000
+                        },
+                        "map_ref": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "pallatanga-canton",
+                            null
+                          ]
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "api_version",
+                        "mode",
+                        "synthetic",
+                        "coverage",
+                        "generated_at",
+                        "limit",
+                        "offset",
+                        "next_offset"
+                      ],
+                      "properties": {
+                        "api_version": {
+                          "type": "string",
+                          "const": "1"
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "demo",
+                            "live"
+                          ]
+                        },
+                        "synthetic": {
+                          "type": "boolean"
+                        },
+                        "coverage": {
+                          "type": "string",
+                          "const": "unknown"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "offset": {
+                          "type": "integer"
+                        },
+                        "next_offset": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/events/{id}/evidence": {
+      "get": {
+        "operationId": "read__api_v1_events_id_evidence",
+        "summary": "/api/v1/events/{id}/evidence",
+        "security": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "maxItems": 50,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "area_id",
+                          "source_id",
+                          "source_name",
+                          "source_kind",
+                          "source_url",
+                          "artifact_id",
+                          "summary",
+                          "relation",
+                          "source_published_at",
+                          "observed_at",
+                          "reported_start_at",
+                          "ingested_at",
+                          "temporal_confidence",
+                          "location_precision",
+                          "synthetic"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "area_id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "source_id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "source_name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          },
+                          "source_kind": {
+                            "type": "string",
+                            "enum": [
+                              "authority",
+                              "news",
+                              "social",
+                              "citizen",
+                              "sensor"
+                            ]
+                          },
+                          "source_url": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "uri",
+                            "pattern": "^https://",
+                            "maxLength": 2048
+                          },
+                          "artifact_id": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "summary": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          },
+                          "relation": {
+                            "type": "string",
+                            "enum": [
+                              "support",
+                              "refute",
+                              "retraction"
+                            ]
+                          },
+                          "source_published_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "observed_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "reported_start_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "ingested_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "temporal_confidence": {
+                            "type": "string",
+                            "enum": [
+                              "exact",
+                              "approximate",
+                              "unknown"
+                            ]
+                          },
+                          "location_precision": {
+                            "type": "string",
+                            "enum": [
+                              "administrative_area",
+                              "generalized_sector"
+                            ]
+                          },
+                          "synthetic": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "api_version",
+                        "mode",
+                        "synthetic",
+                        "coverage",
+                        "generated_at",
+                        "limit",
+                        "offset",
+                        "next_offset"
+                      ],
+                      "properties": {
+                        "api_version": {
+                          "type": "string",
+                          "const": "1"
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "demo",
+                            "live"
+                          ]
+                        },
+                        "synthetic": {
+                          "type": "boolean"
+                        },
+                        "coverage": {
+                          "type": "string",
+                          "const": "unknown"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "offset": {
+                          "type": "integer"
+                        },
+                        "next_offset": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/reports/config": {
+      "get": {
+        "operationId": "read__api_v1_reports_config",
+        "summary": "/api/v1/reports/config",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "synthetic",
+                    "policy"
+                  ],
+                  "properties": {
+                    "synthetic": {
+                      "type": "boolean"
+                    },
+                    "policy": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "consent_version",
+                        "purpose",
+                        "data",
+                        "publication",
+                        "retention",
+                        "abuse",
+                        "rights"
+                      ],
+                      "properties": {
+                        "consent_version": {
+                          "type": "string"
+                        },
+                        "purpose": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "string"
+                        },
+                        "publication": {
+                          "type": "string"
+                        },
+                        "retention": {
+                          "type": "string"
+                        },
+                        "abuse": {
+                          "type": "string"
+                        },
+                        "rights": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    },
+    "/api/v1/report-summary": {
+      "get": {
+        "operationId": "read__api_v1_report_summary",
+        "summary": "/api/v1/report-summary",
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "area_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta pública; ausencia de datos no confirma continuidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "area_id",
+                    "suppressed",
+                    "approved_reports",
+                    "outage_reports",
+                    "restoration_reports",
+                    "coverage",
+                    "synthetic",
+                    "generated_at"
+                  ],
+                  "properties": {
+                    "area_id": {
+                      "type": "string",
+                      "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+                    },
+                    "suppressed": {
+                      "type": "boolean"
+                    },
+                    "approved_reports": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "outage_reports": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "restoration_reports": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "coverage": {
+                      "type": "string",
+                      "const": "unknown"
+                    },
+                    "synthetic": {
+                      "type": "boolean"
+                    },
+                    "generated_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fijo sin detalles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_REQUEST",
+                            "NOT_FOUND",
+                            "RATE_LIMITED",
+                            "INTERNAL_ERROR",
+                            "CONFLICT",
+                            "FORBIDDEN",
+                            "VERIFICATION_REQUIRED",
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aegis-unknown-query-rejected": true,
+        "x-aegis-rate-limit": {
+          "requests": 60,
+          "window_seconds": 60
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "area": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "parent_id",
+          "type",
+          "location_precision",
+          "code",
+          "polygon_ref",
+          "polygon_version",
+          "synthetic"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "parent_id": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "province",
+              "canton",
+              "parish",
+              "sector"
+            ]
+          },
+          "location_precision": {
+            "type": "string",
+            "enum": [
+              "administrative_area",
+              "generalized_sector"
+            ]
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "maxLength": 32
+          },
+          "polygon_ref": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "maxLength": 256
+          },
+          "polygon_version": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "synthetic": {
+            "type": "boolean"
+          }
+        }
+      },
+      "evidence": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "area_id",
+          "source_id",
+          "source_name",
+          "source_kind",
+          "source_url",
+          "artifact_id",
+          "summary",
+          "relation",
+          "source_published_at",
+          "observed_at",
+          "reported_start_at",
+          "ingested_at",
+          "temporal_confidence",
+          "location_precision",
+          "synthetic"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "area_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "source_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "authority",
+              "news",
+              "social",
+              "citizen",
+              "sensor"
+            ]
+          },
+          "source_url": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uri",
+            "pattern": "^https://",
+            "maxLength": 2048
+          },
+          "artifact_id": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "relation": {
+            "type": "string",
+            "enum": [
+              "support",
+              "refute",
+              "retraction"
+            ]
+          },
+          "source_published_at": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "observed_at": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "reported_start_at": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "ingested_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "temporal_confidence": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "approximate",
+              "unknown"
+            ]
+          },
+          "location_precision": {
+            "type": "string",
+            "enum": [
+              "administrative_area",
+              "generalized_sector"
+            ]
+          },
+          "synthetic": {
+            "type": "boolean"
+          }
+        }
+      },
+      "event": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "area_id",
+          "type",
+          "status",
+          "start_at",
+          "end_at",
+          "start_basis",
+          "end_basis",
+          "last_evidence_at",
+          "evidence_ids",
+          "confidence_explanation",
+          "created_at",
+          "updated_at",
+          "synthetic"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "area_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "unplanned",
+              "unknown"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "reported",
+              "corroborated",
+              "official",
+              "ended",
+              "unknown"
+            ]
+          },
+          "start_at": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "end_at": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "start_basis": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "reported",
+              "official",
+              "unknown"
+            ]
+          },
+          "end_basis": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "reported",
+              "official",
+              "unknown"
+            ]
+          },
+          "last_evidence_at": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "evidence_ids": {
+            "type": "array",
+            "maxItems": 100,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          },
+          "confidence_explanation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "synthetic": {
+            "type": "boolean"
+          }
+        }
+      },
+      "schedule": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "issuer",
+          "area_id",
+          "start_at",
+          "end_at",
+          "original_zone",
+          "original_time_string",
+          "type",
+          "artifact_id",
+          "evidence_ids",
+          "parser_confidence",
+          "review_state",
+          "effective_status",
+          "revision_no",
+          "predecessor_id",
+          "imported_at",
+          "synthetic"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "issuer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "area_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "original_zone": {
+            "type": "string",
+            "const": "America/Guayaquil"
+          },
+          "original_time_string": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "residential",
+              "industrial",
+              "maintenance",
+              "unknown"
+            ]
+          },
+          "artifact_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "evidence_ids": {
+            "type": "array",
+            "maxItems": 100,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          },
+          "parser_confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "review_state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "reviewed",
+              "rejected"
+            ]
+          },
+          "effective_status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "revised",
+              "cancelled",
+              "unverified"
+            ]
+          },
+          "revision_no": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "predecessor_id": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "imported_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "synthetic": {
+            "type": "boolean"
+          }
+        }
+      },
+      "error": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "INVALID_REQUEST",
+                  "NOT_FOUND",
+                  "RATE_LIMITED",
+                  "INTERNAL_ERROR",
+                  "CONFLICT",
+                  "FORBIDDEN",
+                  "VERIFICATION_REQUIRED",
+                  "PAYLOAD_TOO_LARGE"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-aegis-scope": "read-only; no control de infraestructura ni secretos de gestión"
+}

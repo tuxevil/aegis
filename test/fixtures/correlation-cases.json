@@ -1,0 +1,24 @@
+{
+  "contradictory": [
+    {"id":"outage-a","signal":"outage","minute":0},
+    {"id":"outage-b","signal":"outage","minute":5},
+    {"id":"denial","signal":"refute","minute":5}
+  ],
+  "imprecise": [
+    {"id":"approx-a","signal":"outage","confidence":"approximate","minute":0},
+    {"id":"unknown-b","signal":"outage","confidence":"unknown","minute":0}
+  ],
+  "neighboring": [
+    {"id":"sector-a","signal":"outage","area":"sector-a","minute":0},
+    {"id":"sector-b","signal":"outage","area":"sector-b","minute":0}
+  ],
+  "duplicates": [
+    {"id":"original","signal":"outage","url":"https://example.invalid/article?utm_source=feed#top","minute":0},
+    {"id":"repost","signal":"outage","canonical_url":"https://example.invalid/article","minute":2},
+    {"id":"copy","signal":"outage","hash":"repost","minute":3}
+  ],
+  "partial": [
+    {"id":"canton-outage","signal":"outage","area":"canton","minute":0},
+    {"id":"sector-restored","signal":"restored","area":"sector-a","minute":30}
+  ]
+}

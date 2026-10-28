@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow">
+  <title>AEGIS · Reportar y gestionar</title>
+  <link rel="icon" href="/assets/favicon.svg"><link rel="stylesheet" href="/assets/blackout.css"><link rel="stylesheet" href="/assets/report.css">
+  <script src="/assets/report.js" defer></script>
+</head>
+<body>
+<a href="#report-form" class="skip">Saltar al formulario</a>
+<header class="site-header"><a class="brand" href="/map"><span class="brand-mark" aria-hidden="true">A</span><strong>AEGIS</strong></a><a href="/map">Volver a la consulta →</a></header>
+<main class="report-main">
+  <div class="mode-banner" id="report-mode" role="status">Comprobando disponibilidad…</div>
+  <section class="intro"><p class="eyebrow">SEÑALES CIUDADANAS · SIN CUENTA</p><h1>Tu reporte,<br>con contexto.</h1><p class="lead">Indica lo que observaste en un sector. No se publica como un corte confirmado y no es un canal de emergencias.</p></section>
+  <details id="privacy" class="privacy"><summary>Qué guardamos y cómo retirar tu reporte</summary><div id="policy-content"></div></details>
+  <section class="report-card" aria-labelledby="sector-title">
+    <h2 id="sector-title">1. Elige un sector</h2><p class="muted">Para crear o corregir, selecciona una zona concreta del catálogo. No pedimos dirección ni ubicación GPS.</p>
+    <form id="sector-search" role="search"><label for="sector-query">Buscar sector por nombre o localidad</label><div class="search-row"><input type="search" id="sector-query" maxlength="100" placeholder="Por ejemplo, Pallatanga" required><button type="submit">Buscar sector</button></div></form>
+    <p id="sector-status" role="status" class="muted"></p><div id="sector-options" class="area-options"></div><button id="sector-more" type="button" class="secondary" hidden>Más sectores</button>
+    <p id="chosen-sector">Ningún sector seleccionado.</p><label class="check"><input type="checkbox" id="sector-confirm"> Confirmo que este es el sector de mi observación.</label>
+    <p id="sector-summary" class="muted" aria-live="polite"></p>
+  </section>
+  <section class="report-card" aria-labelledby="form-title">
+    <h2 id="form-title">2. Cuenta lo observado</h2>
+    <form id="report-form">
+      <label for="declaration">Estado observado</label><select id="declaration" required><option value="outage">Observé falta de luz</option><option value="restored">Observé que regresó la luz</option></select>
+      <label for="reported-time">Hora en que lo notaste (opcional, hora de Ecuador)</label><input type="datetime-local" id="reported-time"><p class="muted">Solo observaciones de los últimos siete días, sin fechas futuras. Si no sabes la hora, déjala vacía. La recepción se guarda por separado.</p>
+      <div id="correction-fields" hidden><label for="correction-reason">Motivo de la corrección</label><select id="correction-reason"><option value="">Elige un motivo</option><option value="wrong_area">Me equivoqué de sector</option><option value="wrong_time">Corregir la hora</option><option value="changed_state">Cambió lo que observé</option><option value="other">Otra corrección</option></select></div>
+      <label class="check"><input id="report-consent" type="checkbox" required> Acepto el uso descrito para revisar mi reporte y, si se aprueba, incluirlo solo en resúmenes por sector. He leído la política de esta página.</label>
+      <div class="honeypot" aria-hidden="true"><label for="website">Dejar vacío</label><input id="website" type="text" tabindex="-1" autocomplete="off"></div>
+      <div id="verification"><p id="verification-status" role="status" class="muted">Preparando comprobación…</p><div id="question-group" hidden><label for="challenge-answer" id="question-label">Comprobación adicional</label><input id="challenge-answer" inputmode="numeric" maxlength="2" pattern="[0-9]{1,2}"></div><button id="renew-challenge" type="button" class="text-button">Renovar comprobación</button></div>
+      <button id="send-report" type="submit" disabled>Enviar a revisión</button>
+    </form>
+    <p id="report-status" role="status" aria-live="polite"></p>
+  </section>
+  <section id="receipt-panel" class="report-card" aria-labelledby="receipt-title" hidden><h2 id="receipt-title">Guarda tu código privado</h2><p>Permite consultar, corregir y retirar este reporte. Se conserva solo en esta pantalla; no hay cuenta ni recuperación por correo. No lo compartas públicamente.</p><label for="private-receipt">Código de gestión</label><textarea id="private-receipt" readonly rows="4" spellcheck="false" autocomplete="off"></textarea><button type="button" id="copy-receipt" class="secondary">Copiar código</button><p id="copy-status" class="muted" role="status"></p><button type="button" id="clear-receipt" class="text-button">Ya lo guardé: borrar código de esta pantalla</button></section>
+  <section class="report-card" aria-labelledby="manage-title"><h2 id="manage-title">¿Ya tienes un código?</h2><form id="load-report"><label for="management-code">Código privado completo</label><input type="password" id="management-code" autocomplete="off" spellcheck="false" required maxlength="128"><button type="submit" class="secondary">Consultar mi reporte</button></form><p id="manage-status" role="status" aria-live="polite"></p><div id="withdraw-controls" hidden><label class="check"><input type="checkbox" id="withdraw-confirm"> Quiero retirar este reporte de los resúmenes.</label><button type="button" id="withdraw-report" class="secondary">Retirar mi reporte</button></div><button type="button" id="new-mode" class="text-button">Volver a un nuevo reporte</button></section>
+  <p class="muted">La recepción no garantiza publicación ni avisos. Un reporte aislado no marca un sector como apagado. Para emergencias utiliza los canales oficiales correspondientes.</p>
+</main>
+<footer><strong>AEGIS</strong><a href="/map">Mapa y evidencias</a><a href="/ui">Consola técnica v4</a></footer>
+<noscript><p class="mode-banner">Este formulario requiere JavaScript. No se enviará nada sin tu consentimiento explícito.</p></noscript>
+</body></html>

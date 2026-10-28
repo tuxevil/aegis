@@ -1,0 +1,91 @@
+{
+  "areas": [
+    {
+      "id": "demo-area",
+      "name": "Sector sintético",
+      "parent_id": null,
+      "type": "sector",
+      "location_precision": "generalized_sector",
+      "code": null,
+      "polygon_ref": null,
+      "polygon_version": null,
+      "synthetic": true
+    }
+  ],
+  "sources": [
+    {
+      "id": "demo-source",
+      "kind": "citizen",
+      "name": "Fuente sintética",
+      "official": false,
+      "source_url": null,
+      "access_policy": "synthetic-test-only",
+      "enabled": true,
+      "synthetic": true
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "demo-artifact",
+      "source_id": "demo-source",
+      "source_url": "https://example.invalid/synthetic",
+      "source_published_at": null,
+      "fetched_at": "2026-10-22T00:30:00Z",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "media_type": "text/plain",
+      "stored_ref": null,
+      "parse_version": "demo-v1",
+      "extraction_status": "parsed",
+      "provenance": "Artefacto sintético; sin documento oficial",
+      "synthetic": true
+    }
+  ],
+  "observations": [
+    {
+      "id": "demo-observation",
+      "source_id": "demo-source",
+      "artifact_id": "demo-artifact",
+      "area_id": "demo-area",
+      "dedupe_key": "synthetic-report-1",
+      "kind": "citizen_report",
+      "summary": "Ejemplo sintético de reporte sin corroboración",
+      "occurred_at": "2026-10-21T19:00:00-05:00",
+      "observed_at": null,
+      "reported_start_at": null,
+      "source_published_at": null,
+      "ingested_at": "2026-10-22T00:30:00Z",
+      "temporal_confidence": "approximate",
+      "location_precision": "generalized_sector",
+      "moderation_state": "pending",
+      "synthetic": true
+    }
+  ],
+  "events": [
+    {
+      "id": "demo-event",
+      "area_id": "demo-area",
+      "type": "unplanned",
+      "status": "reported",
+      "start_at": null,
+      "end_at": null,
+      "start_basis": "unknown",
+      "end_basis": "unknown",
+      "last_evidence_at": "2026-10-22T00:30:00Z",
+      "confidence_explanation": "Sintético, sin confirmación de corte",
+      "created_at": "2026-10-22T00:30:00Z",
+      "updated_at": "2026-10-22T00:30:00Z",
+      "synthetic": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "demo-link",
+      "event_id": "demo-event",
+      "observation_id": "demo-observation",
+      "relation": "support",
+      "match_reason": "Vínculo sintético explícito",
+      "human_reviewed": false,
+      "synthetic": true
+    }
+  ]
+}
