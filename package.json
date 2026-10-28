@@ -21,6 +21,8 @@
     "start": "node backend.js",
     "test": "node --test",
     "check": "node scripts/check.mjs",
-    "example:source": "node scripts/example-source-adapter.mjs --run"
+    "example:source": "node scripts/example-source-adapter.mjs --run",
+    "benchmark:hazards": "node scripts/benchmark-hazards.mjs",
+    "benchmark:compare": "node scripts/benchmark-hazards.mjs --baseline=replay/benchmarks/rain-watch-controls.baseline.v1.json"
   }
 }

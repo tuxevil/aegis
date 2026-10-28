@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "corpusId": "rain-watch-synthetic-controls-v1",
+  "recordOrigin": "synthetic_fixture",
+  "license": "MIT",
+  "notice": "Entirely synthetic controls, not observations, historical incidents or validated non-events. No operational accuracy or disaster probability.",
+  "datasetKind": "AEGIS_SYNTHETIC_BENCHMARK_LABELS",
+  "labels": [
+    {
+      "id": "forecast-positive-control",
+      "outcome": true,
+      "windowFrom": "2026-10-27T19:00:00.000Z",
+      "windowTo": "2026-10-28T19:00:00.000Z",
+      "eventAt": "2026-10-27T20:00:00.000Z",
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "forecast-negative-control",
+      "outcome": false,
+      "windowFrom": "2026-10-27T19:00:00.000Z",
+      "windowTo": "2026-10-28T19:00:00.000Z",
+      "eventAt": null,
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "forecast-false-alarm-control",
+      "outcome": false,
+      "windowFrom": "2026-10-27T19:00:00.000Z",
+      "windowTo": "2026-10-28T19:00:00.000Z",
+      "eventAt": null,
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "forecast-miss-control",
+      "outcome": true,
+      "windowFrom": "2026-10-27T19:00:00.000Z",
+      "windowTo": "2026-10-28T19:00:00.000Z",
+      "eventAt": "2026-10-27T20:00:00.000Z",
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "forecast-missing-input",
+      "outcome": true,
+      "windowFrom": "2026-10-27T19:00:00.000Z",
+      "windowTo": "2026-10-28T19:00:00.000Z",
+      "eventAt": "2026-10-27T20:00:00.000Z",
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "station-positive-control",
+      "outcome": true,
+      "windowFrom": "2026-10-27T18:05:00.000Z",
+      "windowTo": "2026-10-27T18:50:00.000Z",
+      "eventAt": "2026-10-27T18:30:00.000Z",
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "station-negative-control",
+      "outcome": false,
+      "windowFrom": "2026-10-27T18:05:00.000Z",
+      "windowTo": "2026-10-27T18:50:00.000Z",
+      "eventAt": null,
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "station-false-alarm-control",
+      "outcome": false,
+      "windowFrom": "2026-10-27T18:05:00.000Z",
+      "windowTo": "2026-10-27T18:50:00.000Z",
+      "eventAt": null,
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "station-miss-control",
+      "outcome": true,
+      "windowFrom": "2026-10-27T18:05:00.000Z",
+      "windowTo": "2026-10-27T18:50:00.000Z",
+      "eventAt": "2026-10-27T18:30:00.000Z",
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "station-missing-input",
+      "outcome": false,
+      "windowFrom": "2026-10-27T18:05:00.000Z",
+      "windowTo": "2026-10-27T18:50:00.000Z",
+      "eventAt": null,
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "station-stale-input",
+      "outcome": null,
+      "windowFrom": "2026-10-27T18:05:00.000Z",
+      "windowTo": "2026-10-27T18:50:00.000Z",
+      "eventAt": null,
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "station-upstream-failed",
+      "outcome": true,
+      "windowFrom": "2026-10-27T18:05:00.000Z",
+      "windowTo": "2026-10-27T18:50:00.000Z",
+      "eventAt": "2026-10-27T18:30:00.000Z",
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    },
+    {
+      "id": "forecast-after-cutoff",
+      "outcome": true,
+      "windowFrom": "2026-10-27T19:00:00.000Z",
+      "windowTo": "2026-10-28T19:00:00.000Z",
+      "eventAt": "2026-10-27T20:00:00.000Z",
+      "reviewedAt": "2026-10-29T00:00:00.000Z",
+      "verification": "synthetic",
+      "labelSource": "AEGIS-authored control, not a historical event"
+    }
+  ]
+}

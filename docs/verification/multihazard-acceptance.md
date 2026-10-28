@@ -49,7 +49,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | Apertura M0: muestra Amaru documentada | Parcial: informe del operador 27/10 20:19:56.942Z, corrección error:null y tests sin clave real | No es ground truth; factores, ts completo, permiso de reproducción y cobertura restante desconocidos |
 | Apertura M1: ejemplo ejecutable para colaboradores | Implementado: example:source, guía, recibo versionado y pruebas de contrato offline | Fixture propio MIT; no certifica derechos ni disponibilidad del proveedor real |
 | Apertura M2: enlaces a código/contribución/correcciones | Implementado: portal con PR, CONTRIBUTING, issue manual y seguridad privada | No formulario de reportes sensibles ni comunidad consolidada inferida |
-| Apertura M3: benchmark público independiente y comparación | Parcial: métricas, fixtures TP/FP/TN/FN y corpus documental separado | Falta runner/dataset público de benchmark con casos positivos/negativos y comparación antes/después; negativos históricos siguen sin prueba |
+| Apertura M3: benchmark público independiente y comparación | Parcial: runner/dataset público de controles sintéticos, baseline versionado y comparación por casos/cohorte común | No equivale a validación histórica; faltan incidentes/no-incidentes reales compatibles y derechos por pieza |
 | M5 redundancia/observabilidad/restauración | Parcial: runbook de recuperación/incidentes y diseño de continuidad; restauración local sintética probada | No infraestructura externa provisionada, failover o SLA ensayados |
 | M5 WAHA/OWNER/ToS/Meta y beta | Pendiente: prohibición expresa de usar sesión/crear canales/enviar | Requiere autorización separada, no implícita por disponer de enlaces |
 | M5 publicación, retractación, entrega y kill switch | Parcial: bloqueo global incondicional y simulaciones locales | No beta pública ni controles de envío real implementados/activados |
@@ -57,7 +57,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 ## Evidencia acumulada verificable
 
 Los apartados siguientes registran cortes históricos. Última verificación local:
-**244/244** Node, **189/189** en contenedor reconstruido sin red (incluye las
+**252/252** Node, **197/197** en contenedor reconstruido sin red (incluye las
 12 pruebas Amaru con credenciales ficticias), **6/6** Python, npm ci sin
 vulnerabilidades, check/replays/diff-check correctos. La sincronización de referencia
 9e9ab91 se conserva como merge de feature; no modifica main ni autoriza operación.
@@ -361,3 +361,24 @@ No se presentan estos fixtures como incidentes/no-eventos históricos verificado
 El portal actualizado también pasó Chromium 320/1280, selección/teclado y ausencia
 de overflow/page errors con red externa bloqueada; captura móvil inspeccionada.
 Artefactos privados: /tmp/aegis-browser-source-example-20261028.
+
+## Benchmark público comparativo de controles sintéticos
+
+Añadidos corpus de 13 casos con inputs y etiquetas independientes, baseline público
+congelado, CLI y comparación por caso/cohorte. El motor recibe únicamente snapshots,
+territorio, corte y origen: nunca etiquetas/eventos/revisión. Dos grupos separados
+(punto de modelo Guayaquil y estación Pallatanga), TP/FP/FN/TN y cinco casos sin
+fuente utilizable; tres tienen etiqueta positiva artificial y siguen visibles.
+
+Comparación recalcula ambos lados con las mismas etiquetas/scorer, no confía en
+totales guardados ni compara tasas de poblaciones distintas. Sin cohorte/denominador
+es null. Inputs/labels/código/dependencias versionados, sin cambios de reglas activas.
+[Uso y límites](../../replay/benchmarks/README.md). No cierra el gate histórico real,
+licencias, calibración o validación operacional y no usa Amaru como verdad-terreno.
+
+Verificación: npm ci 0 vulnerabilidades, check, **252/252** Node, **197/197**
+en contenedor reconstruido sin red, **6/6** Python y ambos replays. El CLI de
+comparación produjo JSON idéntico en host/contenedor: 13 casos, 8 evaluados,
+5 con fuente no utilizable y 0 cambios frente al baseline inicial. IDs de snapshot
+opacos y prueba explícita evitan filtrar los nombres de controles/etiquetas al
+motor. Política/método activo sin cambios; dataset sintético, sin API o claves.

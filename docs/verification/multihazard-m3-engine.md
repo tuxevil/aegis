@@ -215,3 +215,18 @@ Verificación del incremento: npm ci 0 vulnerabilidades, check, **209/209** Node
 **154/154** con código hazards actual montado en imagen local/dependencias nativas
 y red bloqueada, **6/6** Python, ambos replays y diff-check. CI de 743607f terminó
 success en Node 22/24 y contenedor: run 40683853168. Nuevo head requiere su CI.
+
+## Runner comparativo público
+
+`npm run benchmark:hazards` y `npm run benchmark:compare` funcionan sin red/claves,
+con 13 controles propios MIT, etiquetas separadas y baseline congelado. Informan
+fallos, omisiones, faltantes, cohortes y deltas comunes sin modificar shadowPolicy.
+[Protocolo](../architecture/hazard-benchmark.md). Resultados sintéticos no son
+rendimiento histórico ni sustituyen el corpus real, que sigue con brechas.
+
+Verificación: npm ci 0 vulnerabilidades, check, **252/252** Node, **197/197**
+en contenedor reconstruido sin red, **6/6** Python y ambos replays. El CLI de
+comparación produjo JSON idéntico en host/contenedor: 13 casos, 8 evaluados,
+5 con fuente no utilizable y 0 cambios frente al baseline inicial. IDs de snapshot
+opacos y prueba explícita evitan filtrar los nombres de controles/etiquetas al
+motor. Política/método activo sin cambios; dataset sintético, sin API o claves.

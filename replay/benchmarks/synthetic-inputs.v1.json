@@ -1,0 +1,1300 @@
+{
+  "schemaVersion": 1,
+  "corpusId": "rain-watch-synthetic-controls-v1",
+  "recordOrigin": "synthetic_fixture",
+  "license": "MIT",
+  "notice": "Entirely synthetic controls, not observations, historical incidents or validated non-events. No operational accuracy or disaster probability.",
+  "datasetKind": "AEGIS_SYNTHETIC_BENCHMARK_INPUTS",
+  "cases": [
+    {
+      "id": "forecast-positive-control",
+      "target": "synthetic-model-rain-24h",
+      "phenomenon": "rainfall_watch",
+      "areaId": "guayaquil",
+      "dpaCode": "0901",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-001",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "openmeteo.singlerun.ecmwf",
+          "sha256": "dd5aae6668b943ee3173defcb53cdeb26a99ae3d421a0e34e8eb5d8caac13038",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "openmeteo.singlerun.ecmwf",
+            "kind": "forecast_run",
+            "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-2.19&longitude=-79.88&run=2026-10-27T12%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "point",
+              "areaNames": [
+                "Guayaquil · punto aproximado sintético"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "restricted",
+              "licenseId": "CC-BY-4.0",
+              "attribution": "Open-Meteo"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "requestedLatitude": -2.19,
+              "requestedLongitude": -79.88,
+              "gridLatitude": -2.19,
+              "gridLongitude": -79.88,
+              "gridLocationStatus": "approximate",
+              "providerModel": "ecmwf_ifs",
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "time": [
+                "2026-10-27T19:00:00.000Z",
+                "2026-10-27T20:00:00.000Z",
+                "2026-10-27T21:00:00.000Z",
+                "2026-10-27T22:00:00.000Z",
+                "2026-10-27T23:00:00.000Z",
+                "2026-10-28T00:00:00.000Z",
+                "2026-10-28T01:00:00.000Z",
+                "2026-10-28T02:00:00.000Z",
+                "2026-10-28T03:00:00.000Z",
+                "2026-10-28T04:00:00.000Z",
+                "2026-10-28T05:00:00.000Z",
+                "2026-10-28T06:00:00.000Z",
+                "2026-10-28T07:00:00.000Z",
+                "2026-10-28T08:00:00.000Z",
+                "2026-10-28T09:00:00.000Z",
+                "2026-10-28T10:00:00.000Z",
+                "2026-10-28T11:00:00.000Z",
+                "2026-10-28T12:00:00.000Z",
+                "2026-10-28T13:00:00.000Z",
+                "2026-10-28T14:00:00.000Z",
+                "2026-10-28T15:00:00.000Z",
+                "2026-10-28T16:00:00.000Z",
+                "2026-10-28T17:00:00.000Z",
+                "2026-10-28T18:00:00.000Z",
+                "2026-10-28T19:00:00.000Z"
+              ],
+              "precipitationMm": [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "unit": "mm",
+              "modelIdentityBasis": "explicit_request"
+            }
+          },
+          "fixtureForecastAvailabilityAt": "2026-10-27T18:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "forecast-negative-control",
+      "target": "synthetic-model-rain-24h",
+      "phenomenon": "rainfall_watch",
+      "areaId": "guayaquil",
+      "dpaCode": "0901",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-002",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "openmeteo.singlerun.ecmwf",
+          "sha256": "2f4295f29519a1b481bf005d18a2037594e37b27f4a6057d184039f63adfcb88",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "openmeteo.singlerun.ecmwf",
+            "kind": "forecast_run",
+            "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-2.19&longitude=-79.88&run=2026-10-27T12%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "point",
+              "areaNames": [
+                "Guayaquil · punto aproximado sintético"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "restricted",
+              "licenseId": "CC-BY-4.0",
+              "attribution": "Open-Meteo"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "requestedLatitude": -2.19,
+              "requestedLongitude": -79.88,
+              "gridLatitude": -2.19,
+              "gridLongitude": -79.88,
+              "gridLocationStatus": "approximate",
+              "providerModel": "ecmwf_ifs",
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "time": [
+                "2026-10-27T19:00:00.000Z",
+                "2026-10-27T20:00:00.000Z",
+                "2026-10-27T21:00:00.000Z",
+                "2026-10-27T22:00:00.000Z",
+                "2026-10-27T23:00:00.000Z",
+                "2026-10-28T00:00:00.000Z",
+                "2026-10-28T01:00:00.000Z",
+                "2026-10-28T02:00:00.000Z",
+                "2026-10-28T03:00:00.000Z",
+                "2026-10-28T04:00:00.000Z",
+                "2026-10-28T05:00:00.000Z",
+                "2026-10-28T06:00:00.000Z",
+                "2026-10-28T07:00:00.000Z",
+                "2026-10-28T08:00:00.000Z",
+                "2026-10-28T09:00:00.000Z",
+                "2026-10-28T10:00:00.000Z",
+                "2026-10-28T11:00:00.000Z",
+                "2026-10-28T12:00:00.000Z",
+                "2026-10-28T13:00:00.000Z",
+                "2026-10-28T14:00:00.000Z",
+                "2026-10-28T15:00:00.000Z",
+                "2026-10-28T16:00:00.000Z",
+                "2026-10-28T17:00:00.000Z",
+                "2026-10-28T18:00:00.000Z",
+                "2026-10-28T19:00:00.000Z"
+              ],
+              "precipitationMm": [
+                0,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25
+              ],
+              "unit": "mm",
+              "modelIdentityBasis": "explicit_request"
+            }
+          },
+          "fixtureForecastAvailabilityAt": "2026-10-27T18:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "forecast-false-alarm-control",
+      "target": "synthetic-model-rain-24h",
+      "phenomenon": "rainfall_watch",
+      "areaId": "guayaquil",
+      "dpaCode": "0901",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-003",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "openmeteo.singlerun.ecmwf",
+          "sha256": "dd5aae6668b943ee3173defcb53cdeb26a99ae3d421a0e34e8eb5d8caac13038",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "openmeteo.singlerun.ecmwf",
+            "kind": "forecast_run",
+            "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-2.19&longitude=-79.88&run=2026-10-27T12%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "point",
+              "areaNames": [
+                "Guayaquil · punto aproximado sintético"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "restricted",
+              "licenseId": "CC-BY-4.0",
+              "attribution": "Open-Meteo"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "requestedLatitude": -2.19,
+              "requestedLongitude": -79.88,
+              "gridLatitude": -2.19,
+              "gridLongitude": -79.88,
+              "gridLocationStatus": "approximate",
+              "providerModel": "ecmwf_ifs",
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "time": [
+                "2026-10-27T19:00:00.000Z",
+                "2026-10-27T20:00:00.000Z",
+                "2026-10-27T21:00:00.000Z",
+                "2026-10-27T22:00:00.000Z",
+                "2026-10-27T23:00:00.000Z",
+                "2026-10-28T00:00:00.000Z",
+                "2026-10-28T01:00:00.000Z",
+                "2026-10-28T02:00:00.000Z",
+                "2026-10-28T03:00:00.000Z",
+                "2026-10-28T04:00:00.000Z",
+                "2026-10-28T05:00:00.000Z",
+                "2026-10-28T06:00:00.000Z",
+                "2026-10-28T07:00:00.000Z",
+                "2026-10-28T08:00:00.000Z",
+                "2026-10-28T09:00:00.000Z",
+                "2026-10-28T10:00:00.000Z",
+                "2026-10-28T11:00:00.000Z",
+                "2026-10-28T12:00:00.000Z",
+                "2026-10-28T13:00:00.000Z",
+                "2026-10-28T14:00:00.000Z",
+                "2026-10-28T15:00:00.000Z",
+                "2026-10-28T16:00:00.000Z",
+                "2026-10-28T17:00:00.000Z",
+                "2026-10-28T18:00:00.000Z",
+                "2026-10-28T19:00:00.000Z"
+              ],
+              "precipitationMm": [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "unit": "mm",
+              "modelIdentityBasis": "explicit_request"
+            }
+          },
+          "fixtureForecastAvailabilityAt": "2026-10-27T18:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "forecast-miss-control",
+      "target": "synthetic-model-rain-24h",
+      "phenomenon": "rainfall_watch",
+      "areaId": "guayaquil",
+      "dpaCode": "0901",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-004",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "openmeteo.singlerun.ecmwf",
+          "sha256": "2f4295f29519a1b481bf005d18a2037594e37b27f4a6057d184039f63adfcb88",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "openmeteo.singlerun.ecmwf",
+            "kind": "forecast_run",
+            "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-2.19&longitude=-79.88&run=2026-10-27T12%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "point",
+              "areaNames": [
+                "Guayaquil · punto aproximado sintético"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "restricted",
+              "licenseId": "CC-BY-4.0",
+              "attribution": "Open-Meteo"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "requestedLatitude": -2.19,
+              "requestedLongitude": -79.88,
+              "gridLatitude": -2.19,
+              "gridLongitude": -79.88,
+              "gridLocationStatus": "approximate",
+              "providerModel": "ecmwf_ifs",
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "time": [
+                "2026-10-27T19:00:00.000Z",
+                "2026-10-27T20:00:00.000Z",
+                "2026-10-27T21:00:00.000Z",
+                "2026-10-27T22:00:00.000Z",
+                "2026-10-27T23:00:00.000Z",
+                "2026-10-28T00:00:00.000Z",
+                "2026-10-28T01:00:00.000Z",
+                "2026-10-28T02:00:00.000Z",
+                "2026-10-28T03:00:00.000Z",
+                "2026-10-28T04:00:00.000Z",
+                "2026-10-28T05:00:00.000Z",
+                "2026-10-28T06:00:00.000Z",
+                "2026-10-28T07:00:00.000Z",
+                "2026-10-28T08:00:00.000Z",
+                "2026-10-28T09:00:00.000Z",
+                "2026-10-28T10:00:00.000Z",
+                "2026-10-28T11:00:00.000Z",
+                "2026-10-28T12:00:00.000Z",
+                "2026-10-28T13:00:00.000Z",
+                "2026-10-28T14:00:00.000Z",
+                "2026-10-28T15:00:00.000Z",
+                "2026-10-28T16:00:00.000Z",
+                "2026-10-28T17:00:00.000Z",
+                "2026-10-28T18:00:00.000Z",
+                "2026-10-28T19:00:00.000Z"
+              ],
+              "precipitationMm": [
+                0,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25
+              ],
+              "unit": "mm",
+              "modelIdentityBasis": "explicit_request"
+            }
+          },
+          "fixtureForecastAvailabilityAt": "2026-10-27T18:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "forecast-missing-input",
+      "target": "synthetic-model-rain-24h",
+      "phenomenon": "rainfall_watch",
+      "areaId": "guayaquil",
+      "dpaCode": "0901",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-005",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "openmeteo.singlerun.ecmwf",
+          "sha256": "03be5aa8c28537983e9a6b7cf42630b9dc1f0a3c94da2d45f2bcf77272164500",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "openmeteo.singlerun.ecmwf",
+            "kind": "forecast_run",
+            "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-2.19&longitude=-79.88&run=2026-10-27T12%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "point",
+              "areaNames": [
+                "Guayaquil · punto aproximado sintético"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "restricted",
+              "licenseId": "CC-BY-4.0",
+              "attribution": "Open-Meteo"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "requestedLatitude": -2.19,
+              "requestedLongitude": -79.88,
+              "gridLatitude": -2.19,
+              "gridLongitude": -79.88,
+              "gridLocationStatus": "approximate",
+              "providerModel": "ecmwf_ifs",
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "time": [
+                "2026-10-27T19:00:00.000Z",
+                "2026-10-27T20:00:00.000Z",
+                "2026-10-27T21:00:00.000Z",
+                "2026-10-27T22:00:00.000Z",
+                "2026-10-27T23:00:00.000Z",
+                "2026-10-28T00:00:00.000Z",
+                "2026-10-28T01:00:00.000Z",
+                "2026-10-28T02:00:00.000Z",
+                "2026-10-28T03:00:00.000Z",
+                "2026-10-28T04:00:00.000Z",
+                "2026-10-28T05:00:00.000Z",
+                "2026-10-28T06:00:00.000Z",
+                "2026-10-28T07:00:00.000Z",
+                "2026-10-28T08:00:00.000Z",
+                "2026-10-28T09:00:00.000Z",
+                "2026-10-28T10:00:00.000Z",
+                "2026-10-28T11:00:00.000Z",
+                "2026-10-28T12:00:00.000Z",
+                "2026-10-28T13:00:00.000Z",
+                "2026-10-28T14:00:00.000Z",
+                "2026-10-28T15:00:00.000Z",
+                "2026-10-28T16:00:00.000Z",
+                "2026-10-28T17:00:00.000Z",
+                "2026-10-28T18:00:00.000Z",
+                "2026-10-28T19:00:00.000Z"
+              ],
+              "precipitationMm": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                null,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "unit": "mm",
+              "modelIdentityBasis": "explicit_request"
+            }
+          },
+          "fixtureForecastAvailabilityAt": "2026-10-27T18:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "station-positive-control",
+      "target": "synthetic-station-monitoring",
+      "phenomenon": "rainfall_watch",
+      "areaId": "pallatanga",
+      "dpaCode": "0608",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-006",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "grid.pallatanga.weather",
+          "sha256": "9ee7421c79a249cad80dfe16c6533f11bfd24b6b216b60c402cf37c2da7077c8",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "grid.pallatanga.weather",
+            "kind": "observation",
+            "sourceUrl": "https://ambientweather.net/",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": null,
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "station",
+              "areaNames": [
+                "Pallatanga"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "pending",
+              "licenseId": null,
+              "attribution": "Estación comunitaria de Pallatanga"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "measuredAt": "2026-10-27T18:00:00.000Z",
+              "rainRateMmHr": 9,
+              "rainDailyMm": 0,
+              "scope": "single_station",
+              "upstreamFailed": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "station-negative-control",
+      "target": "synthetic-station-monitoring",
+      "phenomenon": "rainfall_watch",
+      "areaId": "pallatanga",
+      "dpaCode": "0608",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-007",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "grid.pallatanga.weather",
+          "sha256": "f9d3daa3a485bfdc9d360e0cbb30ac191bd9a4faa3dbd1d947a8a11abd3ee46a",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "grid.pallatanga.weather",
+            "kind": "observation",
+            "sourceUrl": "https://ambientweather.net/",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": null,
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "station",
+              "areaNames": [
+                "Pallatanga"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "pending",
+              "licenseId": null,
+              "attribution": "Estación comunitaria de Pallatanga"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "measuredAt": "2026-10-27T18:00:00.000Z",
+              "rainRateMmHr": 0,
+              "rainDailyMm": 0,
+              "scope": "single_station",
+              "upstreamFailed": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "station-false-alarm-control",
+      "target": "synthetic-station-monitoring",
+      "phenomenon": "rainfall_watch",
+      "areaId": "pallatanga",
+      "dpaCode": "0608",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-008",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "grid.pallatanga.weather",
+          "sha256": "9ee7421c79a249cad80dfe16c6533f11bfd24b6b216b60c402cf37c2da7077c8",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "grid.pallatanga.weather",
+            "kind": "observation",
+            "sourceUrl": "https://ambientweather.net/",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": null,
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "station",
+              "areaNames": [
+                "Pallatanga"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "pending",
+              "licenseId": null,
+              "attribution": "Estación comunitaria de Pallatanga"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "measuredAt": "2026-10-27T18:00:00.000Z",
+              "rainRateMmHr": 9,
+              "rainDailyMm": 0,
+              "scope": "single_station",
+              "upstreamFailed": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "station-miss-control",
+      "target": "synthetic-station-monitoring",
+      "phenomenon": "rainfall_watch",
+      "areaId": "pallatanga",
+      "dpaCode": "0608",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-009",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "grid.pallatanga.weather",
+          "sha256": "f9d3daa3a485bfdc9d360e0cbb30ac191bd9a4faa3dbd1d947a8a11abd3ee46a",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "grid.pallatanga.weather",
+            "kind": "observation",
+            "sourceUrl": "https://ambientweather.net/",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": null,
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "station",
+              "areaNames": [
+                "Pallatanga"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "pending",
+              "licenseId": null,
+              "attribution": "Estación comunitaria de Pallatanga"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "measuredAt": "2026-10-27T18:00:00.000Z",
+              "rainRateMmHr": 0,
+              "rainDailyMm": 0,
+              "scope": "single_station",
+              "upstreamFailed": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "station-missing-input",
+      "target": "synthetic-station-monitoring",
+      "phenomenon": "rainfall_watch",
+      "areaId": "pallatanga",
+      "dpaCode": "0608",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-010",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "grid.pallatanga.weather",
+          "sha256": "5aec27ad935ab24c3df0e543caa6380e1e1d819f0e491a28d2112a171b2c2a4b",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "grid.pallatanga.weather",
+            "kind": "observation",
+            "sourceUrl": "https://ambientweather.net/",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": null,
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "station",
+              "areaNames": [
+                "Pallatanga"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "pending",
+              "licenseId": null,
+              "attribution": "Estación comunitaria de Pallatanga"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "measuredAt": "2026-10-27T18:00:00.000Z",
+              "rainRateMmHr": null,
+              "rainDailyMm": null,
+              "scope": "single_station",
+              "upstreamFailed": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "station-stale-input",
+      "target": "synthetic-station-monitoring",
+      "phenomenon": "rainfall_watch",
+      "areaId": "pallatanga",
+      "dpaCode": "0608",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-011",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "grid.pallatanga.weather",
+          "sha256": "e200cffeacb699b1c6391c3e1b0e3490ffdaeb616d5eaedf46069723f93f7a9b",
+          "retrievedAt": "2026-10-27T16:00:00.000Z",
+          "processedAt": "2026-10-27T16:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "grid.pallatanga.weather",
+            "kind": "observation",
+            "sourceUrl": "https://ambientweather.net/",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": null,
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "station",
+              "areaNames": [
+                "Pallatanga"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "pending",
+              "licenseId": null,
+              "attribution": "Estación comunitaria de Pallatanga"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "measuredAt": "2026-10-27T16:00:00.000Z",
+              "rainRateMmHr": 9,
+              "rainDailyMm": 0,
+              "scope": "single_station",
+              "upstreamFailed": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "station-upstream-failed",
+      "target": "synthetic-station-monitoring",
+      "phenomenon": "rainfall_watch",
+      "areaId": "pallatanga",
+      "dpaCode": "0608",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-012",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "grid.pallatanga.weather",
+          "sha256": "a0450bfc57d37feffa4d9d3066a016ef27018f0315b6961f0a029f8372b3698d",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:01:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "grid.pallatanga.weather",
+            "kind": "observation",
+            "sourceUrl": "https://ambientweather.net/",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": null,
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "station",
+              "areaNames": [
+                "Pallatanga"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "pending",
+              "licenseId": null,
+              "attribution": "Estación comunitaria de Pallatanga"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "measuredAt": "2026-10-27T18:00:00.000Z",
+              "rainRateMmHr": 9,
+              "rainDailyMm": 0,
+              "scope": "single_station",
+              "upstreamFailed": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "forecast-after-cutoff",
+      "target": "synthetic-model-rain-24h",
+      "phenomenon": "rainfall_watch",
+      "areaId": "guayaquil",
+      "dpaCode": "0901",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "records": [
+        {
+          "id": "snapshot-013",
+          "sequence": 1,
+          "operation": "capture",
+          "sourceId": "openmeteo.singlerun.ecmwf",
+          "sha256": "dd5aae6668b943ee3173defcb53cdeb26a99ae3d421a0e34e8eb5d8caac13038",
+          "retrievedAt": "2026-10-27T18:00:00.000Z",
+          "processedAt": "2026-10-27T18:10:00.000Z",
+          "envelope": {
+            "schemaVersion": "1.0",
+            "recordOrigin": "synthetic_fixture",
+            "sourceId": "openmeteo.singlerun.ecmwf",
+            "kind": "forecast_run",
+            "sourceUrl": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-2.19&longitude=-79.88&run=2026-10-27T12%3A00&hourly=precipitation&forecast_days=3&timezone=UTC&models=ecmwf_ifs",
+            "retrievedAt": null,
+            "raw": {
+              "sha256": null,
+              "byteLength": 30,
+              "mediaType": "application/json",
+              "storageKey": null,
+              "etag": null,
+              "lastModified": null
+            },
+            "time": {
+              "issuedAt": null,
+              "validFrom": null,
+              "validTo": null,
+              "firstSeenAt": null,
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "availabilityVerifiedAt": null,
+              "sourceTimeZone": "UTC"
+            },
+            "spatial": {
+              "precision": "point",
+              "areaNames": [
+                "Guayaquil · punto aproximado sintético"
+              ],
+              "crs": null,
+              "geometryRef": null
+            },
+            "licensing": {
+              "status": "restricted",
+              "licenseId": "CC-BY-4.0",
+              "attribution": "Open-Meteo"
+            },
+            "quality": {
+              "dataStatus": "unknown",
+              "warnings": [],
+              "blockers": [],
+              "parserVersion": "multihazard-1.0.0",
+              "completenessRatio": null
+            },
+            "details": {
+              "requestedLatitude": -2.19,
+              "requestedLongitude": -79.88,
+              "gridLatitude": -2.19,
+              "gridLongitude": -79.88,
+              "gridLocationStatus": "approximate",
+              "providerModel": "ecmwf_ifs",
+              "runInitializedAt": "2026-10-27T12:00:00.000Z",
+              "time": [
+                "2026-10-27T19:00:00.000Z",
+                "2026-10-27T20:00:00.000Z",
+                "2026-10-27T21:00:00.000Z",
+                "2026-10-27T22:00:00.000Z",
+                "2026-10-27T23:00:00.000Z",
+                "2026-10-28T00:00:00.000Z",
+                "2026-10-28T01:00:00.000Z",
+                "2026-10-28T02:00:00.000Z",
+                "2026-10-28T03:00:00.000Z",
+                "2026-10-28T04:00:00.000Z",
+                "2026-10-28T05:00:00.000Z",
+                "2026-10-28T06:00:00.000Z",
+                "2026-10-28T07:00:00.000Z",
+                "2026-10-28T08:00:00.000Z",
+                "2026-10-28T09:00:00.000Z",
+                "2026-10-28T10:00:00.000Z",
+                "2026-10-28T11:00:00.000Z",
+                "2026-10-28T12:00:00.000Z",
+                "2026-10-28T13:00:00.000Z",
+                "2026-10-28T14:00:00.000Z",
+                "2026-10-28T15:00:00.000Z",
+                "2026-10-28T16:00:00.000Z",
+                "2026-10-28T17:00:00.000Z",
+                "2026-10-28T18:00:00.000Z",
+                "2026-10-28T19:00:00.000Z"
+              ],
+              "precipitationMm": [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "unit": "mm",
+              "modelIdentityBasis": "explicit_request"
+            }
+          },
+          "fixtureForecastAvailabilityAt": "2026-10-27T18:00:00.000Z"
+        }
+      ]
+    }
+  ]
+}

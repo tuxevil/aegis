@@ -1,0 +1,479 @@
+{
+  "benchmarkKind": "AEGIS_SYNTHETIC_BENCHMARK",
+  "benchmarkVersion": "hazard-benchmark-1",
+  "corpusId": "rain-watch-synthetic-controls-v1",
+  "recordOrigin": "synthetic_fixture",
+  "license": "MIT",
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "publicationBlocked": true,
+  "historicalValidationStatus": "not_established",
+  "operationalProbability": null,
+  "caseCount": 13,
+  "inputSha256": "569b5134646aa493090f390c34e595c2879ccec8583731424f2eb85bf2ed9e61",
+  "labelSha256": "90a0b05aab1a1f2c199bbdd31243dd4840e2a2ef99405d1258a43f53f5c4da30",
+  "scoringImplementationSha256": "872b1c7e65fa89801fba467d3694771e9bd9b8a1607600ebdc9838250e31a0f7",
+  "dependencyLockSha256": "4ae79b0cf09883dcf1f8dae50262163bf2c9724d103479648c60a0f09679209b",
+  "assessmentImplementationSha256": "72e272c4d3b5f3282035e56740b8c6d6c1469045ae48ebdaebf3b45822547f23",
+  "policyVersion": "rain-watch-1-experimental",
+  "rows": [
+    {
+      "id": "forecast-positive-control",
+      "target": "synthetic-model-rain-24h",
+      "areaId": "guayaquil",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "watch",
+      "evidenceFrom": "2026-10-27T19:00:00.000Z",
+      "evidenceTo": "2026-10-28T19:00:00.000Z",
+      "firstSignalKnownAt": "2026-10-27T18:01:00.000Z",
+      "candidateCount": 1,
+      "missingEvidence": [],
+      "ruleIds": [
+        "experimental-model-rain-24h"
+      ],
+      "inputSnapshotIds": [
+        "snapshot-001"
+      ],
+      "exclusionReasons": []
+    },
+    {
+      "id": "forecast-negative-control",
+      "target": "synthetic-model-rain-24h",
+      "areaId": "guayaquil",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "not_triggered",
+      "evidenceFrom": "2026-10-27T19:00:00.000Z",
+      "evidenceTo": "2026-10-28T19:00:00.000Z",
+      "firstSignalKnownAt": null,
+      "candidateCount": 0,
+      "missingEvidence": [],
+      "ruleIds": [],
+      "inputSnapshotIds": [
+        "snapshot-002"
+      ],
+      "exclusionReasons": [
+        "forecast_rule_not_triggered_not_all_clear"
+      ]
+    },
+    {
+      "id": "forecast-false-alarm-control",
+      "target": "synthetic-model-rain-24h",
+      "areaId": "guayaquil",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "watch",
+      "evidenceFrom": "2026-10-27T19:00:00.000Z",
+      "evidenceTo": "2026-10-28T19:00:00.000Z",
+      "firstSignalKnownAt": "2026-10-27T18:01:00.000Z",
+      "candidateCount": 1,
+      "missingEvidence": [],
+      "ruleIds": [
+        "experimental-model-rain-24h"
+      ],
+      "inputSnapshotIds": [
+        "snapshot-003"
+      ],
+      "exclusionReasons": []
+    },
+    {
+      "id": "forecast-miss-control",
+      "target": "synthetic-model-rain-24h",
+      "areaId": "guayaquil",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "not_triggered",
+      "evidenceFrom": "2026-10-27T19:00:00.000Z",
+      "evidenceTo": "2026-10-28T19:00:00.000Z",
+      "firstSignalKnownAt": null,
+      "candidateCount": 0,
+      "missingEvidence": [],
+      "ruleIds": [],
+      "inputSnapshotIds": [
+        "snapshot-004"
+      ],
+      "exclusionReasons": [
+        "forecast_rule_not_triggered_not_all_clear"
+      ]
+    },
+    {
+      "id": "forecast-missing-input",
+      "target": "synthetic-model-rain-24h",
+      "areaId": "guayaquil",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "unknown",
+      "evidenceFrom": null,
+      "evidenceTo": null,
+      "firstSignalKnownAt": null,
+      "candidateCount": 0,
+      "missingEvidence": [
+        "complete_inputs_for_control"
+      ],
+      "ruleIds": [],
+      "inputSnapshotIds": [
+        "snapshot-005"
+      ],
+      "exclusionReasons": [
+        "forecast_24h_coverage_unknown"
+      ]
+    },
+    {
+      "id": "station-positive-control",
+      "target": "synthetic-station-monitoring",
+      "areaId": "pallatanga",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "watch",
+      "evidenceFrom": "2026-10-27T18:00:00.000Z",
+      "evidenceTo": "2026-10-27T19:00:00.000Z",
+      "firstSignalKnownAt": "2026-10-27T18:01:00.000Z",
+      "candidateCount": 1,
+      "missingEvidence": [],
+      "ruleIds": [
+        "experimental-station-rain"
+      ],
+      "inputSnapshotIds": [
+        "snapshot-006"
+      ],
+      "exclusionReasons": []
+    },
+    {
+      "id": "station-negative-control",
+      "target": "synthetic-station-monitoring",
+      "areaId": "pallatanga",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "not_triggered",
+      "evidenceFrom": "2026-10-27T18:00:00.000Z",
+      "evidenceTo": "2026-10-27T19:00:00.000Z",
+      "firstSignalKnownAt": null,
+      "candidateCount": 0,
+      "missingEvidence": [],
+      "ruleIds": [],
+      "inputSnapshotIds": [
+        "snapshot-007"
+      ],
+      "exclusionReasons": [
+        "station_rule_not_triggered_not_all_clear"
+      ]
+    },
+    {
+      "id": "station-false-alarm-control",
+      "target": "synthetic-station-monitoring",
+      "areaId": "pallatanga",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "watch",
+      "evidenceFrom": "2026-10-27T18:00:00.000Z",
+      "evidenceTo": "2026-10-27T19:00:00.000Z",
+      "firstSignalKnownAt": "2026-10-27T18:01:00.000Z",
+      "candidateCount": 1,
+      "missingEvidence": [],
+      "ruleIds": [
+        "experimental-station-rain"
+      ],
+      "inputSnapshotIds": [
+        "snapshot-008"
+      ],
+      "exclusionReasons": []
+    },
+    {
+      "id": "station-miss-control",
+      "target": "synthetic-station-monitoring",
+      "areaId": "pallatanga",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "not_triggered",
+      "evidenceFrom": "2026-10-27T18:00:00.000Z",
+      "evidenceTo": "2026-10-27T19:00:00.000Z",
+      "firstSignalKnownAt": null,
+      "candidateCount": 0,
+      "missingEvidence": [],
+      "ruleIds": [],
+      "inputSnapshotIds": [
+        "snapshot-009"
+      ],
+      "exclusionReasons": [
+        "station_rule_not_triggered_not_all_clear"
+      ]
+    },
+    {
+      "id": "station-missing-input",
+      "target": "synthetic-station-monitoring",
+      "areaId": "pallatanga",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "unknown",
+      "evidenceFrom": null,
+      "evidenceTo": null,
+      "firstSignalKnownAt": null,
+      "candidateCount": 0,
+      "missingEvidence": [
+        "complete_inputs_for_control"
+      ],
+      "ruleIds": [],
+      "inputSnapshotIds": [
+        "snapshot-010"
+      ],
+      "exclusionReasons": [
+        "station_rule_not_triggered_not_all_clear"
+      ]
+    },
+    {
+      "id": "station-stale-input",
+      "target": "synthetic-station-monitoring",
+      "areaId": "pallatanga",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "unknown",
+      "evidenceFrom": null,
+      "evidenceTo": null,
+      "firstSignalKnownAt": null,
+      "candidateCount": 0,
+      "missingEvidence": [
+        "eligible_source_context"
+      ],
+      "ruleIds": [],
+      "inputSnapshotIds": [
+        "snapshot-011"
+      ],
+      "exclusionReasons": [
+        "capture_stale_at_cutoff"
+      ]
+    },
+    {
+      "id": "station-upstream-failed",
+      "target": "synthetic-station-monitoring",
+      "areaId": "pallatanga",
+      "precision": "station",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "unknown",
+      "evidenceFrom": null,
+      "evidenceTo": null,
+      "firstSignalKnownAt": null,
+      "candidateCount": 0,
+      "missingEvidence": [
+        "eligible_source_context"
+      ],
+      "ruleIds": [],
+      "inputSnapshotIds": [
+        "snapshot-012"
+      ],
+      "exclusionReasons": [
+        "station_measurement_not_current"
+      ]
+    },
+    {
+      "id": "forecast-after-cutoff",
+      "target": "synthetic-model-rain-24h",
+      "areaId": "guayaquil",
+      "precision": "point",
+      "decisionAt": "2026-10-27T18:05:00.000Z",
+      "prediction": "unknown",
+      "evidenceFrom": null,
+      "evidenceTo": null,
+      "firstSignalKnownAt": null,
+      "candidateCount": 0,
+      "missingEvidence": [
+        "eligible_source_context"
+      ],
+      "ruleIds": [],
+      "inputSnapshotIds": [
+        "snapshot-013"
+      ],
+      "exclusionReasons": [
+        "not_known_at_cutoff"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "target": "synthetic-model-rain-24h",
+      "areaId": "guayaquil",
+      "caseCount": 6,
+      "unknownSourceCases": [
+        "forecast-missing-input",
+        "forecast-after-cutoff"
+      ],
+      "unknownLabels": [],
+      "eventsWithoutUsableEvidence": [
+        "forecast-missing-input",
+        "forecast-after-cutoff"
+      ],
+      "metrics": {
+        "alertsPublishEnabled": false,
+        "dispatchMode": "DRY_RUN",
+        "recordOrigin": "synthetic_fixture",
+        "evaluationKey": "synthetic-model-rain-24h:guayaquil",
+        "signalWindowPolicy": "full_evaluation_window_v1",
+        "caseCount": 6,
+        "evaluated": [
+          {
+            "id": "forecast-positive-control",
+            "classification": "TP"
+          },
+          {
+            "id": "forecast-negative-control",
+            "classification": "TN"
+          },
+          {
+            "id": "forecast-false-alarm-control",
+            "classification": "FP"
+          },
+          {
+            "id": "forecast-miss-control",
+            "classification": "FN"
+          }
+        ],
+        "excluded": [
+          {
+            "id": "forecast-missing-input",
+            "reason": "coverage_or_labels_unknown"
+          },
+          {
+            "id": "forecast-after-cutoff",
+            "reason": "coverage_or_labels_unknown"
+          }
+        ],
+        "confusion": {
+          "tp": 1,
+          "fp": 1,
+          "tn": 1,
+          "fn": 1
+        },
+        "falseAlertRate": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2,
+          "definition": "FP / (TP + FP); false-alarm ratio of reviewed cases"
+        },
+        "nonEventFalsePositiveRate": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2,
+          "definition": "FP / (FP + TN)"
+        },
+        "missRate": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2,
+          "definition": "FN / (TP + FN)"
+        },
+        "leadTime": [
+          {
+            "id": "forecast-positive-control",
+            "minutes": 119
+          }
+        ],
+        "sourceDetectionLag": {
+          "values": [],
+          "value": null,
+          "definition": "Difference from independently timestamped publication to first known signal; not proof of first web upload time"
+        },
+        "calibrationStatus": "not_validated_for_operational_probability",
+        "publicationBlocked": true
+      }
+    },
+    {
+      "target": "synthetic-station-monitoring",
+      "areaId": "pallatanga",
+      "caseCount": 7,
+      "unknownSourceCases": [
+        "station-missing-input",
+        "station-stale-input",
+        "station-upstream-failed"
+      ],
+      "unknownLabels": [
+        "station-stale-input"
+      ],
+      "eventsWithoutUsableEvidence": [
+        "station-upstream-failed"
+      ],
+      "metrics": {
+        "alertsPublishEnabled": false,
+        "dispatchMode": "DRY_RUN",
+        "recordOrigin": "synthetic_fixture",
+        "evaluationKey": "synthetic-station-monitoring:pallatanga",
+        "signalWindowPolicy": "full_evaluation_window_v1",
+        "caseCount": 7,
+        "evaluated": [
+          {
+            "id": "station-positive-control",
+            "classification": "TP"
+          },
+          {
+            "id": "station-negative-control",
+            "classification": "TN"
+          },
+          {
+            "id": "station-false-alarm-control",
+            "classification": "FP"
+          },
+          {
+            "id": "station-miss-control",
+            "classification": "FN"
+          }
+        ],
+        "excluded": [
+          {
+            "id": "station-missing-input",
+            "reason": "coverage_or_labels_unknown"
+          },
+          {
+            "id": "station-stale-input",
+            "reason": "coverage_or_labels_unknown"
+          },
+          {
+            "id": "station-upstream-failed",
+            "reason": "coverage_or_labels_unknown"
+          }
+        ],
+        "confusion": {
+          "tp": 1,
+          "fp": 1,
+          "tn": 1,
+          "fn": 1
+        },
+        "falseAlertRate": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2,
+          "definition": "FP / (TP + FP); false-alarm ratio of reviewed cases"
+        },
+        "nonEventFalsePositiveRate": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2,
+          "definition": "FP / (FP + TN)"
+        },
+        "missRate": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2,
+          "definition": "FN / (TP + FN)"
+        },
+        "leadTime": [
+          {
+            "id": "station-positive-control",
+            "minutes": 29
+          }
+        ],
+        "sourceDetectionLag": {
+          "values": [],
+          "value": null,
+          "definition": "Difference from independently timestamped publication to first known signal; not proof of first web upload time"
+        },
+        "calibrationStatus": "not_validated_for_operational_probability",
+        "publicationBlocked": true
+      }
+    }
+  ],
+  "limitations": [
+    "Artificial controls only, not measured incidents or verified historical non-events",
+    "Unknown source evidence is excluded from conditional rates and reported separately",
+    "Lead times are synthetic control intervals, not delivery performance or disaster prediction",
+    "No external provider is ground truth; no key, network, publication or rule activation"
+  ]
+}
