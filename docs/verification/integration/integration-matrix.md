@@ -59,7 +59,7 @@ README.md, SECURITY.md, backend.js, package.json y package-lock.json.
 | --- | --- | --- |
 | backend.js | Dos registros de rutas/opciones/hooks sobre Fastify único | Combinar opciones y allowlists explícitas; probar flags OFF y ambos conjuntos ON sin ampliar acceso v4 |
 | /api/status y fuentes v4 | v5 añade métricas y marca fallo CELEC; Multiamenaza añade navegación | Conservar ambas intenciones y resultados v4; comparar contratos y fallback |
-| API pública | v5 /api/v1/*; Multiamenaza /api/hazards/* y /api/zones/* | Conservar rutas/schemas por namespace; admin Bearer incluso local; probar query, método, origin y endpoints privados |
+| API pública | v5 /api/v1/*; Multiamenaza /api/hazards/* y /api/subscriptions/* | Conservar rutas/schemas por namespace; admin Bearer incluso local; probar query, método, origin y endpoints privados |
 | Preferencias | Sector Watch por sector en SQLite; zonas por cantón en journal | No son equivalentes: no convertir consentimientos ni secretos; mantener namespaces y guías de alcance |
 | Reportes / evaluación | Reportes ciudadanos moderados vs fuentes oficiales/modelos | No promover un reporte a aviso oficial ni duplicar motores en uno sin contrato |
 | Persistencia | observations.json + SQLite/WAL + artefactos/journals | Tres formatos existentes, no nueva DB; directorios/backup separados y manifest conjunto para staging detenido |
