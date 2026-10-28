@@ -63,3 +63,12 @@ al terminar. No consulta INAMHI, Amaru u otro proveedor, no usa DATA_DIR ni publ
 avisos. La licencia del fixture no cambia los permisos pendientes de la fuente real.
 Consulta [la guía paso a paso](docs/contributing/source-adapter-example.md) para
 las interfaces, resultado esperado y controles que debe pasar una propuesta real.
+
+## Propuestas de reglas: comparar antes/después
+
+Ejecuta `npm run benchmark:compare` y revisa errores por caso, cohortes y datos
+faltantes, además de tasas. El [benchmark público](replay/benchmarks/README.md)
+contiene controles **solo sintéticos**, con etiquetas separadas del motor. No son
+incidentes o negativos históricos verificados ni prueba de probabilidad de desastre.
+Conserva el baseline al proponer cambios; no reetiquetes para mejorar una cifra.
+Las pruebas deben seguir funcionando sin clave ni llamadas a proveedores.

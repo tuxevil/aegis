@@ -24,6 +24,7 @@ jobs:
       - run: npm test
       - run: node scripts/replay-guayaquil.mjs > /dev/null
       - run: node scripts/replay-hazards.mjs > /dev/null
+      - run: node scripts/benchmark-hazards.mjs --baseline=replay/benchmarks/rain-watch-controls.baseline.v1.json > /dev/null
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -42,4 +43,5 @@ jobs:
           'const {createApp}=await import("./backend.js"); const app=await createApp({hazardsEnabled:false,alertsAdminEnabled:false,zoneSubscriptionsEnabled:false}); const result=await app.inject("/ui"); if(result.statusCode!==200)throw new Error("grid_ui_failed"); await app.close();'
       - run: docker run --rm --network none --entrypoint node aegis-offline-ci scripts/ingest-hazards.mjs
       - run: docker run --rm --network none --entrypoint node aegis-offline-ci scripts/example-source-adapter.mjs --run
+      - run: docker run --rm --network none --entrypoint node aegis-offline-ci scripts/benchmark-hazards.mjs --baseline=replay/benchmarks/rain-watch-controls.baseline.v1.json > /dev/null
       - run: docker run --rm --network none --entrypoint node aegis-offline-ci --test hazards/*.test.js alerts/*.test.js backup.test.js scripts/probe-amaru.test.mjs

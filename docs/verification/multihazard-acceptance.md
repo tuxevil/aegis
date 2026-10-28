@@ -1,9 +1,20 @@
 # Auditoría de aceptación Multiamenaza — M0–M4 en sombra
 
-Estado acumulado de desarrollo: 2026-10-28, PR #28 sobre #27/#26/#25/#24.
+Estado acumulado de desarrollo: 2026-10-28, PR #29 sobre #28/#27/#26/#25/#24.
 La planificación normativa sigue en START_HERE_CODEX y roadmap. Este documento
 reconcilia las entregas incrementales; los informes M0/M1/M2 anteriores describen
 su corte histórico, no una ausencia actual de código que apareció después.
+
+Revisión complementaria M0 del 28/10: solo documentación pública de proveedores,
+sin consultas a APIs de datos, cuentas, solicitudes de acceso ni contactos. El
+[informe de acceso y términos](../research/complementary-source-access-review-2026-10-28.md)
+separa licencia de datos, condiciones del servicio y disponibilidad no probada.
+No incorpora nuevos conectores ni modifica la política de evaluación.
+
+Baseline repetido para esta revisión: npm ci sin vulnerabilidades, check,
+**252/252** Node, **6/6** Python, replay Guayaquil y benchmark comparativo correctos.
+Las cifras de contenedor posteriores en este documento pertenecen al cambio de
+código anterior; esta revisión documental no repitió su construcción.
 
 **Resultado: no está probado el cierre integral del objetivo.** Hay software
 probado para diagnóstico, archivo, consulta, evaluación y flujo editorial simulado.
@@ -19,6 +30,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | M0 seis GET y diagnóstico real sanitizado | Probado: source-probes initial/detailed y reportes posteriores | Éxito HTTP no certifica operación permanente |
 | M0 fallos HTTP/PDF/JSON/TTL/modelo/reloj | Probado: sondas, warning-validity, ingestion tests | Fixtures identificados, no incidentes reales |
 | M0 permisos/tasas/restricciones | Parcial: política conservadora, pausa 403/429; términos consultados | Permiso definitivo INAMHI/SNGR pendiente |
+| Apertura M0: fuentes complementarias | Revisión documental de Google Flood, RainViewer, MET Norway y Open-Meteo: [evidencia y decisiones](../research/complementary-source-access-review-2026-10-28.md) | Sin prueba de APIs/cobertura Ecuador; acceso piloto, restricciones y contradicciones no equivalen a permiso operacional |
 | Dependencias y errores preexistentes | Probado: npm ci actual 0 vulnerabilidades; cuatro iniciales corregidas en f22e4cc | GitHub aún informa una baja en main, que no se ha modificado |
 | M1 Registry y HTTP aislado | Probado: registry/http; URLs cerradas, GET, límites, TLS verificado nuevo, cooldown durable | No scheduler operacional ni frecuencia certificada |
 | M1 artefactos/versiones/capturas/reproceso | Probado: artifact-store, immutable-file, ingestion tests; PDF real M1 verificado | Archivo real de laboratorio en /tmp, no volumen resiliente |
@@ -49,7 +61,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 | Apertura M0: muestra Amaru documentada | Parcial: informe del operador 27/10 20:19:56.942Z, corrección error:null y tests sin clave real | No es ground truth; factores, ts completo, permiso de reproducción y cobertura restante desconocidos |
 | Apertura M1: ejemplo ejecutable para colaboradores | Implementado: example:source, guía, recibo versionado y pruebas de contrato offline | Fixture propio MIT; no certifica derechos ni disponibilidad del proveedor real |
 | Apertura M2: enlaces a código/contribución/correcciones | Implementado: portal con PR, CONTRIBUTING, issue manual y seguridad privada | No formulario de reportes sensibles ni comunidad consolidada inferida |
-| Apertura M3: benchmark público independiente y comparación | Parcial: métricas, fixtures TP/FP/TN/FN y corpus documental separado | Falta runner/dataset público de benchmark con casos positivos/negativos y comparación antes/después; negativos históricos siguen sin prueba |
+| Apertura M3: benchmark público independiente y comparación | Parcial: runner/dataset público de controles sintéticos, baseline versionado y comparación por casos/cohorte común | No equivale a validación histórica; faltan incidentes/no-incidentes reales compatibles y derechos por pieza |
 | M5 redundancia/observabilidad/restauración | Parcial: runbook de recuperación/incidentes y diseño de continuidad; restauración local sintética probada | No infraestructura externa provisionada, failover o SLA ensayados |
 | M5 WAHA/OWNER/ToS/Meta y beta | Pendiente: prohibición expresa de usar sesión/crear canales/enviar | Requiere autorización separada, no implícita por disponer de enlaces |
 | M5 publicación, retractación, entrega y kill switch | Parcial: bloqueo global incondicional y simulaciones locales | No beta pública ni controles de envío real implementados/activados |
@@ -57,7 +69,7 @@ alcance o gate pendiente; **pendiente** = evidencia insuficiente/no ejecutado.
 ## Evidencia acumulada verificable
 
 Los apartados siguientes registran cortes históricos. Última verificación local:
-**244/244** Node, **189/189** en contenedor reconstruido sin red (incluye las
+**252/252** Node, **197/197** en contenedor reconstruido sin red (incluye las
 12 pruebas Amaru con credenciales ficticias), **6/6** Python, npm ci sin
 vulnerabilidades, check/replays/diff-check correctos. La sincronización de referencia
 9e9ab91 se conserva como merge de feature; no modifica main ni autoriza operación.
@@ -361,3 +373,24 @@ No se presentan estos fixtures como incidentes/no-eventos históricos verificado
 El portal actualizado también pasó Chromium 320/1280, selección/teclado y ausencia
 de overflow/page errors con red externa bloqueada; captura móvil inspeccionada.
 Artefactos privados: /tmp/aegis-browser-source-example-20261028.
+
+## Benchmark público comparativo de controles sintéticos
+
+Añadidos corpus de 13 casos con inputs y etiquetas independientes, baseline público
+congelado, CLI y comparación por caso/cohorte. El motor recibe únicamente snapshots,
+territorio, corte y origen: nunca etiquetas/eventos/revisión. Dos grupos separados
+(punto de modelo Guayaquil y estación Pallatanga), TP/FP/FN/TN y cinco casos sin
+fuente utilizable; tres tienen etiqueta positiva artificial y siguen visibles.
+
+Comparación recalcula ambos lados con las mismas etiquetas/scorer, no confía en
+totales guardados ni compara tasas de poblaciones distintas. Sin cohorte/denominador
+es null. Inputs/labels/código/dependencias versionados, sin cambios de reglas activas.
+[Uso y límites](../../replay/benchmarks/README.md). No cierra el gate histórico real,
+licencias, calibración o validación operacional y no usa Amaru como verdad-terreno.
+
+Verificación: npm ci 0 vulnerabilidades, check, **252/252** Node, **197/197**
+en contenedor reconstruido sin red, **6/6** Python y ambos replays. El CLI de
+comparación produjo JSON idéntico en host/contenedor: 13 casos, 8 evaluados,
+5 con fuente no utilizable y 0 cambios frente al baseline inicial. IDs de snapshot
+opacos y prueba explícita evitan filtrar los nombres de controles/etiquetas al
+motor. Política/método activo sin cambios; dataset sintético, sin API o claves.

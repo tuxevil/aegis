@@ -65,6 +65,11 @@ Cada evaluación incluye \`ruleVersion\`, \`assessmentId\`, \`sourceSnapshotIds\
 ### Principio 4: contribuciones sin riesgo para el público
 Issues y PR permiten propuestas de fuentes y reglas; revisión de código, fixtures con licencia, chequeos offline, pruebas de regresión y changelog. Contribuyentes NO pueden modificar datos actuales oficiales, reglas activas ni publicar alertas simplemente enviando un PR. Separar staging de producción y control editorial.
 
+La [revisión documental del 28/10](complementary-source-access-review-2026-10-28.md)
+contrasta acceso, licencias y restricciones actuales de estas fuentes. Registra
+también contradicciones de la documentación RainViewer; esta tabla comparativa
+no autoriza conectores, uso de APIs o retransmisión de datos.
+
 ### Prioridad compatible con roadmap M0–M5
 - **M0:** registrar muestra Amaru y auditoría externa; reparar clasificación \`error:null\`; no consumir cuota sin razón.
 - **M1:** una fuente primaria (INAMHI) reproducible + contrato de \`RawArtifact\`.
