@@ -90,7 +90,7 @@ export async function createApp({
     let services=alertsAdminServices;
     if(!services) {
       const dataDir=process.env.DATA_DIR||path.join(directory,".data");
-      const sourceStore=new RawArtifactStore(dataDir),journal=new AlertJournal(dataDir);
+      const sourceStore=new RawArtifactStore(dataDir,{readOnly:true}),journal=new AlertJournal(dataDir);
       const verifyEvidence=archiveEvidenceVerifier(sourceStore);
       services={sourceStore,editorial:new EditorialService({journal,verifyEvidence,now:alertNow}),outbox:new DryRunOutbox({journal,verifyEvidence,now:alertNow})};
     }

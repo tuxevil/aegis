@@ -145,3 +145,11 @@ reserva restante sea insuficiente. Disco realmente lleno o fallo de I/O puede
 seguir impidiendo cualquier escritura: mantener el servicio en sombra y atender
 la capacidad antes de proponer operación. Una repetición de baja ya registrada no
 requiere otro evento y sigue devolviendo su estado.
+
+### Elegibilidad tras restaurar
+
+Restaurar bytes no renueva retrievedAt ni TTL. Antes de revisión/simulación,
+verificar archivo y vigencia de captura, última edición de URL y fallos conocidos.
+Una captura exitosa posterior a fallo/Retry-After debe constar realmente.
+No reactivar automáticamente elementos cancelados del outbox ni reescribir
+candidatos aprobados: toda confirmación queda separada de su procedencia original.

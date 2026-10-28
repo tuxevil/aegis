@@ -123,14 +123,22 @@ vigencia, exclusión antes de conocimiento/al vencer y vista previa temporal
 explícita. El candidato sigue privado, con revisión humana y publicación bloqueada.
 Resultado acumulado: **175/175** Node, **120/120** Docker sin red y **6/6** Python.
 
-## Comprobaciones de ingeniería aún abiertas
+## Ciclo repetido de evidencia verificado
 
-La revisión no se limita a gates externos. Antes de cerrar el software falta
-probar/corregir el ciclo repetido de una misma edición: importación con distinto
-evaluatedAt y nueva captura del mismo SHA. CandidateDigest incluye actualmente
-metadatos volátiles, mientras el ID representa la edición: hay que demostrar
-idempotencia sin perder procedencia ni ocultar una corrección verdadera.
-Revisar también caducidad de captura por TTL frente a vigencia del documento;
-una vigencia no prueba por sí sola que la última comprobación siga fresca.
-No considerar estas comprobaciones cubiertas por los tests actuales de dedupe
-de outbox o por la única importación del ensayo inicial.
+La identidad incorpora todo el contenido revisable, calidad/parser y política;
+excluye únicamente reloj de evaluación y metadatos de transporte. Reimportar o
+recapturar bytes idénticos conserva la edición original, su digest y aprobación.
+La procedencia original se reconstruye al corte original y la confirmación actual
+se audita por separado. Cambios reales requieren nueva revisión.
+
+Se prueban TTL, fallos conocidos sin fuga de futuro, URL oficial mutable,
+Retry-After, reprocess sin renovar descarga, referencias falsificadas, API repetida
+y archivo físico sintético con dos capturas/un artefacto/una simulación.
+Ver [identidad y frescura](../architecture/evidence-identity.md).
+Node: **189/189**; Python: **6/6**; check y ambos replays correctos.
+La reconstrucción Docker encontró un fallo externo de autorización/conectividad
+con Docker Hub; no se oculta como prueba aprobada. Un primer ensayo montando todo
+el repositorio falló 5 pruebas PDF por sustituir las dependencias Alpine con las
+del host. Con solo código montado y dependencias nativas de la imagen pasan **134/134**
+pruebas sin red. Eso verifica el código actual, no una reconstrucción de imagen.
+Los gates institucionales, cartográficos, históricos y de activación siguen abiertos.

@@ -2,6 +2,7 @@ import {createHash} from "node:crypto";
 import {SourceRegistry,safeMode} from "./registry.js";
 import {pilotArea} from "./areas.js";
 import {utcMillis} from "./time.js";
+import {candidateVersion} from "./candidate-version.js";
 import {selectKnownCaptures} from "./knowledge-cutoff.js";
 
 const HOUR=3600000;
@@ -66,6 +67,7 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
         featureCount:matched.length,completeness:"unverified_for_assessment",notForPrediction:true,publicationBlocked:true});
       continue;
     }
+    if(cutoff-utcMillis(record.retrievedAt)>source.ttlMs){reject("capture_stale_at_cutoff");continue;}
     const scope=scopeFor(e,source,area);
     if(!scope){reject("territory_not_supported");continue;}
     const sourceRef={captureId:record.id,sourceId:e.sourceId,sha256:record.sha256,sourceUrl:e.sourceUrl,knownAt:ref.knownAt,
@@ -110,12 +112,15 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
       limitations.push("Single station does not represent the canton, basin or slope stability");
     } else {reject("unsupported_dynamic_evidence");continue;}
     const policyVersion=proposal.messageClass==="OFFICIAL"?"official-warning-known-1":shadowPolicy.version;
-    const familyId=hash(proposal.familyKey),revisionHash=hash({sha256:record.sha256,parser:e.quality.parserVersion,proposal,scope,policy:policyVersion});
+    const familyId=hash(proposal.familyKey);
     delete proposal.familyKey;
-    candidates.push({...proposal,id:hash({familyId,revisionHash}),familyId,revisionHash,recordOrigin,areaId:area.id,dpaCode:area.dpaCode,
+    const candidate={...proposal,familyId,recordOrigin,areaId:area.id,dpaCode:area.dpaCode,
       scope,policyVersion,severity:"watch",status:"draft",confidenceInEvidence:"partial",limitations:[...new Set(limitations)],
       sourceRefs:[sourceRef],recommendations:[{text:"Consulte la fuente original y siga las indicaciones oficiales.",sourceUrl:e.sourceUrl}],
-      evaluatedAt:asOf,publicationBlocked:true,...safeMode});
+      sourceQuality:{dataStatus:e.quality.dataStatus,parserVersion:e.quality.parserVersion,warnings:[...e.quality.warnings]},
+      evaluatedAt:asOf,publicationBlocked:true,...safeMode};
+    const revisionHash=hash(candidateVersion(candidate));
+    candidates.push({...candidate,id:hash({familyId,revisionHash}),revisionHash});
   }
   candidates.sort((a,b)=>a.id.localeCompare(b.id,"en"));
   return {...safeMode,recordOrigin,asOf,areaId:area.id,status:candidates.length?"partial":"unknown",candidates,contexts,excluded,

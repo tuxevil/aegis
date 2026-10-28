@@ -1,3 +1,5 @@
+import {isDeepStrictEqual} from "node:util";
+import {candidateVersion} from "../hazards/candidate-version.js";
 import {createHash} from "node:crypto";
 import {utcMillis} from "../hazards/time.js";
 import {pilotArea} from "../hazards/areas.js";
@@ -42,7 +44,7 @@ export class EditorialService {
     return this.journal.transact({at,actor,action:"editorial_import"},entries=>{
       const alerts=editorialState(entries),prior=alerts.get(candidate.id);
       if(prior) {
-        if(prior.candidateDigest!==hash(candidate))throw new Error("editorial_candidate_collision");
+        if(!isDeepStrictEqual(candidateVersion(prior.candidate),candidateVersion(candidate)))throw new Error("editorial_candidate_collision");
         return {unchanged:true,value:prior};
       }
       const family=[...alerts.values()].filter(a=>a.familyId===candidate.familyId);

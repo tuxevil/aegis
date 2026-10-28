@@ -78,7 +78,7 @@ test("verificador de archivo vuelve a evaluar evidencia y rechaza hechos alterad
   const {candidate}=await setup(t);
   const record=captureRecord({id:"test-capture",kind:"official_warning",origin:"synthetic_fixture"});
   let verified=0;
-  const store={origin:"synthetic_fixture",namespace:"sources",verify:async()=>verified++,records:async()=>[record]};
+  const store={origin:"synthetic_fixture",namespace:"sources",verify:async()=>verified++,records:async(index)=>index==="failures"?[]:[record]};
   const verify=archiveEvidenceVerifier(store);
   assert.equal((await verify(candidate,"2026-10-27T18:06:00Z")).current,true);
   const tampered=structuredClone(candidate);tampered.facts.authority="Autoridad inventada";

@@ -138,3 +138,12 @@ fuente. La cancelación de outbox usa motivo general evidence_no_longer_eligible
 pues una pérdida de elegibilidad no demuestra que el proveedor cambió el documento.
 Regresiones y suite completa: **175/175** Node, **120/120** Docker sin red,
 **6/6** Python, check/replays/diff-check correctos. Sin publicación o nuevos GET.
+
+## Corrección de frescura de captura
+
+El TTL declarado por fuente se aplica ahora además de la vigencia documental.
+Las evaluaciones anteriores de un PDF a más de una hora desde su descarga no
+prueban frescura bajo esta regla; conservan valor documental/histórico únicamente.
+La recaptura real y su comparación están registradas en
+[source-probes/2026-10-27-inamhi-evidence-lifecycle.json](source-probes/2026-10-27-inamhi-evidence-lifecycle.json).
+No se antedata disponibilidad ni se simula retrospectivamente una descarga.

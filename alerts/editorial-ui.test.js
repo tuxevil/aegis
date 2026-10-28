@@ -28,6 +28,7 @@ test("interfaz usa Bearer en memoria, escapa datos y limpia sesión sin storage/
   assert.equal(w.localStorage.length,0);assert.equal(w.sessionStorage.length,0);assert.equal(w.location.search,"");
   assert.ok(requests.every(r=>r.options.headers.Authorization==="Bearer "+"T".repeat(43)));
   assert.match(d.getElementById("alerts").textContent,/DATOS SINTÉTICOS DE PRUEBA/);
+  assert.match(d.querySelector("#alerts pre").textContent,/parserVersion/);
   assert.equal(d.querySelector("#alerts img"),null);assert.match(d.getElementById("alerts").textContent,/<img src=x/);
   d.getElementById("logout").click();assert.equal(d.getElementById("private").hidden,true);assert.equal(d.getElementById("alerts").children.length,0);
 });

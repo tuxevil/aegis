@@ -247,3 +247,13 @@ y dimensionamiento, sin borrar historial.
 
 Verificación del opt-out: npm ci 0 vulnerabilidades, check, **172/172** Node,
 **6/6** Python, replays y diff-check correctos; Docker **117/117** sin red.
+
+## Identidad y confirmación de evidencia
+
+Reimportación y recaptura idénticas mantienen la edición revisada y no duplican
+simulación. La confirmación reciente vive separada del candidato original;
+la vista previa distingue comprobación local de descarga real. Calidad, parser,
+hechos, ámbito y política forman parte de la versión revisable.
+TTL vencido, fallo conocido o nueva edición en URL mutable impiden confirmar
+la evidencia anterior sin retractarla automáticamente. Tests incluyen archivo
+físico sintético y API; no se aprobaron ni notificaron candidatos reales.

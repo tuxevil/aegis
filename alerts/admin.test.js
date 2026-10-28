@@ -18,12 +18,13 @@ async function setup(t) {
   const tokens={editor:randomBytes(32).toString("base64url"),approver:randomBytes(32).toString("base64url")};
   const credentials=Object.entries(tokens).map(([role,token])=>({id:role,role,tokenSha256:createHash("sha256").update(token).digest("hex")}));
   const record=captureRecord({kind:"official_warning",origin:"synthetic_fixture"});let fail=false;
-  const sourceStore={origin:"synthetic_fixture",namespace:"sources",verify:async()=>{if(fail)throw new Error("private station secret do-not-leak");},records:async()=>[record]};
-  const journal=new AlertJournal(root,{origin:"synthetic_fixture"}),verifyEvidence=archiveEvidenceVerifier(sourceStore),now=()=>"2026-10-27T18:05:00Z";
+  const sourceStore={origin:"synthetic_fixture",namespace:"sources",verify:async()=>{if(fail)throw new Error("private station secret do-not-leak");},records:async(index)=>index==="failures"?[]:[record]};
+  let at="2026-10-27T18:05:00Z";
+  const journal=new AlertJournal(root,{origin:"synthetic_fixture"}),verifyEvidence=archiveEvidenceVerifier(sourceStore),now=()=>at;
   const services={sourceStore,editorial:new EditorialService({journal,verifyEvidence,now}),outbox:new DryRunOutbox({journal,verifyEvidence,now})};
   const app=await createApp({...base,now:()=>new Date(now()),alertsAdminEnabled:true,alertsAdminCredentials:credentials,alertsAdminServices:services});t.after(()=>app.close());
   const inject=(url,{role="editor",method="GET",body,headers={},...rest}={})=>app.inject({url,method,remoteAddress:"192.0.2.15",headers:{authorization:`Bearer ${tokens[role]}`,...headers},...(body===undefined?{}:{payload:body}),...rest});
-  return {app,inject,tokens,credentials,services,setFail:()=>fail=true};
+  return {app,inject,tokens,credentials,services,setAt:value=>at=value,setFail:()=>fail=true};
 }
 test("admin apagado por defecto; activación sin credenciales falla cerrada",async t=>{
   const app=await createApp({...base,alertsAdminEnabled:false});t.after(()=>app.close());
@@ -83,4 +84,20 @@ test("demanda agregada solo existe con flag de zonas y requiere autenticación a
   const response=await app.inject({url:"/api/admin/alerts/demand",remoteAddress:"192.0.2.15"});assert.equal(response.statusCode,401);
   const authenticated=await app.inject({url:"/api/admin/alerts/demand",remoteAddress:"192.0.2.15",headers:{authorization:"Bearer "+tokens.editor}});assert.equal(authenticated.statusCode,200);assert.equal(authenticated.json().realWhatsappFollowers,null);
   assert.equal((await app.inject({url:"/api/subscriptions/demand",remoteAddress:"192.0.2.15"})).statusCode,403);
+});
+
+
+test("importación HTTP repetida tras avanzar el reloj conserva edición y auditoría originales",async t=>{
+  const {inject,setAt,services}=await setup(t),candidate=(await inject("/api/admin/alerts/candidates?area=guayaquil")).json().candidates[0];
+  const request={method:"POST",body:{area:"guayaquil",candidateId:candidate.id}};
+  const first=await inject("/api/admin/alerts/candidates",request);assert.equal(first.statusCode,200);setAt("2026-10-27T18:06:00Z");
+  const repeated=await inject("/api/admin/alerts/candidates",request);assert.equal(repeated.statusCode,200);assert.deepEqual(repeated.json(),first.json());assert.equal((await services.editorial.journal.entries()).length,1);
+});
+
+
+test("lector administrativo por defecto no crea archivos de fuente ausentes",async t=>{
+  const {credentials,tokens}=await setup(t),root=await fs.mkdtemp(path.join(os.tmpdir(),"aegis-admin-source-ro-"));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+  const previous=process.env.DATA_DIR;process.env.DATA_DIR=path.join(root,"missing");t.after(()=>{if(previous===undefined)delete process.env.DATA_DIR;else process.env.DATA_DIR=previous;});
+  const app=await createApp({...base,alertsAdminEnabled:true,alertsAdminCredentials:credentials,zoneSubscriptionsEnabled:false});t.after(()=>app.close());
+  const response=await app.inject({url:"/api/admin/alerts/candidates?area=guayaquil",headers:{authorization:"Bearer "+tokens.editor}});assert.equal(response.statusCode,503);assert.deepEqual(await fs.readdir(root),[]);
 });

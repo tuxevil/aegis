@@ -5,6 +5,8 @@ import {renderPreview,simulateTransport} from "./templates.js";
 import {utcMillis} from "../hazards/time.js";
 import {safeMode} from "../hazards/registry.js";
 const hash=value=>createHash("sha256").update(JSON.stringify(value)).digest("hex");
+const confirmation=(verification,at)=>({checkedAt:at,sourceRefs:(verification.sourceRefs??[]).map(ref=>Object.fromEntries(
+  ["captureId","sourceId","sha256","sourceUrl","knownAt","issuedAt","retrievedAt","processedAt"].map(key=>[key,ref[key]])))});
 export function outboxState(entries) {
   const outbox=new Map();
   for(const entry of entries)if(entry.action.startsWith("outbox_")) {
@@ -29,11 +31,12 @@ export class DryRunOutbox {
       if(utcMillis(alert.candidate.validTo)<=utcMillis(at))throw new Error("outbox_expired");
       const target=simulationTargets(alert.candidate.areaId).find(t=>t.id===targetId);
       if(!target)throw new Error("outbox_target_not_allowed");
-      if((await this.verifyEvidence(structuredClone(alert.candidate),at))?.current!==true)throw new Error("outbox_evidence_changed");
+      const verification=await this.verifyEvidence(structuredClone(alert.candidate),at);
+      if(verification?.current!==true)throw new Error("outbox_evidence_changed");
       const key=[alert.id,alert.revision,alert.candidate.areaId,target.id].join(":"),prior=outboxState(entries).get(key);
       if(prior)return {unchanged:true,value:prior};
       const item={key,alertId:alert.id,revision:alert.revision,candidateDigest:alert.candidateDigest,target,createdAt:at,expiresAt:alert.candidate.validTo,
-        state:"queued",attempts:0,nextAttemptAt:at,lastError:null,result:null,mode:"DRY_RUN",sent:false,publicationBlocked:true,...safeMode};
+        state:"queued",attempts:0,nextAttemptAt:at,lastError:null,result:null,evidenceCheck:confirmation(verification,at),mode:"DRY_RUN",sent:false,publicationBlocked:true,...safeMode};
       return {data:{item},value:item};
     });
   }
@@ -47,11 +50,12 @@ export class DryRunOutbox {
       const cancel=reason=>{item.state="cancelled";item.lastError=reason;item.nextAttemptAt=null;return {data:{item},value:item};};
       if(utcMillis(item.expiresAt)<=utcMillis(at))return cancel("expired");
       if(!alert||alert.state!=="approved"||alert.candidateDigest!==item.candidateDigest||alert.revision!==item.revision)return cancel("editorial_state_changed");
-      if((await this.verifyEvidence(structuredClone(alert.candidate),at))?.current!==true)return cancel("evidence_no_longer_eligible");
+      const verification=await this.verifyEvidence(structuredClone(alert.candidate),at);
+      if(verification?.current!==true)return cancel("evidence_no_longer_eligible");
       if(utcMillis(item.nextAttemptAt)>utcMillis(at))return {unchanged:true,value:item};
-      item.attempts++;
+      item.evidenceCheck=confirmation(verification,at);item.attempts++;
       try {
-        const result=await this.simulate(structuredClone(item.target),renderPreview(alert,{kind:alert.revision>1?"correction":"notice",asOf:at}),structuredClone(alert));
+        const result=await this.simulate(structuredClone(item.target),renderPreview(alert,{kind:alert.revision>1?"correction":"notice",asOf:at,evidenceCheck:item.evidenceCheck}),structuredClone(alert));
         if(result?.simulation!==true||result.sent!==false||result.providerMessageId!==null)throw new Error("invalid_simulation_result");
         if(Buffer.byteLength(JSON.stringify(result))>100000)throw new Error("simulation_result_too_large");
         item.result=result;item.state="simulated";item.nextAttemptAt=null;item.lastError=null;

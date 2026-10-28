@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import {createHash,randomUUID} from "node:crypto";
+import {utcMillis} from "./time.js";
 import {validateEnvelope} from "./envelope.js";
 import {createImmutableFile as atomicCreate} from "./immutable-file.js";
 
@@ -90,7 +91,7 @@ export class RawArtifactStore {
     });
   }
   async failure({sourceId,at,code,retryAt=null}) {
-    if(!sourcePattern.test(sourceId) || !Number.isFinite(Date.parse(at)) || !/^[a-z0-9_]{1,80}$/.test(code) || (retryAt!==null && !Number.isFinite(Date.parse(retryAt)))) throw new Error("invalid_failure");
+    if(typeof sourceId!=="string" || !sourcePattern.test(sourceId) || !Number.isFinite(utcMillis(at)) || typeof code!=="string" || !/^[a-z0-9_]{1,80}$/.test(code) || (retryAt!==null && !Number.isFinite(utcMillis(retryAt)))) throw new Error("invalid_failure");
     return this.locked(async()=>{
       const previous=await this.records("failures");
       if(previous.length>=this.maxCaptures) throw new Error("store_capacity_exceeded");

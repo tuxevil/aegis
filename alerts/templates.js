@@ -1,7 +1,7 @@
 import {utcMillis} from "../hazards/time.js";
 const date=value=>value?`${value} (${new Intl.DateTimeFormat("es-EC",{timeZone:"America/Guayaquil",dateStyle:"short",timeStyle:"short"}).format(new Date(value))}, Ecuador)` :"desconocida";
 const xml=value=>String(value).replace(/[<>&"']/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;","'":"&apos;"}[c]));
-export function renderPreview(alert,{kind="notice",asOf=alert.candidate.evaluatedAt}={}) {
+export function renderPreview(alert,{kind="notice",asOf=alert.candidate.evaluatedAt,evidenceCheck=null}={}) {
   if(!["notice","correction","retraction"].includes(kind))throw new Error("invalid_template_kind");
   if(!Number.isFinite(utcMillis(asOf)))throw new Error("invalid_template_time");
   const c=alert.candidate;
@@ -11,6 +11,8 @@ export function renderPreview(alert,{kind="notice",asOf=alert.candidate.evaluate
     `Territorio de consulta: ${c.areaId}. Alcance de la evidencia: ${c.scope.name} (${c.scope.precision}).`,
     official?`Boletín ${c.facts.bulletinNumber}. Nivel literal de la fuente: ${c.sourceRiskLevel}.`:`Evidencia: ${c.evidenceClass}. Severidad editorial: ${c.severity}; confianza en evidencia: ${c.confidenceInEvidence}.`,
     ...c.sourceRefs.map(ref=>`Fuente original: ${ref.sourceUrl}\nEmisión declarada: ${date(ref.issuedAt)}\nCaptura AEGIS: ${date(ref.retrievedAt)}\nProcesamiento AEGIS: ${date(ref.processedAt)}`),
+    ...(evidenceCheck?[`Comprobación local del archivo: ${date(evidenceCheck.checkedAt)}. No implica una descarga nueva.`,
+      ...evidenceCheck.sourceRefs.map(ref=>`Última captura de la misma versión (${ref.sourceId}): ${date(ref.retrievedAt)}.`)]:[]),
     `Vigencia: ${date(c.validFrom)} → ${date(c.validTo)}.`,
     `Corte de esta vista previa: ${date(asOf)}.`,
     utcMillis(c.validFrom)>utcMillis(asOf)?"Vigencia futura: el período indicado por la fuente aún no ha comenzado a este corte. No confirma un incidente ocurrido.":utcMillis(c.validTo)<=utcMillis(asOf)?"Vigencia vencida a este corte; esta vista previa no es un aviso activo.":"La vigencia de la fuente no confirma por sí sola un incidente o daños.",
