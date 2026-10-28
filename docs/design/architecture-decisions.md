@@ -36,6 +36,18 @@ El propietario creó manualmente **OpenAlert - Ecuador** y **OpenAlert - Guayaqu
 
 ## Qué NO está decidido y cómo manejarlo sin bloquear el comienzo
 
+### ADR-12 · Consolidación de líneas existentes, 28/10/2026
+
+Prioridad nueva del propietario: integrar los heads existentes antes de más
+funcionalidades. Una aplicación Fastify, contratos públicos por namespace y flags
+OFF; conservar HistoryStore, SQLite v5 y archivo inmutable por su distinta semántica.
+No convertir consentimientos de Sector Watch a preferencias OpenAlert. Reusar
+módulos y dependencias existentes; no nueva DB o microservicios. Integración en
+rama independiente, con baseline por línea y regresión conjunta. El transporte
+Push real heredado debe quedar bloqueado en esta etapa aunque un env antiguo
+solicite activarlo. Staging aislado sin puertos publicados ni acceso al Proxmox del
+propietario. [Evidencia y matriz](../verification/integration/integration-matrix.md).
+
 Estos puntos son **gates de fase, no preguntas que el agente debe devolver al usuario antes de empezar**:
 
 - Frecuencia de polling por proveedor: determinar respetando metadatos, ToS y tiempos medidos; nunca presumir intervalos del catálogo preliminar.
