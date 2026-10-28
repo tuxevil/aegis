@@ -1,5 +1,12 @@
 # AEGIS // GRID SENTINEL
 
+> **Etapa vigente: consolidación y staging supervisado.** Se integran las dos
+> líneas existentes; el desarrollo intensivo de nuevas funciones está suspendido.
+> [Matriz y baselines](docs/verification/integration/integration-matrix.md).
+> El transporte/worker Push real y la activación Push desde el navegador están
+> bloqueados en esta rama, incluso con configuración heredada de envío. La consulta
+> Sector Watch y sus pruebas sintéticas se conservan. No está desplegado.
+
 > **Ampliación AEGIS Multiamenaza (planificación cerrada, desarrollo por fases):** el punto de entrada para Codex es [START_HERE_CODEX](docs/handoff/START_HERE_CODEX.md), junto con las [decisiones](docs/design/architecture-decisions.md), el [roadmap M0–M5](docs/design/implementation-roadmap.md) y el [prompt preparado](docs/handoff/CODEX_START_PROMPT.md). El dashboard documentado a continuación corresponde al Grid Sentinel ya existente. Los módulos de alertas ciudadanas aún NO están operativos y ningún mensaje WhatsApp está activado.
 
 Para comparar reglas sin red: `npm run benchmark:compare` usa el [corpus público de controles sintéticos](replay/benchmarks/README.md). No certifica eficacia ni probabilidades de desastre.
@@ -31,7 +38,37 @@ confirma seguimiento WhatsApp; véanse límites y retención en el informe M4.
 [Auditoría de aceptación y gates pendientes](docs/verification/multihazard-acceptance.md).
 Grid Sentinel conserva `/`, `/ui` y `/api/status`.
 
+## AEGIS 5.0 (en revisión; no desplegado)
+
+Estamos diseñando una evolución hacia **Blackout Map** (reportes ciudadanos y evidencia geográfica), **Sector Watch** (seguimiento de horarios oficiales y notificaciones opt-in), **Time Machine** (historial auditable), OSINT responsable e **Infrastructure Explorer** 2D/3D. Las capacidades piloto están implementadas en PRs separados, con flags OFF; **no están desplegadas ni activadas en producción**. La consola v4 sigue operativa. Redes sociales y modelo real de volumen tienen decisiones NO-GO documentadas; la geometría del explorador es ilustrativa. [Estado de entregas y gates](docs/roadmap/aegis-5-delivery.md).
+
+- [Objetivos, experiencia y límites del producto](docs/roadmap/aegis-5-prd.md)
+- [Arquitectura, API, datos, seguridad y fuentes](docs/architecture/aegis-5-design.md)
+- [Backlog por PRs y criterios de aceptación](docs/roadmap/aegis-5-backlog.md)
+- [Instrucciones para Codex](docs/roadmap/aegis-5-codex.md) y [AGENTS.md](AGENTS.md)
+
 ## La consola
+
+Fundaciones PR-01: [contratos y activación local de API v1](docs/architecture/aegis-5-public-v1.md).
+Los flags están desactivados por defecto. PR-03 incorpora la vista ciudadana
+`/map`, lista y mapa opcional, conservando `/` y `/ui` para la consola v4.
+Su demo usa datos sintéticos y no se ha desplegado: ver
+[activación, API y límites geográficos](docs/architecture/aegis-5-blackout-map.md).
+
+PR-04 añade `/report` para crear, corregir y retirar con código privado, siempre
+bajo `CITIZEN_REPORTS=false` por defecto. Los reportes requieren revisión y solo
+aparecen agregados por sector: [flujo, privacidad y moderación](docs/architecture/aegis-5-citizen-reports.md).
+
+PR-05 incorpora [correlación local y auditoría de evidencia](docs/architecture/aegis-5-correlation.md):
+reglas explicables de zona/tiempo/tipo, deduplicación de orígenes, competencia
+oficial y retractaciones sin borrar historia. `EVENT_CORRELATION=false`; no inicia
+ingestión ni convierte recibos ciudadanos en incidentes. Ver [pruebas y límites](docs/verification/aegis-5-pr-05.md).
+
+PR-06 añade [captura manual de cronogramas EEASA y consulta por sector/fecha](docs/architecture/aegis-5-schedules.md),
+con originales privados, revisiones y aprobación de zona/derechos. `OFFICIAL_SCHEDULES=false`;
+no activa polling ni Push. Una ausencia o fuente fallida no significa cancelación.
+La [investigación de fuentes](docs/research/aegis-5-official-schedules-sources.md)
+distingue viabilidad técnica y permisos pendientes; [resultados y límites](docs/verification/aegis-5-pr-06.md).
 
 - **Energía nacional:** evolución de Mazar, caudal afluente y su cambio, escenario de continuidad hasta el umbral de seguridad, cascada Mazar–Molino–Sopladora, composición de la producción y curva horaria CENACE.
 - **Pallatanga:** lluvia y condiciones de una estación Ambient Weather, previsión horaria para la cabecera cantonal y acceso directo a avisos oficiales y estado vial.
@@ -89,7 +126,12 @@ NOAA: los índices semanales no producen una clasificación oficial por umbral. 
 
 ## Ejecutar
 
-Node ≥ 22.
+Node ≥ 22.16.
+
+El almacenamiento opcional de AEGIS 5 y sus pruebas requieren Node ≥ 22.16
+(`node:sqlite`, sin paquetes adicionales). Permanece apagado mediante
+`SQLITE_STORAGE=false`; v4 conserva su historial JSON. Ver
+[SQLite, backups y restauración](docs/architecture/aegis-5-storage.md).
 
 ```bash
 npm ci
@@ -165,3 +207,21 @@ La MAC entra por variable de entorno y no se devuelve al cliente. Los errores de
 Para mejorar la anticipación nacional: caudales y sedimentos CCS verificables, generación/disponibilidad por unidad, curva cota–volumen útil, combustible y respaldo térmico, importaciones programadas y avisos oficiales de déficit. Para amenazas territoriales: avisos INAMHI con geografía y vencimiento, observaciones de cuenca y estado vial con fecha. Ninguna de esas integraciones se presenta como ya disponible.
 
 La calibración futura debe contrastar las señales con series históricas y eventos: anticipación, falsas alertas y episodios no detectados. AEGIS comunica lo observado y escenarios condicionados mientras esa validación no exista.
+
+Sector Watch PR-07: `/watch/` permite guardar hasta cinco sectores, gestionar
+la suscripción con código privado y elegir Push por consentimiento separado.
+`PUSH_ALERTS=false` y `PUSH_DELIVERY=false` mantienen recepción/envíos desactivados.
+[Configuración, privacidad, límites y rollback](docs/architecture/aegis-5-push.md).
+No se activó en producción ni se verificó entrega real en proveedores/dispositivos.
+
+PR-08: [feeds y revisión de noticias](docs/architecture/aegis-5-feeds.md), sin ingesta automática, permisos reales ni artículos completos; OSINT_NEWS=false.
+
+PR-09: [decisión NO-GO para redes sociales](docs/research/aegis-5-social-feasibility.md); sin acceso, gasto o scraping habilitado. No bloquea el replay histórico.
+
+PR-10: [Time Machine y exportaciones](docs/architecture/aegis-5-timeline.md), /history/ y API paginada bajo TIME_MACHINE=false. Distingue tiempo del hecho y conocimiento, sin inventar historia.
+
+PR-11: [explorador educativo de infraestructura](docs/architecture/aegis-5-explorer.md), EXPLORER_3D=false. Cota y fechas separadas de una geometría ilustrativa; sin DEM/batimetría ni reserva energética calculada.
+
+PR-12: [NO-GO de volumen útil/reserva a partir de cota](docs/research/aegis-5-volume-decision.md). Se conserva cota e ilustración, sin conversión lineal ni tabla no validada.
+
+PR-13: [API pública OpenAPI y telemetría](docs/api/README.md), con [ejemplo Home Assistant read-only y opt-in](examples/home-assistant/README.md). Las rutas del documento en ejecución reflejan solo flags habilitados.

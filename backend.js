@@ -1,3 +1,4 @@
+import { CELEC_REFRESH_FAILURE } from "./celec.js";
 import Fastify from "fastify";
 import rateLimit from "@fastify/rate-limit";
 import fs from "node:fs";
@@ -25,6 +26,12 @@ import {TerritoryPreviewReader} from "./hazards/territory-preview.js";
 import {RawArtifactStore} from "./hazards/artifact-store.js";
 import {ZoneSubscriptions} from "./alerts/subscriptions.js";
 import {registerSubscriptionRoutes} from "./alerts/subscription-routes.js";
+import { readFeatureFlags } from "./feature-flags.js";
+import { readPushConfig } from "./push/policy.js";
+import { isSubscriptionRequest } from "./api/subscriptions.js";
+import { isPublicV1Request, registerPublicV1 } from "./api/public-v1.js";
+import { emptyReader } from "./storage/public-reader.js";
+import { isCitizenReportRequest } from "./api/citizen-reports.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const localIP = (ip) => ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(ip);
@@ -50,7 +57,33 @@ export async function createApp({
   alertsAdminServices = null,
   zoneSubscriptionsEnabled = process.env.ZONE_SUBSCRIPTIONS_ENABLED === "true",
   zoneSubscriptionService = null,
+  flags = readFeatureFlags(),
+  reportsOrigin = process.env.REPORTS_ORIGIN,
+  pushConfig = null,
+  openV5Store = async () => {
+    const { openStore } = await import("./storage/sqlite-store.js");
+    return openStore({ now });
+  },
 } = {}) {
+  const features = readFeatureFlags(flags);
+  if(features.EXPLORER_3D && !features.PUBLIC_API_V1) throw new Error("EXPLORER_3D requiere API pública");
+  if(features.TIME_MACHINE && (!features.PUBLIC_API_V1 || !features.BLACKOUT_MAP || !features.SQLITE_STORAGE && !features.BLACKOUT_DEMO)) throw new Error("TIME_MACHINE requiere API, mapa y almacenamiento");
+  if (features.PUSH_ALERTS && (!features.PUBLIC_API_V1 || !features.SQLITE_STORAGE || !features.OFFICIAL_SCHEDULES || !features.BLACKOUT_MAP || features.BLACKOUT_DEMO)) throw new Error("PUSH_ALERTS requiere API, SQLite, cronogramas y catálogo de mapa sin demo");
+  const watchConfig = features.PUSH_ALERTS ? pushConfig || readPushConfig() : null;
+  if(watchConfig?.delivery)throw new Error("PUSH_DELIVERY bloqueado durante integración: DRY_RUN");
+  if (features.OFFICIAL_SCHEDULES && (!features.PUBLIC_API_V1 || !features.SQLITE_STORAGE || features.BLACKOUT_DEMO)) throw new Error("OFFICIAL_SCHEDULES requiere API pública y SQLite sin demo de mapa");
+  if (features.BLACKOUT_MAP && !features.PUBLIC_API_V1) throw new Error("BLACKOUT_MAP requiere PUBLIC_API_V1");
+  if (features.BLACKOUT_DEMO && (!features.BLACKOUT_MAP || features.SQLITE_STORAGE)) {
+    throw new Error("BLACKOUT_DEMO requiere BLACKOUT_MAP y SQLITE_STORAGE apagado; demo aislada en memoria");
+  }
+  if (features.CITIZEN_REPORTS && (!features.BLACKOUT_MAP || !features.BLACKOUT_DEMO && !features.SQLITE_STORAGE)) {
+    throw new Error("CITIZEN_REPORTS requiere mapa y SQLite live o demo aislada");
+  }
+  if (features.CITIZEN_REPORTS && !features.BLACKOUT_DEMO) {
+    let valid = false;
+    try { const url = new URL(reportsOrigin); valid = url.origin === reportsOrigin && url.protocol === "https:"; } catch { /* Fail closed. */ }
+    if (!valid) throw new Error("Configurar REPORTS_ORIGIN como origen HTTPS canónico antes de habilitar reportes live");
+  }
   const app = Fastify({ logger: false });
   await app.register(rateLimit, {
     max: 200,
@@ -60,6 +93,9 @@ export async function createApp({
   // Preserve the existing public-dashboard policy. No private station identifier is returned.
   app.addHook("onRequest", async (req, reply) => {
     const endpoint = req.url.split("?")[0];
+    if (features.PUBLIC_API_V1 && isPublicV1Request(req)) return;
+    if (features.CITIZEN_REPORTS && isCitizenReportRequest(req)) return;
+    if (features.PUSH_ALERTS && isSubscriptionRequest(req)) return;
     if (!endpoint.startsWith("/api/") || localIP(req.ip)) return;
     if (zoneSubscriptionsEnabled && req.routeOptions.config.aegisSubscriptions === true) return;
     if (alertsAdminEnabled && req.routeOptions.config.aegisAlertAdmin === true) return;
@@ -98,6 +134,40 @@ export async function createApp({
     await registerAlertAdminRoutes(app,{...services,credentials,now:alertNow,zoneSubscriptions:subscriptionService});
   }
   if (zoneSubscriptionsEnabled) await registerSubscriptionRoutes(app,{service:subscriptionService});
+  const sourceQuality={attempts:0,failures:0,last_attempt_at:null,last_success_at:null};
+  let publicReader = emptyReader;
+  let reportStore;
+  let stopPushWorker;
+  if (features.SQLITE_STORAGE) {
+    // Optional storage is never used in place of the v4 HistoryStore.
+    const v5Store = await openV5Store();
+    app.decorate("v5Store", v5Store);
+    app.addHook("onClose", async () => { await stopPushWorker?.(); v5Store.close(); });
+    publicReader = v5Store.publicReader || emptyReader;
+    reportStore = v5Store;
+  }
+  if (features.BLACKOUT_DEMO) {
+    const { openStore } = await import("./storage/sqlite-store.js");
+    const demoStore = await openStore({ directory: ":memory:", synthetic: true, now });
+    try {
+      demoStore.writeBatch(JSON.parse(fs.readFileSync(path.join(directory, "demo/blackout.json"), "utf8")));
+    } catch (error) { demoStore.close(); throw error; }
+    app.addHook("onClose", async () => demoStore.close());
+    publicReader = demoStore.publicReader;
+    reportStore = demoStore;
+  }
+  if (features.PUBLIC_API_V1) await registerPublicV1(app, { now, blackout: features.BLACKOUT_MAP, reader: publicReader,
+    getSourceMetrics: () => ({ ...sourceQuality }),
+    infrastructure: features.EXPLORER_3D ? { loadDams: () => load("dams"), history: store, now } : null,
+    timeline: features.TIME_MACHINE ? reportStore : null,
+    subscriptions: features.PUSH_ALERTS ? { store: reportStore, config: watchConfig } : null,
+    schedules: features.OFFICIAL_SCHEDULES ? reportStore : null,
+    reporting: features.CITIZEN_REPORTS ? { store: reportStore, origin: reportsOrigin } : null,
+  });
+  if(features.PUSH_ALERTS){
+    try {reportStore.subscriptions.ready();
+    if(watchConfig.delivery){const {startPushWorker}=await import("./push/transport.js");stopPushWorker=startPushWorker(reportStore,watchConfig);}} catch(error){await app.close();throw error;}
+  }
   const caches = new Map();
   const inflight = new Map();
   const getText = async (url, options) => {
@@ -145,12 +215,16 @@ export async function createApp({
     if (cached && date.getTime() - cached.at < (cached.ttl ?? ttl))
       return cached.data;
     if (inflight.has(name)) return inflight.get(name);
+    sourceQuality.attempts++;sourceQuality.last_attempt_at=date.toISOString();
     const pending = (async () => {
       try {
         const data = await loader(date);
+        if(data?.retrievalFailed || data?.[CELEC_REFRESH_FAILURE]) sourceQuality.failures++;
+        else sourceQuality.last_success_at=date.toISOString();
         caches.set(name, { at: date.getTime(), data });
         return data;
       } catch {
+        sourceQuality.failures++;
         // Keep source dates intact, explicitly signal a failed refresh.
         const data = cached
           ? { ...cached.data, retrievalFailed: true }
@@ -184,15 +258,56 @@ export async function createApp({
     reply
       .header("Cache-Control", "no-cache")
       .type("text/html")
-      .send(fs.readFileSync(path.join(directory, "frontend.html"),"utf8").replace("<!-- HAZARDS_NAV -->",[hazardsEnabled?'<a href="/hazards/">Multiamenaza · fuentes</a>':"",zoneSubscriptionsEnabled?'<a href="/ciudades/">Ciudades · preferencias</a>':""].filter(Boolean).join(" ")));
+      .send(fs.readFileSync(path.join(directory, "frontend.html"),"utf8").replace("<!-- HAZARDS_NAV -->",[
+        features.BLACKOUT_MAP?'<a href="/map">Mapa ciudadano · energía</a>':"",
+        features.TIME_MACHINE?'<a href="/history/">Histórico · evidencias</a>':"",
+        features.EXPLORER_3D?'<a href="/explorer/">Infraestructura</a>':"",
+        features.PUSH_ALERTS?'<a href="/watch/">Sector Watch · consulta web</a>':"",
+        hazardsEnabled?'<a href="/hazards/">Multiamenaza · fuentes</a>':"",
+        zoneSubscriptionsEnabled?'<a href="/ciudades/">Ciudades · preferencias</a>':"",
+      ].filter(Boolean).join(" ")));
   app.get("/", serveUI);
   app.get("/ui", serveUI);
+  if (features.BLACKOUT_MAP) app.get("/map", (_, reply) => reply
+    .header("Cache-Control", "no-store")
+    .header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
+    .header("Referrer-Policy", "no-referrer")
+    .type("text/html").send(fs.readFileSync(path.join(directory, "public/blackout.html"), "utf8").replace("<!-- reports-link -->",
+      features.CITIZEN_REPORTS ? '<a id="reports-link" class="secondary report-link" href="/report">Reportar o gestionar un reporte →</a>' : "")
+      .replace("</header>", features.TIME_MACHINE ? '<a href="/history/">Historial y replay →</a></header>' : "</header>")
+      .replace("<!-- report-availability -->", features.CITIZEN_REPORTS
+        ? "Los reportes requieren revisión y solo se consultan agregados por sector. Las notificaciones aún no están habilitadas."
+        : "Reportar, suscribirse y recibir notificaciones se habilitarán en etapas posteriores.")));
+  if (features.CITIZEN_REPORTS) app.get("/report", (_, reply) => reply.header("Cache-Control", "no-store")
+    .header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
+    .header("Referrer-Policy", "no-referrer").type("text/html").send(fs.readFileSync(path.join(directory, "public/report.html"))));
+  if(features.EXPLORER_3D){
+    app.get("/explorer",(_,reply)=>reply.redirect("/explorer/"));
+    for(const [file,type] of Object.entries({"":"text/html; charset=utf-8","app.js":"text/javascript","scene.js":"text/javascript","style.css":"text/css"}))app.get(`/explorer/${file}`,(_,reply)=>reply.header("Cache-Control","no-store").header("Referrer-Policy","no-referrer").header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'").type(type).send(file ? fs.readFileSync(path.join(directory,"public/explorer",file)) : fs.readFileSync(path.join(directory,"public/explorer/index.html"),"utf8").replace("<!-- map-link -->",features.BLACKOUT_MAP ? ' · <a href="/map">Mapa ciudadano</a>' : "")));
+  }
+  if(features.TIME_MACHINE){
+    app.get("/history",(_,reply)=>reply.redirect("/history/"));
+    for(const [file,type] of Object.entries({"":"text/html; charset=utf-8","app.js":"text/javascript","style.css":"text/css"}))app.get(`/history/${file}`,(_,reply)=>reply.header("Cache-Control","no-store").header("Referrer-Policy","no-referrer").header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'").type(type).send(file ? fs.readFileSync(path.join(directory,"public/history",file)) : fs.readFileSync(path.join(directory,"public/history/index.html"),"utf8").replace("<!-- schedule-comparison -->",features.OFFICIAL_SCHEDULES ? '<button id="compare-planned" type="button">Comparar con programación conocida entonces</button>' : "")));
+  }
+  if (features.PUSH_ALERTS) {
+    const watchCsp="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; img-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
+    app.get("/watch",(_,reply)=>reply.redirect("/watch/"));
+    const watchFiles={"":"text/html; charset=utf-8","app.js":"text/javascript","style.css":"text/css","sw.js":"text/javascript","manifest.webmanifest":"application/manifest+json","icon-192.png":"image/png","icon-512.png":"image/png"};
+    for(const [file,type] of Object.entries(watchFiles)) app.get(`/watch/${file}`,(_,reply)=>reply
+      .header("Content-Security-Policy",watchCsp).header("Referrer-Policy","no-referrer").header("Cache-Control","no-store")
+      .type(type).send(fs.readFileSync(path.join(directory,"public/watch",file||"index.html"))));
+  }
   const assets = {
     "app.js": "text/javascript",
     "style.css": "text/css",
     "social.png": "image/png",
     "favicon.svg": "image/svg+xml",
   };
+  if (features.BLACKOUT_MAP) Object.assign(assets, {
+    "blackout.js": "text/javascript", "blackout.css": "text/css", "blackout-map.js": "text/javascript",
+    "map/ecuador.geojson": "application/geo+json",
+  });
+  if (features.CITIZEN_REPORTS) Object.assign(assets, { "report.js": "text/javascript", "report.css": "text/css" });
   for (const [file, type] of Object.entries(assets))
     app.get(`/assets/${file}`, (_, reply) => {
       const asset = path.join(directory, "public", file);

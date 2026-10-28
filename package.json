@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.16"
   },
   "dependencies": {
     "@fastify/rate-limit": "^11.2.0",
@@ -15,7 +15,8 @@
     "fastify": "^5.12.5",
     "jsdom": "^29.1.1",
     "pdfjs-dist": "5.4.624",
-    "proj4": "2.22.0"
+    "proj4": "2.22.0",
+    "web-push": "3.6.7"
   },
   "scripts": {
     "start": "node backend.js",
@@ -23,6 +24,13 @@
     "check": "node scripts/check.mjs",
     "example:source": "node scripts/example-source-adapter.mjs --run",
     "benchmark:hazards": "node scripts/benchmark-hazards.mjs",
-    "benchmark:compare": "node scripts/benchmark-hazards.mjs --baseline=replay/benchmarks/rain-watch-controls.baseline.v1.json"
+    "benchmark:compare": "node scripts/benchmark-hazards.mjs --baseline=replay/benchmarks/rain-watch-controls.baseline.v1.json",
+    "storage": "node scripts/storage.js",
+    "reports": "node scripts/reports.js",
+    "correlation": "node scripts/correlation.js",
+    "schedules": "node scripts/schedules.js",
+    "push": "node scripts/push.js",
+    "feeds": "node scripts/feeds.js",
+    "openapi": "node scripts/export-openapi.mjs"
   }
 }
