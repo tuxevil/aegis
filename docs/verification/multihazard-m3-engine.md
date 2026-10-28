@@ -5,6 +5,12 @@ pendiente**. Sin publicación, WAHA, despliegue ni cambios a v4. Se incorporó l
 actualización documental de canales creados manualmente por el propietario; no
 se resolvieron sus URLs de invitación como JIDs ni se comprobaron roles de sesión.
 
+Actualización del 28/10: [evidencia institucional retrospectiva](../research/historical-corpus-evidence-review-2026-10-28.md)
+amplía el corpus con el SitRep nacional 59 para Guayaquil 24–26/10. Referencias
+separadas en hindsightOnly, sin nuevas entradas del replay, outcomes o tasas.
+Las fechas impresas/corte/índice se conservan literales, sin inferir UTC o primera
+disponibilidad web. Pallatanga y los negativos siguen sin etiquetas verificadas.
+
 ## Entradas y salidas
 
 `assessArchive` verifica hashes antes de llamar `assessHazard`. Solo se usan

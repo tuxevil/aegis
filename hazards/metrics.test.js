@@ -64,3 +64,39 @@ test("señales sin vigencia para toda la ventana no fabrican aciertos ni falsas 
   }
   const complete=scoreReviewedCases([positive],options);assert.equal(complete.confusion.tp,1);
 });
+
+test("evidencia primaria retrospectiva no cambia entradas, borradores o tasas del replay",()=>{
+  const manifest=JSON.parse(fs.readFileSync(new URL("../replay/multihazard-corpus.v1.json",import.meta.url)));
+  const reference=JSON.parse(fs.readFileSync(new URL("../replay/guayaquil-2026-10-26.json",import.meta.url)));
+  const cutoffs=["2026-10-24T23:00:00Z","2026-10-25T23:30:00Z","2026-10-26T19:30:00Z"];
+  const legacy=structuredClone(manifest);delete legacy.historicalDocuments;
+  for(const row of legacy.coverage)delete row.hindsightReferences;
+  const before=reportDocumentedCorpus(legacy,reference,cutoffs),after=reportDocumentedCorpus(manifest,reference,cutoffs);
+  assert.deepEqual(after.runs,before.runs);assert.deepEqual(after.metrics,before.metrics);
+  assert.equal(after.hindsightOnly.historicalDocuments.length,1);
+  assert.equal(after.hindsightOnly.usedAsReplayInput,false);assert.equal(after.hindsightOnly.usedAsReviewedLabels,false);
+  assert.ok(after.coverage.every(row=>row.outcome===null));
+  assert.equal(after.hindsightOnly.historicalDocuments[0].firstEvidenceAvailableAt,null);
+  assert.equal(after.metrics.falseAlertRate.value,null);assert.equal(after.metrics.missRate.value,null);
+  const changed=structuredClone(manifest);changed.historicalDocuments[0].summary="HINDSIGHT_SENTINEL 95.3";
+  const amended=reportDocumentedCorpus(changed,reference,cutoffs);
+  assert.deepEqual(amended.runs,after.runs);assert.ok(!JSON.stringify(amended.runs).includes("HINDSIGHT_SENTINEL"));
+});
+
+test("referencias retrospectivas rechazan mezcla con eventos o referencias de entrada",()=>{
+  const manifest=JSON.parse(fs.readFileSync(new URL("../replay/multihazard-corpus.v1.json",import.meta.url)));
+  const reference=JSON.parse(fs.readFileSync(new URL("../replay/guayaquil-2026-10-26.json",import.meta.url)));
+  const cutoff=["2026-10-26T19:30:00Z"];
+  for(const mutate of [
+    m=>{m.historicalDocuments[0].knowledgeRole="replay_input";},
+    m=>{m.historicalDocuments.push(structuredClone(m.historicalDocuments[0]));},
+    m=>{m.historicalDocuments[0].sourceUrl="https://private:secret@example.org/document";},
+    m=>{m.coverage[0].hindsightReferences=["not-a-reviewed-document"];},
+    m=>{m.coverage[0].references=[m.historicalDocuments[0].id];},
+  ]) {
+    const invalid=structuredClone(manifest);mutate(invalid);
+    assert.throws(()=>reportDocumentedCorpus(invalid,reference,cutoff),/invalid_retrospective/);
+  }
+  const mixed=structuredClone(reference);mixed.events[0].sourceUrl=manifest.historicalDocuments[0].sourceUrl;
+  assert.throws(()=>reportDocumentedCorpus(manifest,mixed,cutoff),/invalid_retrospective/);
+});

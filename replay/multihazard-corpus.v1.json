@@ -7,9 +7,9 @@
     {"date": "2026-10-21", "areaId": "guayaquil", "status": "unknown", "outcome": null},
     {"date": "2026-10-22", "areaId": "guayaquil", "status": "unknown", "outcome": null},
     {"date": "2026-10-23", "areaId": "guayaquil", "status": "unknown", "outcome": null},
-    {"date": "2026-10-24", "areaId": "guayaquil", "status": "unknown", "outcome": null},
-    {"date": "2026-10-25", "areaId": "guayaquil", "status": "documented_warning_reference", "outcome": null, "references": ["inamhi-83-prensa-2510"]},
-    {"date": "2026-10-26", "areaId": "guayaquil", "status": "documented_impact_reference", "outcome": null, "references": ["segura-18puntos-prensa-2610", "lluvia-en-curso-prensa-2610"], "note": "Impact reference is not a verified classifier label for the general city or all flooding."},
+    {"date": "2026-10-24", "areaId": "guayaquil", "status": "documented_retrospective_impact_reference", "outcome": null, "hindsightReferences": ["sngr-national-59-20261027"]},
+    {"date": "2026-10-25", "areaId": "guayaquil", "status": "documented_warning_reference", "outcome": null, "references": ["inamhi-83-prensa-2510"], "hindsightReferences": ["sngr-national-59-20261027"]},
+    {"date": "2026-10-26", "areaId": "guayaquil", "status": "documented_impact_reference", "outcome": null, "references": ["segura-18puntos-prensa-2610", "lluvia-en-curso-prensa-2610"], "hindsightReferences": ["sngr-national-59-20261027"], "note": "Impact reference is not a verified classifier label for the general city or all flooding."},
     {"date": "2026-10-27", "areaId": "guayaquil", "status": "current_research_capture_only", "outcome": null, "evidence": "docs/verification/multihazard-m1.md"},
     {"date": "2026-10-21", "areaId": "pallatanga", "status": "unknown", "outcome": null},
     {"date": "2026-10-22", "areaId": "pallatanga", "status": "unknown", "outcome": null},
@@ -18,6 +18,34 @@
     {"date": "2026-10-25", "areaId": "pallatanga", "status": "unknown", "outcome": null},
     {"date": "2026-10-26", "areaId": "pallatanga", "status": "unknown", "outcome": null},
     {"date": "2026-10-27", "areaId": "pallatanga", "status": "unknown", "outcome": null}
+  ],
+  "historicalDocuments": [
+    {
+      "id": "sngr-national-59-20261027",
+      "title": "SNGR SitRep Nacional 59, lluvias 29/08–27/10/2026",
+      "institution": "Secretaría Nacional de Gestión de Riesgos",
+      "sourceUrl": "https://www.gestionderiesgos.gob.ec/wp-content/uploads/2026/10/SitRep-No-59-Lluvias-29082026-al-27102026-15h00.pdf",
+      "indexUrl": "https://www.gestionderiesgos.gob.ec/sitrep-eventos-de-lluvias-por-alerta-roja/",
+      "knowledgeRole": "hindsight_only",
+      "reviewedOn": "2026-10-28",
+      "firstEvidenceAvailableAt": null,
+      "sourceReportedTimeLabels": {
+        "publication": "2026-10-27 21:05",
+        "informationCutoff": "2026-10-27 15:00",
+        "indexLabel": "2026-10-27 16:00",
+        "timeZone": "not_explicit_in_read_fragment; no automatic UTC conversion"
+      },
+      "pages": [1, 9, 11],
+      "summary": "Retrospective official narrative reports Guayaquil water accumulation on 24 October and rainfall with water accumulation during 25 and 26 October; no precise onset time is established.",
+      "licenseStatus": "pending",
+      "redistribution": "linked_only",
+      "caveats": [
+        "Textual institutional report, not a complete event-level dataset or reviewed classifier label",
+        "Source timestamps differ; do not infer first historical online availability",
+        "No primary raw historical capture, negative-case coverage or precise incident onset established",
+        "Research evidence and tool-access limits: docs/research/historical-corpus-evidence-review-2026-10-28.md"
+      ]
+    }
   ],
   "licensing": "Original references are linked, not redistributed as a raw historical dataset.",
   "negativeCasesVerified": 0,
