@@ -67,6 +67,28 @@ Pruebas: callbacks/streams simulados, DNS privado/rebinding, URL/puerto alternos
 durable y origen. Servidor HTTPS real **local** con certificado sintético no confiable:
 rechazo antes de HTTP. No se contactó al proveedor para estas pruebas.
 
+## Standards
+
+La revisión de contexto separado reprodujo un P3 de métricas: los fallos se
+reportaban como0bytes aunque hubiera datos leídos. Corregido propagando el conteo
+observado de SourceHttp incluso tras error de parser; cuerpos no leídos quedan
+null y aumentan unknownByteAttempts. Revalidación específica puente/runner19/19;
+sin bypass reproducido de DNS/TLS/intento único o publicación. No es aprobación
+humana externa ni certificación del proveedor.
+
+## Spec
+
+El mismo defecto fue reproducido en este eje como P2 por incumplir el registro
+honesto de tráfico. Un cuerpo de2,000,001bytes ahora cuenta ese valor y falla por
+body_too_large; un cuerpo no leído permanece desconocido. Revalidación específica
+8/8 del puente. Las revisiones usan mocks/HTTPS local, no consultas INAMHI.
+Resumen por eje: Standards1P3 corregido; Spec1P2 corregido. No sumar el mismo
+defecto como dos distintos ni interpretar esos resultados como autorización real.
+
+Validación final:454/454 pruebas Node en host y contenedor reconstruido network:none,
+seis contratos Python y check correcto. La CLI con propuesta no autorizada, aun
+copiada a archivo0600, rechazó la ejecución antes de crear la raíz de datos.
+
 ## Frecuencia/disco propuestos, no autorizados
 
 Primero una única consulta privada,≤2MB, sin retry automático. Evidencia histórica

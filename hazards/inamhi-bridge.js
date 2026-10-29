@@ -39,7 +39,8 @@ export function createInamhiBridge({root,authorization,lookup,request,now=()=>ne
     const before=Date.now(),result=await ingestion.ingest('inamhi.warning.pdf',undefined,{signal});
     if(!result.captureId) {
       const failures=await store.records('failures'),failed=failures.at(-1);
-      return {status:'unknown',responseBytes:0,httpStatus:/^http_\d{3}$/.test(result.errorCode)?Number(result.errorCode.slice(5)):undefined,
+      const transfer=http.lastTransfer('inamhi.warning.pdf');
+      return {status:'unknown',responseBytes:transfer?.bodyBytes??null,httpStatus:/^http_\d{3}$/.test(result.errorCode)?Number(result.errorCode.slice(5)):transfer?.httpStatus??undefined,
         retryAfterMs:failed?.retryAt?Math.max(0,Date.parse(failed.retryAt)-now().getTime()):undefined,errorCode:result.errorCode};
     }
     const record=(await store.records()).find(r=>r.id===result.captureId);

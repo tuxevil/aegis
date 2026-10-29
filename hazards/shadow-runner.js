@@ -6,7 +6,7 @@ import {validateInamhiAuthorization} from './inamhi-bridge.js';
 
 const DAY=86400000, digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const integer=(x,min,max)=>Number.isSafeInteger(x)&&x>=min&&x<=max;
-const codes=new Set(['timeout','network_or_read_error','http_403','http_429','invalid_source_envelope','body_too_large','ingestion_failed']);
+const codes=new Set(['timeout','network_or_read_error','http_403','http_429','invalid_source_envelope','body_too_large','ingestion_failed','not_pdf_magic','unexpected_media_type','pdf_extraction_failed']);
 
 // Private, bounded, single-writer checkpoints. Hash detects damage, not forgery.
 export async function writeCheckpoint(file,value) {
@@ -156,10 +156,10 @@ export class ShadowRunner {
           }
           if(controller.signal.aborted)throw Error('timeout');
           if(result&&integer(result.responseBytes,p.maxResponseBytes+1,Number.MAX_SAFE_INTEGER))throw Error('body_too_large');
-          if(!result||!integer(result.responseBytes,0,p.maxResponseBytes)||
+          if(!result||!(integer(result.responseBytes,0,p.maxResponseBytes)||(result.status!=='ok'&&result.responseBytes===null))||
             (result.httpStatus!==undefined&&!integer(result.httpStatus,100,599)))throw Error('invalid_source_envelope');
           if(result.httpStatus!==undefined&&(result.httpStatus<200||result.httpStatus>=300))throw Error('http_'+result.httpStatus);
-          if(result.status!=='ok')throw Error(result.httpStatus===403?'http_403':result.httpStatus===429?'http_429':'ingestion_failed');
+          if(result.status!=='ok')throw Error(codes.has(result.errorCode)?result.errorCode:'ingestion_failed');
           if(!/^[a-f0-9]{64}$/.test(result.artifactSha256))throw Error('invalid_source_envelope');
           s.lastSuccessAt=at;s.lastHash=result.artifactSha256;s.lastError=null;s.failures=0;s.successes++;
           this.state.totals.successes++;daily.successes++;

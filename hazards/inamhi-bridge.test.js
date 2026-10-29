@@ -55,8 +55,20 @@ test('403/429/redirect/invalid data remain failures; no redirect follow and retr
     const seen=[],bridge=createInamhiBridge({root,authorization:authorization(),lookup:async()=>[{address:'8.8.8.8',family:4}],
       request:simulatedRequest({seen,status,bytes:Buffer.from('invalid data'),headers:{location:'http://169.254.169.254/', 'retry-after':'691200'}})});
     const result=await bridge.poll({sourceId:'inamhi.warning.pdf'});assert.equal(result.status,'unknown');assert.equal(seen.length,1);
+    assert.equal(result.responseBytes,status===200?12:null);
     if(status===403||status===429)assert.ok(result.retryAfterMs>7*86400000);
     assert.equal((await bridge.store.records()).length,0);
+  }
+});
+test('bytes read before parser failure are counted; unread bodies remain unknown rather than zero',async t=>{
+  for(const status of [200,429]) {
+    const root=await fs.mkdtemp(path.join(os.tmpdir(),'aegis-inamhi-byte-count-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+    const {runner}=await createManualInamhiRunner({root,authorization:authorization(),lookup:async()=>[{address:'8.8.8.8',family:4}],
+      request:simulatedRequest({status,bytes:Buffer.alloc(100,65)})});
+    await runner.open();try {
+      const result=await runner.tick();assert.equal(result.totals.successes,0);
+      assert.equal(result.totals.bytes,status===200?100:0);assert.equal(result.totals.unknownByteAttempts,status===200?0:1);
+    }finally{await runner.close();}
   }
 });
 test('pending approval, inherited approval, unknown flags and expired permissions fail without DNS or writes',()=>{

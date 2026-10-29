@@ -3,8 +3,9 @@ import { SourceRegistry } from "./registry.js";
 export class SourceHttp {
   constructor({registry=new SourceRegistry(),httpFetch=fetch,now=()=>new Date(),random=Math.random}={}) {
     Object.assign(this,{registry,httpFetch,now,random});
-    this.states=new Map(); this.hostPause=new Map(); this.active=new Set();
+    this.states=new Map(); this.hostPause=new Map(); this.active=new Set();this.transfers=new Map();
   }
+  lastTransfer(sourceId){return structuredClone(this.transfers.get(sourceId)||null);}
   nextAllowedAt(sourceId) {
     const host=new URL(this.registry.get(sourceId).url).hostname;
     const time=Math.max(this.states.get(sourceId)?.nextAttempt||0,this.hostPause.get(host)||0);
@@ -18,11 +19,13 @@ export class SourceHttp {
     const state=this.states.get(sourceId)||{failures:0,nextAttempt:0};
     if(started<Math.max(state.nextAttempt,this.hostPause.get(host)||0)) throw new Error("source_cooldown");
     if(this.active.has(host)) throw new Error("source_busy");
+    this.transfers.set(sourceId,{bodyBytes:null,httpStatus:null});
     this.active.add(host);
     let response;
     try {
       response=await this.httpFetch(requestUrl,{method:"GET",redirect:"manual",
         signal:signal?AbortSignal.any([signal,AbortSignal.timeout(source.timeoutMs)]):AbortSignal.timeout(source.timeoutMs),headers:{accept:source.type==="pdf"?"application/pdf":"application/json"}});
+      this.transfers.get(sourceId).httpStatus=response.status;
       if(response.status===429 || response.status===403) {
         const retry=response.headers.get("retry-after");
         const numeric=/^\d+$/.test(retry||"");
@@ -34,8 +37,10 @@ export class SourceHttp {
       const declared=Number(response.headers.get("content-length"));
       if(declared>source.maxBytes) throw new Error("body_too_large");
       let size=0; const chunks=[];
+      this.transfers.get(sourceId).bodyBytes=0;
       for await(const chunk of response.body||[]) {
         size+=chunk.length;
+        this.transfers.get(sourceId).bodyBytes=size;
         if(size>source.maxBytes) throw new Error("body_too_large");
         chunks.push(Buffer.from(chunk));
       }
