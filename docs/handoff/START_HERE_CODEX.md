@@ -1,5 +1,15 @@
 # AEGIS Multiamenaza — START HERE (entrega de planificación a Codex)
 
+## Prioridad vigente: validación operacional y observación en sombra (29/10/2026)
+
+Se mantienen suspendidas nuevas funciones de producto. Revisar críticamente el
+runtime #32–#34 antes de operar continuamente, sin contar el AI check HTTP402
+como aprobación. [Revisión y reproducciones](../verification/integration/operational-review-2026-10-29.md).
+El laboratorio network:none sigue intacto; diseñar salida controlada por separado,
+sin activarla, modificar protecciones GitHub, acceder a Proxmox o publicar avisos.
+No afirmar estabilidad de días sin tiempo real observado y fuentes autorizadas.
+La propuesta de ruleset es un archivo revisable, no una regla aplicada.
+
 ## Prioridad vigente: consolidación y preparación supervisada (28/10/2026)
 
 El propietario suspendió temporalmente el desarrollo intensivo de funcionalidades.
