@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 import {SourceRegistry,safeMode} from './registry.js';
+import {validateInamhiAuthorization} from './inamhi-bridge.js';
 
 const DAY=86400000, digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const integer=(x,min,max)=>Number.isSafeInteger(x)&&x>=min&&x<=max;
@@ -28,8 +29,10 @@ export async function readCheckpoint(file) {
   return value;
 }
 
-export function validateShadowPlan(plan,registry=new SourceRegistry()) {
-  if(plan?.version!==1||plan.mode!=='synthetic_fixture'||plan.alertsPublishEnabled!==false||plan.dispatchMode!=='DRY_RUN'||
+export function validateShadowPlan(plan,registry=new SourceRegistry(),manualAuthorization=null) {
+  const real=plan?.mode==='captured_source'&&manualAuthorization;
+  if(real)validateInamhiAuthorization(manualAuthorization);
+  if(plan?.version!==1||(!real&&plan.mode!=='synthetic_fixture')||plan.alertsPublishEnabled!==false||plan.dispatchMode!=='DRY_RUN'||
     !integer(plan.maxDiskBytes,4194304,1073741824)||!integer(plan.maxEvents,10,1000)||
     !integer(plan.hostIntervalMs,1000,DAY)||!Array.isArray(plan.providers)||!plan.providers.length||plan.providers.length>8)
     throw Error('invalid_shadow_plan');
@@ -41,6 +44,7 @@ export function validateShadowPlan(plan,registry=new SourceRegistry()) {
       !integer(p.maxResponseBytes,1,source.maxBytes)||!integer(p.ttlMs,1000,7*DAY))throw Error('invalid_shadow_provider');
     keys.add(p.key);
   }
+  if(real&&(plan.providers.length!==1||plan.providers[0].sourceId!=='inamhi.warning.pdf'||plan.providers[0].dailyBudget!==1))throw Error('invalid_manual_source_plan');
   return structuredClone(plan);
 }
 
@@ -62,9 +66,10 @@ export async function directoryBytes(root,limit=10000) {
 // No transport, routes, timers or publisher are imported here. One tick is one
 // serialized batch. CLI currently supplies synthetic providers ONLY.
 export class ShadowRunner {
-  constructor({root,plan,poll,now=()=>Date.now(),registry=new SourceRegistry(),measure=async()=>({})}) {
+  constructor({root,plan,poll,now=()=>Date.now(),registry=new SourceRegistry(),measure=async()=>({}),manualAuthorization=null}) {
     if(typeof poll!=='function'||!root)throw Error('shadow_dependencies_required');
-    Object.assign(this,{root:path.resolve(root),plan:validateShadowPlan(plan,registry),poll,now,registry,measure});
+    if(poll.recordOrigin&&poll.recordOrigin!==plan?.mode)throw Error('shadow_origin_mismatch');
+    Object.assign(this,{root:path.resolve(root),plan:validateShadowPlan(plan,registry,manualAuthorization),poll,now,registry,measure});
     this.fingerprint=digest(this.plan);this.busy=false;this.closed=false;this.stopping=false;
   }
   async open() {
@@ -77,10 +82,10 @@ export class ShadowRunner {
       catch(e) {
         if(e.code!=='ENOENT')throw e;
         if((await fs.readdir(this.root)).some(n=>n!=='runner.lock'))throw Error('unmarked_shadow_directory');
-        this.state={version:1,mode:'synthetic_fixture',fingerprint:this.fingerprint,lastClock:0,heartbeatAt:null,
+        this.state={version:1,mode:this.plan.mode,fingerprint:this.fingerprint,lastClock:0,heartbeatAt:null,
           stoppedReason:null,hosts:{},events:[],daily:{},totals:{attempts:0,bytes:0,unknownByteAttempts:0,successes:0,failures:0},providers:{}};
       }
-      if(this.state.version!==1||this.state.mode!=='synthetic_fixture'||this.state.fingerprint!==this.fingerprint||
+      if(this.state.version!==1||this.state.mode!==this.plan.mode||this.state.fingerprint!==this.fingerprint||
         !integer(this.state.lastClock,0,Number.MAX_SAFE_INTEGER)||!Array.isArray(this.state.events))throw Error('shadow_state_incompatible');
       for(const p of this.plan.providers) {
         this.state.providers[p.key]??={attempts:[],nextAt:0,failures:0,lastSuccessAt:null,lastHash:null,lastError:null,bytes:0,successes:0};
@@ -97,12 +102,12 @@ export class ShadowRunner {
   health(at=this.now()) {
     return this.plan.providers.map(p=>{
       const s=this.state.providers[p.key],age=s.lastSuccessAt===null?null:at-s.lastSuccessAt;
-      return {key:p.key,sourceId:p.sourceId,status:age===null?'unknown':age<0?'unknown':age>=p.ttlMs?'stale':s.lastError?'degraded':'synthetic_success',
+      return {key:p.key,sourceId:p.sourceId,status:age===null?'unknown':age<0?'unknown':age>=p.ttlMs?'stale':s.lastError?'degraded':this.plan.mode==='synthetic_fixture'?'synthetic_success':'capture_received',
         lastSuccessAt:s.lastSuccessAt,lastError:s.lastError,nextAttemptAt:s.nextAt,requestsInRollingDay:s.attempts.filter(x=>x>at-DAY).length,
         bytes:s.bytes,successes:s.successes,lastArtifactSha256:s.lastHash,notRiskStatus:true};
     });
   }
-  snapshot(){return {mode:'synthetic_fixture',...safeMode,publicationBlocked:true,heartbeatAt:this.state.heartbeatAt,
+  snapshot(){return {mode:this.plan.mode,...safeMode,publicationBlocked:true,heartbeatAt:this.state.heartbeatAt,
     stoppedReason:this.state.stoppedReason,totals:structuredClone(this.state.totals),daily:structuredClone(this.state.daily),sources:this.health(),events:structuredClone(this.state.events)};}
   async tick() {
     if(!this.lock||this.closed||this.busy||this.stopping)throw Error('runner_not_available');
@@ -111,6 +116,7 @@ export class ShadowRunner {
       const at=this.now();
       if(!integer(at,1,Number.MAX_SAFE_INTEGER)||at<this.state.lastClock)throw Error('clock_moved_backwards');
       this.state.lastClock=at;
+      if(this.plan.mode==='captured_source'&&this.state.totals.attempts>=1)this.state.stoppedReason='manual_attempt_limit';
       if(this.state.stoppedReason||await this.paused()) {
         this.state.heartbeatAt=at;await this.save();
         return {...this.snapshot(),paused:true,resources:{...await this.measure(),powerWatts:null,energyWh:null}};

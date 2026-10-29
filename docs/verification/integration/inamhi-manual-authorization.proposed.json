@@ -1,0 +1,13 @@
+{
+  "status": "not_authorized",
+  "sourceId": "inamhi.warning.pdf",
+  "maxRequests": 1,
+  "dispatchMode": "DRY_RUN",
+  "alertsPublishEnabled": false,
+  "scope": "private_research_archive",
+  "expiresAt": null,
+  "ownerApprovalReference": null,
+  "dataRightsReference": null,
+  "networkVerificationReference": null,
+  "approvedAddresses": []
+}

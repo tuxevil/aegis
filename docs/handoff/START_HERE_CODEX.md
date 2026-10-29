@@ -21,6 +21,9 @@ continuo de fuentes reales certificado. No convertir pruebas aceleradas en días
 La [prueba de tiempo real](../verification/integration/offline-soak-2026-10-29.md)
 duró123.346 segundos con reinicio/pausa/restore. Se corrigió el deadline reiniciado
 por proceso. Siete días siguen sin ejecutar; run.json preserva el plazo entre reinicios.
+INAMHI es el primer piloto: [puente manual y condiciones pendientes](../verification/integration/inamhi-first-source.md).
+Default sin red; propuesta inválida para ejecutar. Una autorización permite un solo
+intento privado, nunca polling continuo. No se descargó ahora el PDF de INAMHI.
 
 ## Prioridad vigente: consolidación y preparación supervisada (28/10/2026)
 

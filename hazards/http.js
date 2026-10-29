@@ -10,7 +10,7 @@ export class SourceHttp {
     const time=Math.max(this.states.get(sourceId)?.nextAttempt||0,this.hostPause.get(host)||0);
     return time?new Date(time).toISOString():null;
   }
-  async get(sourceId,request) {
+  async get(sourceId,request,{signal}={}) {
     const source=this.registry.get(sourceId);
     const requestUrl=this.registry.requestUrl(sourceId,request);
     const host=new URL(source.url).hostname;
@@ -22,11 +22,13 @@ export class SourceHttp {
     let response;
     try {
       response=await this.httpFetch(requestUrl,{method:"GET",redirect:"manual",
-        signal:AbortSignal.timeout(source.timeoutMs),headers:{accept:source.type==="pdf"?"application/pdf":"application/json"}});
+        signal:signal?AbortSignal.any([signal,AbortSignal.timeout(source.timeoutMs)]):AbortSignal.timeout(source.timeoutMs),headers:{accept:source.type==="pdf"?"application/pdf":"application/json"}});
       if(response.status===429 || response.status===403) {
         const retry=response.headers.get("retry-after");
-        const delay=/^\d+$/.test(retry||"")?Number(retry)*1000:Date.parse(retry)-started;
-        this.hostPause.set(host,started+Math.max(source.cooldownMs,Number.isFinite(delay)?delay:0));
+        const numeric=/^\d+$/.test(retry||"");
+        const delay=numeric?Number(retry)*1000:Date.parse(retry)-started;
+        this.hostPause.set(host,Math.min(253402300799999,started+Math.max(source.cooldownMs,
+          Number.isFinite(delay)?delay:numeric?253402300799999:0)));
       }
       if(!response.ok || response.status>=300) throw new Error("http_"+response.status);
       const declared=Number(response.headers.get("content-length"));
