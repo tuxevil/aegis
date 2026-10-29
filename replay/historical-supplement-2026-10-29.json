@@ -1,0 +1,65 @@
+{
+  "corpusKind": "AEGIS_DOCUMENTED_REFERENCE_CORPUS",
+  "id": "historical-supplement-20261018-19-v1",
+  "recordOrigin": "documented_reference",
+  "referenceCase": "guayaquil-2026-10-26.json",
+  "coverage": [
+    {
+      "date": "2026-10-18",
+      "areaId": "guayaquil",
+      "status": "documented_retrospective_impact_reference",
+      "outcome": null,
+      "hindsightReferences": [
+        "guayaquil-coe-response-20261020"
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "areaId": "guayaquil",
+      "status": "documented_retrospective_impact_reference",
+      "outcome": null,
+      "hindsightReferences": [
+        "guayaquil-coe-response-20261020"
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "areaId": "pallatanga",
+      "status": "unknown",
+      "outcome": null
+    },
+    {
+      "date": "2026-10-19",
+      "areaId": "pallatanga",
+      "status": "unknown",
+      "outcome": null
+    }
+  ],
+  "historicalDocuments": [
+    {
+      "id": "guayaquil-coe-response-20261020",
+      "title": "COE Cantonal: respuesta a lluvias de noche18/madrugada19 de octubre",
+      "institution": "Alcaldia de Guayaquil",
+      "sourceUrl": "https://guayaquil.gob.ec/coe-cantonal-respuesta-lluvias-prevencion-fenomeno-el-nino/",
+      "knowledgeRole": "hindsight_only",
+      "reviewedOn": "2026-10-29",
+      "firstEvidenceAvailableAt": null,
+      "sourceReportedTimeLabels": {
+        "publication": "20 octubre, 2026",
+        "eventWindow": "noche del domingo18 y manana del lunes19 de octubre",
+        "timeZone": "not_explicit; no UTC conversion"
+      },
+      "pages": [],
+      "summary": "Institutional response account corroborates rainfall impacts during 18–19 October; not a complete incident dataset or a classifier label.",
+      "licenseStatus": "pending",
+      "redistribution": "linked_only",
+      "caveats": [
+        "First web availability unknown",
+        "No primary pre-event warning capture",
+        "Urban points and rural Tenguel must not be treated as identical geography",
+        "No verified non-event periods"
+      ]
+    }
+  ],
+  "licensing": "Linked references only; not provider captures or reviewed classifier labels."
+}

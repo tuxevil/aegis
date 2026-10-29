@@ -1,0 +1,15 @@
+# Explicit offline fixture runner. Same service/image; new volume; never live.
+services:
+  aegis:
+    network_mode: none
+    command: [node, scripts/shadow-lab.mjs, --lab, --root=/data/shadow-lab, --wall-clock, --days=7]
+    labels: {org.aegis.stage: shadow-synthetic-offline}
+    volumes: [shadow-lab-data:/data]
+    healthcheck:
+      test: [CMD, node, scripts/shadow-lab-health.mjs, --root=/data/shadow-lab]
+      start_period: 30s
+      interval: 60s
+      timeout: 5s
+      retries: 3
+volumes:
+  shadow-lab-data:

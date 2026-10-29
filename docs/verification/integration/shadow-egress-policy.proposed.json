@@ -6,9 +6,15 @@
   "hostFirewallVerified": false,
   "observationStartedAt": null,
   "maxConcurrentRequests": 1,
-  "methods": ["GET"],
-  "schemes": ["https:"],
-  "ports": [443],
+  "methods": [
+    "GET"
+  ],
+  "schemes": [
+    "https:"
+  ],
+  "ports": [
+    443
+  ],
   "redirects": "deny",
   "dnsPolicy": {
     "approvedResolver": null,
@@ -26,21 +32,26 @@
       "proposedMaxRequestsIn24h": 48,
       "maxResponseBytes": 2000000,
       "continuousUsePermission": "pending",
-      "approvalReference": null
+      "approvalReference": null,
+      "timeoutMs": 12000
     },
     {
       "sourceId": "openmeteo.singlerun.ecmwf",
       "host": "single-runs-api.open-meteo.com",
       "path": "/v1/forecast",
       "querySelection": "SourceRegistry_manual_run_and_pilot_only",
-      "pilotAreas": ["guayaquil", "pallatanga"],
+      "pilotAreas": [
+        "guayaquil",
+        "pallatanga"
+      ],
       "proposedMinIntervalPerPilotSeconds": 1800,
       "proposedHostMinIntervalSeconds": 300,
       "proposedMaxRequestsPerPilotIn24h": 48,
       "proposedMaxRequestsIn24h": 96,
       "maxResponseBytes": 400000,
       "continuousUsePermission": "noncommercial_terms_and_financing_review_pending",
-      "approvalReference": null
+      "approvalReference": null,
+      "timeoutMs": 12000
     }
   ],
   "failurePolicy": {
@@ -52,6 +63,14 @@
     "unavailableOrStale": "unknown_not_safe",
     "fallbackToOtherHostOrProxy": false
   },
-  "excluded": ["WAHA", "WebPush", "HomeAssistant", "AmbientWeatherCredentials", "AmaruQuota", "SNGRBulkLayers", "PaidServices"],
+  "excluded": [
+    "WAHA",
+    "WebPush",
+    "HomeAssistant",
+    "AmbientWeatherCredentials",
+    "AmaruQuota",
+    "SNGRBulkLayers",
+    "PaidServices"
+  ],
   "notifications": "unconditionally_DRY_RUN"
 }

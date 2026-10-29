@@ -18,6 +18,7 @@ COPY scripts/ ./scripts/
 COPY demo/ ./demo/
 COPY replay/ ./replay/
 COPY docs/ ./docs/
+COPY deploy/staging/shadow-lab.plan.json ./deploy/staging/shadow-lab.plan.json
 COPY examples/ ./examples/
 COPY test/ ./test/
 COPY test-support/ ./test-support/

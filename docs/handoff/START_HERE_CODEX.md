@@ -12,6 +12,12 @@ La propuesta de ruleset es un archivo revisable, no una regla aplicada.
 La [preparación de salida controlada](../runbooks/shadow-observation-preparation.md)
 es una propuesta inactiva: sin runner continuo, firewall verificado ni autorización.
 El preflight solo comprueba el plan y rechaza activación por argumentos o entorno.
+El encargo completo añade operación medible: [runner/contrato](../contracts/shadow-operation-v1.md),
+[ensayo7–14 días](../runbooks/shadow-observation-7-14-days.md),
+[matriz de permisos](../verification/integration/operational-source-matrix.md) y
+[GO/NO-GO con evidencias](../verification/integration/shadow-operational-readiness.md).
+Existe runner sintético con estado/cuotas/heartbeat/recuperación; no un puente
+continuo de fuentes reales certificado. No convertir pruebas aceleradas en días.
 
 ## Prioridad vigente: consolidación y preparación supervisada (28/10/2026)
 
