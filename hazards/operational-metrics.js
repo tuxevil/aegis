@@ -6,6 +6,7 @@ const proc=async file=>{try{return await fs.readFile(file,'utf8');}catch{return 
 export async function measureProcess() {
   const io=await proc('/proc/self/io'),net=await proc('/proc/self/net/dev');
   const [cCpu,cMem,cIo]=await Promise.all([proc('/sys/fs/cgroup/cpu.stat'),proc('/sys/fs/cgroup/memory.current'),proc('/sys/fs/cgroup/io.stat')]);
+  const [cMax,cEvents,cPids]=await Promise.all([proc('/sys/fs/cgroup/memory.max'),proc('/sys/fs/cgroup/memory.events'),proc('/sys/fs/cgroup/pids.current')]);
   const counters=Object.fromEntries((io||'').trim().split('\n').map(l=>l.split(':').map(s=>s.trim())).filter(a=>a.length===2).map(([k,v])=>[k,Number(v)]));
   let rx=0,tx=0;
   for(const line of (net||'').split('\n').slice(2)) {
@@ -17,6 +18,9 @@ export async function measureProcess() {
     processIo:io?{readBytes:counters.read_bytes,writeBytes:counters.write_bytes,writeCharacters:counters.wchar}:null,
     cgroupNamespace:{cpuUsageMicroseconds:cCpu?.match(/^usage_usec (\d+)/m)?Number(cCpu.match(/^usage_usec (\d+)/m)[1]):null,
       memoryBytes:cMem?Number(cMem.trim()):null,
+      memoryLimitBytes:cMax&&/^\d+\s*$/.test(cMax)?Number(cMax.trim()):null,
+      oomKills:cEvents?.match(/^oom_kill (\d+)/m)?Number(cEvents.match(/^oom_kill (\d+)/m)[1]):null,
+      pids:cPids?Number(cPids.trim()):null,
       io:cIo?{readBytes:[...cIo.matchAll(/rbytes=(\d+)/g)].reduce((s,m)=>s+Number(m[1]),0),writeBytes:[...cIo.matchAll(/wbytes=(\d+)/g)].reduce((s,m)=>s+Number(m[1]),0)}:null},
     networkNamespaceBytes:net?{rx,tx}:null,powerWatts:null,energyWh:null};
 }

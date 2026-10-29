@@ -18,6 +18,9 @@ El encargo completo añade operación medible: [runner/contrato](../contracts/sh
 [GO/NO-GO con evidencias](../verification/integration/shadow-operational-readiness.md).
 Existe runner sintético con estado/cuotas/heartbeat/recuperación; no un puente
 continuo de fuentes reales certificado. No convertir pruebas aceleradas en días.
+La [prueba de tiempo real](../verification/integration/offline-soak-2026-10-29.md)
+duró123.346 segundos con reinicio/pausa/restore. Se corrigió el deadline reiniciado
+por proceso. Siete días siguen sin ejecutar; run.json preserva el plazo entre reinicios.
 
 ## Prioridad vigente: consolidación y preparación supervisada (28/10/2026)
 
