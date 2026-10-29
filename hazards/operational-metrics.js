@@ -32,7 +32,20 @@ export async function recordDailyMeasurement(root,report) {
   let old;try{old=await readCheckpoint(file);}catch(e){if(e.code!=='ENOENT')throw e;}
   const sample={at:report.actualReportedAt,actualStartedAt:report.actualStartedAt,totals:report.totals,resources:report.resources??null,heartbeatAt:report.heartbeatAt};
   await writeCheckpoint(file,{version:1,day,mode:report.mode,clockMode:report.clockMode,samples:(old?.samples||0)+1,
+    sources:report.daily?.[day]?.sources??old?.sources??{},
     first:old?.first||sample,last:sample,powerWatts:null,energyWh:null,
     warning:'Process counters may reset on restart; subtract only within the same actualStartedAt',actualStartedAt:report.actualStartedAt,
     processRestartSinceFirst:old?old.processRestartSinceFirst||old.actualStartedAt!==report.actualStartedAt:false});
+  // A request reserved before midnight can finish after it. Update its original
+  // day's aggregate without inventing a pre-midnight resource sample.
+  for(const [sourceDay,aggregate] of Object.entries(report.daily||{})) {
+    if(sourceDay===day)continue;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(sourceDay))throw Error('invalid_measurement_day');
+    const target=path.join(directory,sourceDay+'.json');let prior;
+    try{prior=await readCheckpoint(target);}catch(e){if(e.code!=='ENOENT')throw e;}
+    if(JSON.stringify(prior?.sources)===JSON.stringify(aggregate.sources))continue;
+    if(!prior&&(await fs.readdir(directory)).length>=16)throw Error('daily_measurement_capacity');
+    await writeCheckpoint(target,{...(prior||{version:1,day:sourceDay,mode:report.mode,clockMode:report.clockMode,samples:0,first:null,last:null,
+      powerWatts:null,energyWh:null}),sources:aggregate.sources,sourceAggregateUpdatedAt:report.actualReportedAt});
+  }
 }

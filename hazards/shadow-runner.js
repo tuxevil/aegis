@@ -78,7 +78,7 @@ export class ShadowRunner {
         if(e.code!=='ENOENT')throw e;
         if((await fs.readdir(this.root)).some(n=>n!=='runner.lock'))throw Error('unmarked_shadow_directory');
         this.state={version:1,mode:'synthetic_fixture',fingerprint:this.fingerprint,lastClock:0,heartbeatAt:null,
-          stoppedReason:null,hosts:{},events:[],totals:{attempts:0,bytes:0,unknownByteAttempts:0,successes:0,failures:0},providers:{}};
+          stoppedReason:null,hosts:{},events:[],daily:{},totals:{attempts:0,bytes:0,unknownByteAttempts:0,successes:0,failures:0},providers:{}};
       }
       if(this.state.version!==1||this.state.mode!=='synthetic_fixture'||this.state.fingerprint!==this.fingerprint||
         !integer(this.state.lastClock,0,Number.MAX_SAFE_INTEGER)||!Array.isArray(this.state.events))throw Error('shadow_state_incompatible');
@@ -88,6 +88,7 @@ export class ShadowRunner {
         if(!Array.isArray(s.attempts)||s.attempts.length>p.dailyBudget||s.attempts.some(x=>!integer(x,0,Number.MAX_SAFE_INTEGER))||
           !integer(s.nextAt,0,Number.MAX_SAFE_INTEGER)||!integer(s.failures,0,Number.MAX_SAFE_INTEGER))throw Error('shadow_state_incompatible');
       }
+      this.state.daily??={};
       await this.save();return this;
     }catch(e){await this.close();throw e;}
   }
@@ -102,7 +103,7 @@ export class ShadowRunner {
     });
   }
   snapshot(){return {mode:'synthetic_fixture',...safeMode,publicationBlocked:true,heartbeatAt:this.state.heartbeatAt,
-    stoppedReason:this.state.stoppedReason,totals:structuredClone(this.state.totals),sources:this.health(),events:structuredClone(this.state.events)};}
+    stoppedReason:this.state.stoppedReason,totals:structuredClone(this.state.totals),daily:structuredClone(this.state.daily),sources:this.health(),events:structuredClone(this.state.events)};}
   async tick() {
     if(!this.lock||this.closed||this.busy||this.stopping)throw Error('runner_not_available');
     this.busy=true;
@@ -124,10 +125,17 @@ export class ShadowRunner {
         const s=this.state.providers[p.key],host=new URL(this.registry.get(p.sourceId).url).hostname;
         s.attempts=s.attempts.filter(x=>x>at-DAY);
         if(s.attempts.length>=p.dailyBudget||at<s.nextAt||at<(this.state.hosts[host]||0))continue;
+        const actualDay=new Date().toISOString().slice(0,10);
+        if(!this.state.daily[actualDay]&&Object.keys(this.state.daily).length>=16) {
+          this.state.stoppedReason='daily_capacity';await this.save();break;
+        }
+        this.state.daily[actualDay]??={sources:{}};
+        const daily=this.state.daily[actualDay].sources[p.key]??={attempts:0,successes:0,failures:0,knownBytes:0,unknownByteAttempts:0,
+          latency:{count:0,sumMs:0,maxMs:0,upperBoundsMs:[100,500,1000,5000,15000,60000,null],buckets:[0,0,0,0,0,0,0]}};
         // Reserve attempt AND next slot durably before side effects; a crash uses
         // quota rather than repeating an unrecorded request on restart.
         s.attempts.push(at);s.nextAt=at+p.intervalMs;this.state.hosts[host]=at+this.plan.hostIntervalMs;
-        this.state.totals.attempts++;await this.save();
+        this.state.totals.attempts++;daily.attempts++;await this.save();
         const started=performance.now(),controller=new AbortController();this.controller=controller;
         const timer=setTimeout(()=>controller.abort(),p.timeoutMs);
         let result;
@@ -135,27 +143,33 @@ export class ShadowRunner {
           // Do not race and abandon a provider that ignores AbortSignal: retain
           // the lock and stop future work until it settles (container stop is bounded).
           result=await this.poll(p,{signal:controller.signal});
+          if(result?.httpStatus===403||result?.httpStatus===429) {
+            const retry=integer(result.retryAfterMs,0,Number.MAX_SAFE_INTEGER)?result.retryAfterMs:DAY;
+            this.state.hosts[host]=Math.max(this.state.hosts[host],Math.min(Number.MAX_SAFE_INTEGER,at+retry));
+            throw Error('http_'+result.httpStatus);
+          }
           if(controller.signal.aborted)throw Error('timeout');
           if(result&&integer(result.responseBytes,p.maxResponseBytes+1,Number.MAX_SAFE_INTEGER))throw Error('body_too_large');
           if(!result||!integer(result.responseBytes,0,p.maxResponseBytes)||
             (result.httpStatus!==undefined&&!integer(result.httpStatus,100,599)))throw Error('invalid_source_envelope');
-          if(result.httpStatus===403||result.httpStatus===429) {
-            const retry=integer(result.retryAfterMs,0,7*DAY)?result.retryAfterMs:DAY;
-            this.state.hosts[host]=Math.max(this.state.hosts[host],at+retry);
-          }
+          if(result.httpStatus!==undefined&&(result.httpStatus<200||result.httpStatus>=300))throw Error('http_'+result.httpStatus);
           if(result.status!=='ok')throw Error(result.httpStatus===403?'http_403':result.httpStatus===429?'http_429':'ingestion_failed');
           if(!/^[a-f0-9]{64}$/.test(result.artifactSha256))throw Error('invalid_source_envelope');
           s.lastSuccessAt=at;s.lastHash=result.artifactSha256;s.lastError=null;s.failures=0;s.successes++;
-          this.state.totals.successes++;
+          this.state.totals.successes++;daily.successes++;
         }catch(e) {
-          s.failures++;s.lastError=controller.signal.aborted?'timeout':codes.has(e.message)?e.message:'ingestion_failed';
+          s.failures++;s.lastError=controller.signal.aborted?'timeout':codes.has(e.message)||/^http_[1-5][0-9]{2}$/.test(e.message)?e.message:'ingestion_failed';
           s.nextAt=Math.max(s.nextAt,at+Math.min(DAY,p.intervalMs*2**Math.min(8,s.failures-1)));
-          this.state.totals.failures++;
+          this.state.totals.failures++;daily.failures++;
         }finally {clearTimeout(timer);this.controller=null;}
         const bytes=integer(result?.responseBytes,0,Number.MAX_SAFE_INTEGER)?result.responseBytes:null;
-        if(bytes===null)this.state.totals.unknownByteAttempts++;
+        if(bytes===null){this.state.totals.unknownByteAttempts++;daily.unknownByteAttempts++;}
         s.bytes+=bytes||0;this.state.totals.bytes+=bytes||0;
-        this.state.events.push({at,key:p.key,elapsedMs:Math.round(performance.now()-started),bytes,errorCode:s.lastError,
+        daily.knownBytes+=bytes||0;
+        const elapsedMs=Math.round(performance.now()-started);
+        daily.latency.count++;daily.latency.sumMs+=elapsedMs;daily.latency.maxMs=Math.max(daily.latency.maxMs,elapsedMs);
+        daily.latency.buckets[daily.latency.upperBoundsMs.findIndex(bound=>bound===null||elapsedMs<=bound)]++;
+        this.state.events.push({at,actualDay,key:p.key,elapsedMs,bytes,errorCode:s.lastError,
           artifactSha256:s.lastError?null:s.lastHash,publicationBlocked:true});
         this.state.events=this.state.events.slice(-this.plan.maxEvents);
         this.state.heartbeatAt=this.now();await this.save();

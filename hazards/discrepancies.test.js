@@ -25,4 +25,7 @@ test('daily observations keep actual days and unknown electricity across process
   await recordDailyMeasurement(root,{...r,actualStartedAt:'2026-10-29T12:00:00Z'});
   const daily=await readCheckpoint(path.join(root,'daily','2026-10-29.json'));
   assert.equal(daily.samples,3);assert.equal(daily.processRestartSinceFirst,true);assert.equal(daily.powerWatts,null);
+  await recordDailyMeasurement(root,{...r,actualReportedAt:'2026-10-30T00:00:01Z',daily:{'2026-10-29':{sources:{'inamhi.lab':{attempts:2,successes:2}}}}});
+  const previous=await readCheckpoint(path.join(root,'daily','2026-10-29.json'));
+  assert.equal(previous.sources['inamhi.lab'].attempts,2);assert.equal(previous.samples,3);
 });

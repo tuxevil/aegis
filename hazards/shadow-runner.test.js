@@ -80,6 +80,28 @@ test('recent event ring stays bounded while cumulative counters and quotas survi
   const f=await fixture(t,{plan:p});
   for(let i=0;i<15;i++){await f.runner.tick();f.advance(1000);}
   assert.equal(f.runner.state.events.length,10);assert.equal(f.runner.state.totals.attempts,15);
+  const day=Object.values(f.runner.state.daily)[0].sources['inamhi.lab'];
+  assert.equal(day.attempts,15);assert.equal(day.successes,15);assert.equal(day.latency.count,15);
+  assert.equal(day.latency.buckets.reduce((a,b)=>a+b,0),15);
   await f.runner.close();const r=await new ShadowRunner(f.config).open();f.runners.push(r);
   assert.equal(r.state.events.length,10);assert.equal(r.state.providers['inamhi.lab'].attempts.length,15);
+});
+test('HTTP failures override contradictory success and Retry-After survives malformed bodies and very long delays',async t=>{
+  for(const status of [403,429,500,302]) {
+    const f=await fixture(t,{poll:async()=>({...ok(),httpStatus:status,retryAfterMs:8*86400000,responseBytes:status===429?1001:25})});
+    await f.runner.tick();assert.equal(f.runner.state.totals.successes,0);assert.equal(f.runner.state.totals.failures,1);
+    assert.equal(f.runner.health()[0].lastError,'http_'+status);
+    if(status===403||status===429) {
+      const host=new URL(f.runner.registry.get('inamhi.warning.pdf').url).hostname;
+      assert.ok(f.runner.state.hosts[host]-f.runner.now()>=8*86400000);
+      await f.runner.close();const r=await new ShadowRunner(f.config).open();f.runners.push(r);
+      f.advance(86400000*7);await r.tick();assert.equal(r.state.totals.attempts,1);
+    }
+  }
+});
+test('a late 429 after timeout still preserves known Retry-After rather than retrying early',async t=>{
+  let calls=0;const p=plan();p.providers[0].timeoutMs=10;
+  const f=await fixture(t,{plan:p,poll:async()=>{calls++;await new Promise(resolve=>setTimeout(resolve,25));return {...ok(),httpStatus:429,retryAfterMs:60000};}});
+  await f.runner.tick();assert.equal(f.runner.health()[0].lastError,'timeout');
+  f.advance(1000);await f.runner.tick();assert.equal(calls,1);
 });

@@ -32,8 +32,12 @@ anidado/checkpoints/evaluaciones además del backup existente de todos los bytes
 
 ## Evidencia local, límites explícitos
 
-- Baseline427 Node, luego441 Node en host y contenedor reconstruido network:none;
-  ampliación posterior de recuperación/corpus se verifica antes del push.
+- Baseline427 Node; las ampliaciones intermedias pasaron441 y442 Node en host y
+  contenedor reconstruido network:none. La revisión añadió regresiones adicionales.
+- Resultado final tras esas correcciones: **444/444 Node en host y contenedor
+  reconstruido sin red**, check correcto y **6/6 contratos Python**. La suite del
+  contenedor usa concurrencia2; el ciclo runtime y señales sí se probaron con el
+  presupuesto0.5 CPU/384MiB. No confundir ambos tipos de medición.
 - Seis contratos Python aprobados. Config render del nuevo override verifica
   red none, sin puertos, solo lectura,0.5 CPU/384MiB y volumen distinto.
 - Ciclo corto en contenedor nonroot/readOnly/capsALLdrop/PIDs96 con esa CPU/RAM:
@@ -49,12 +53,41 @@ anidado/checkpoints/evaluaciones además del backup existente de todos los bytes
 - Backup/restore probado a root nuevo y rechazo de raw corrupto, modo live,
   flags/URLs de activación, checkpoint corrupto, reloj atrasado, lock paralelo,
   timeout y proveedor que ignora abort. Lista de comandos en contrato/runbook.
+- Prueba breve wall-clock de arranque/heartbeat/SIGTERM, no ensayo de7 días:
+  contenedor actualizado, init, red none, readOnly,0.5 CPU/384MiB, sin puertos;
+  heartbeat aprobado y apagado limpio exit0, sin OOM, tras7.877 segundos.
+  Un intento sintético/una captura/una evaluación, verificación posterior correcta,
+  sin lock huérfano. Muestra docker stats0.00%CPU,33.6MiB/384MiB,12PIDs; no promedio
+  de días ni energía. Se retiró únicamente ese contenedor de prueba; evidencia retenida.
 
 Fuentes reales: documentación pública leída, sin nuevos probes de APIs, sin
 consulta Amaru ni acceso a sistemas privados. Corpus ampliado mediante referencia
 institucional18–19/10, exclusivamente hindsight_only; no un nuevo input de replay
 o un label positivo/negativo. Pallatanga sin negativo verificado, precisión/errores/
 anticipación reales siguen desconocidos con denominador elegible0.
+
+## Standards
+
+Revisión de contexto separado del diff respecto a #36, sin editar ni usar red:
+dos hallazgos iniciales, peorP2. La validación de cuerpo podía omitir pausa403/429;
+y un callback que decía ok con HTTP403 se contaba como éxito(P3). Corregidos con
+orden de pausa anterior al body y al abort, rechazo HTTPno2xx y regresiones que
+incluyen429 tardío tras timeout. Revalidación independiente16/16 específica,
+cero confirmados pendientes en este eje; no implica ausencia de vulnerabilidades.
+
+## Spec
+
+Tres P2 iniciales: Retry-After de8 días reducido a24h, HTTP500 contradictorio
+contado como éxito y métricas diarias insuficientes al rotar eventos. Corregidos:
+pausa larga persistente, HTTPerror prevalece y agregados durables diarios por fuente
+con latencias/budget/bytes. OtroP3 de exportación al cruzar medianoche se reprodujo
+y corrigió actualizando agregados previos sin inventar muestras. Revalidación
+independiente16/16 específica, sin nuevos defectos confirmados.
+
+Resumen por eje: Standards2 corregidos(peorP2),0 pendientes; Spec3P2+1P3
+corregidos,0 pendientes. Algunos casos HTTP se solapan entre ejes; no se suman
+como vulnerabilidades distintas. Revisión asistida por agentes, no aprobación humana
+externa ni sustituto del ensayo operacional autorizado.
 
 ## Decisión por ámbito
 

@@ -20,6 +20,10 @@ test('offline lifecycle uses real archive/evaluator, dedupes bytes, preserves fa
   const store=new RawArtifactStore(path.join(root,'archive'),{origin:'synthetic_fixture',readOnly:true});
   const verified=await store.verify();assert.ok(verified.captures>=2);assert.ok(verified.artifacts<verified.captures);
   const state=await readCheckpoint(path.join(root,'state.json'));assert.ok(state.totals.failures>=2);
+  const days=await fs.readdir(path.join(root,'daily'));
+  const aggregate=await readCheckpoint(path.join(root,'daily',days[0]));
+  assert.equal(aggregate.sources['inamhi.lab'].attempts,state.totals.attempts);
+  assert.equal(aggregate.sources['inamhi.lab'].latency.count,state.totals.attempts);
   assert.ok(state.totals.successes>=2);
   assert.equal((await fs.readdir(path.join(root,'evaluations'))).length,verified.captures);
   for(const name of await fs.readdir(path.join(root,'evaluations'))) {

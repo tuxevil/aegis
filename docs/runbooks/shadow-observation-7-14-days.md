@@ -121,10 +121,12 @@ Por día: attempts/success/failure por fuente, bytes conocidos/desconocidos,
 latencias por evento, porcentaje de tiempo con fuente vigente y denominador de
 muestras explícito (no confundir con uptime), pausas y429/403, capturas/revisiones,
 hashes y exclusiones del evaluador, CPU/RSS/heap/I/O/red/storage y respaldos.
-daily/UTC.json guarda primera/última muestra real y contador; report.json contiene
-estado actual. Si no se muestreó un intervalo, marcarlo sin cobertura. El anillo
-reciente no permite reconstruir toda latencia histórica: conservar archivo y
-exportación diaria privada antes de que rote para un análisis exhaustivo.
+daily/UTC.json guarda primera/última muestra real, contador y agregados durables
+por fuente (intentos/éxitos/fallos/bytes y latencias count/sum/max/histograma).
+Report.json contiene estado actual. Los agregados sobreviven a la rotación de96
+eventos; para percentiles exactos/traza individual se requiere exportación privada
+adicional. No afirmar percentiles exactos con buckets. Si no se muestreó un
+intervalo, marcarlo sin cobertura; intento reservado sin resultado es inconcluso.
 
 Para idle/activity comparar deltas de CPU microsegundos y wall time del mismo
 proceso; RSS y cgroup deben etiquetarse por alcance. Medir incremento de archivos

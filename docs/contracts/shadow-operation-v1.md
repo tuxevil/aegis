@@ -29,6 +29,8 @@ tras reinicio no se repite un intento perdido. 403/429 pausan el host y respetan
 Retry-After mayor; sin dato utilizable, pausa conservadora24h. Backoff exponencial
 acotado24h, sin bucle de retry. SourceHttp ya interpreta Retry-After fecha/segundos;
 un futuro puente real debe transmitir el cooldown persistido, sin reinterpretarlo.
+No se acorta Retry-After mayor de7 días; ante overflow temporal se retiene la pausa
+hasta revisión. HTTP no2xx prevalece sobre status=ok y403/429 pausan antes de validar body.
 La cuota de bytes máxima es dailyBudget × maxResponseBytes por proveedor;
 bytes observados incompletos se marcan desconocidos, nunca se afirman cero.
 
@@ -59,7 +61,11 @@ referencias, alcance, exclusiones, limitaciones y nivel oficial separado.
 Nunca modifican centro editorial/outbox ni crean avisos públicos.
 
 `report.json` y daily/UTC.json son checkpoints acotados. Eventos recientes:96;
-historia diaria:first/last y contador de muestras, máximo16 días. Los originales
+historia diaria:first/last, contador de muestras y agregados por fuente, máximo16 días.
+Los agregados reservan intentos antes del callback y conservan éxitos/fallos,
+bytes conocidos/desconocidos y conteo/suma/máximo/histograma de latencias incluso
+cuando rota el anillo. La fecha es UTC real de inicio del intento; un intento sin
+resultado tras crash queda como tal, no como éxito/fallo supuesto. Los originales
 del archivo conservan trazabilidad; el anillo no es un journal exhaustivo.
 CPU en microsegundos, RSS/heap en bytes, /proc/self/io, cgroup v2 y red del namespace;
 medir deltas solo en el mismo proceso/namespace. RSS no equivale a toda la RAM del
