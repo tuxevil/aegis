@@ -1,0 +1,18 @@
+# INACTIVE PROPOSAL. Never load on the host. New dedicated netns only, reviewed
+# by its operator before starting application processes. Empty sets deny all.
+table inet aegis_inamhi_proposed {
+ set approved_ipv4 { type ipv4_addr; }
+ set approved_dns { type ipv4_addr; }
+ chain output {
+  type filter hook output priority 0; policy drop;
+  ip daddr @approved_ipv4 tcp dport 443 ct state { new, established } counter accept
+  ip daddr @approved_dns udp dport 53 counter accept
+  ip daddr @approved_dns tcp dport 53 counter accept
+  counter drop
+ }
+ chain input {
+  type filter hook input priority 0; policy drop;
+  ct state established counter accept
+  counter drop
+ }
+}

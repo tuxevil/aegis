@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-29T14:13:33.671Z",
+  "httpRequests": 0,
+  "certificateBypass": false,
+  "handshakes": [
+    {
+      "host": "generacioncsr.celec.gob.ec",
+      "port": 443,
+      "status": "verified_tls",
+      "authorized": true,
+      "validTo": "Apr  3 23:59:59 2027 GMT",
+      "issuer": "Sectigo Limited"
+    },
+    {
+      "host": "generacioncsr.celec.gob.ec",
+      "port": 8443,
+      "status": "verified_tls",
+      "authorized": true,
+      "validTo": "Apr  3 23:59:59 2027 GMT",
+      "issuer": "Sectigo Limited"
+    },
+    {
+      "host": "www.cenace.gob.ec",
+      "port": 443,
+      "status": "failed",
+      "code": "UNABLE_TO_VERIFY_LEAF_SIGNATURE"
+    }
+  ],
+  "inamhiDnsOnly": [
+    {
+      "address": "186.47.233.146",
+      "family": 4
+    }
+  ],
+  "scope": "Public TLS handshakes only, no HTTP or production data",
+  "gridConfigurationChanged": false
+}

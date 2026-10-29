@@ -1,0 +1,186 @@
+{
+  "version": 1,
+  "scope": "isolated_Docker_network_none_namespace_only",
+  "providerRequests": 0,
+  "hostFirewallChanged": false,
+  "productionNetworksChanged": false,
+  "baselineProfileChanged": false,
+  "cpus": 0.5,
+  "memoryBytes": 402653184,
+  "realInamhiNetworkVerified": false,
+  "records": [
+    {
+      "baseline": "all_five_fixture_targets_reachable_before_policy"
+    },
+    {
+      "probe": "approved_fixture_ip_tcp443",
+      "result": "allowed"
+    },
+    {
+      "probe": "http://192.0.2.11:443/",
+      "result": "blocked"
+    },
+    {
+      "probe": "http://169.254.169.254:443/",
+      "result": "blocked"
+    },
+    {
+      "probe": "http://192.0.2.10:80/",
+      "result": "blocked"
+    },
+    {
+      "probe": "http://127.0.0.1:443/",
+      "result": "blocked"
+    },
+    {
+      "uid": 1000,
+      "capabilities": "none"
+    },
+    {
+      "nftables": [
+        {
+          "metainfo": {
+            "version": "1.1.6",
+            "release_name": "Commodore Bullmoose #7",
+            "json_schema_version": 1
+          }
+        },
+        {
+          "table": {
+            "family": "inet",
+            "name": "aegis_fixture_egress",
+            "handle": 1
+          }
+        },
+        {
+          "chain": {
+            "family": "inet",
+            "table": "aegis_fixture_egress",
+            "name": "output",
+            "handle": 1,
+            "type": "filter",
+            "hook": "output",
+            "prio": 0,
+            "policy": "drop"
+          }
+        },
+        {
+          "rule": {
+            "family": "inet",
+            "table": "aegis_fixture_egress",
+            "chain": "output",
+            "handle": 2,
+            "expr": [
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "payload": {
+                      "protocol": "ip",
+                      "field": "saddr"
+                    }
+                  },
+                  "right": "192.0.2.10"
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "payload": {
+                      "protocol": "tcp",
+                      "field": "sport"
+                    }
+                  },
+                  "right": 443
+                }
+              },
+              {
+                "match": {
+                  "op": "in",
+                  "left": {
+                    "ct": {
+                      "key": "state"
+                    }
+                  },
+                  "right": "established"
+                }
+              },
+              {
+                "counter": {
+                  "packets": 4,
+                  "bytes": 370
+                }
+              },
+              {
+                "accept": null
+              }
+            ]
+          }
+        },
+        {
+          "rule": {
+            "family": "inet",
+            "table": "aegis_fixture_egress",
+            "chain": "output",
+            "handle": 3,
+            "expr": [
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "payload": {
+                      "protocol": "ip",
+                      "field": "daddr"
+                    }
+                  },
+                  "right": "192.0.2.10"
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "payload": {
+                      "protocol": "tcp",
+                      "field": "dport"
+                    }
+                  },
+                  "right": 443
+                }
+              },
+              {
+                "counter": {
+                  "packets": 6,
+                  "bytes": 398
+                }
+              },
+              {
+                "accept": null
+              }
+            ]
+          }
+        },
+        {
+          "rule": {
+            "family": "inet",
+            "table": "aegis_fixture_egress",
+            "chain": "output",
+            "handle": 4,
+            "expr": [
+              {
+                "counter": {
+                  "packets": 4,
+                  "bytes": 240
+                }
+              },
+              {
+                "drop": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
