@@ -101,3 +101,17 @@ Ningún módulo experimental debe degradar Grid Sentinel, exponer secretos, ejec
 ## Criterio de éxito de la preparación
 
 La planificación queda **cerrada para comenzar Codex** cuando existe handoff + backlog + contratos y tests, aunque falten datos reales. La certificación del servicio de avisos **sigue condicionada** a sondas, permisos, validación geográfica, revisión editorial y pruebas de daños/no-eventos. No confundir esas dos autorizaciones.
+
+## Decisión operacional — 29/10/2026: separar laboratorio y salida futura
+
+Conservar el compose offline de #34 sin cambios. La salida real se describe en
+un override de ejemplo y una política inactiva, nunca mediante una variable
+que convierta el laboratorio en operación conectada. El preflight no autoriza
+ni implementa captura continua. No añadir servicios o bases para esta preparación.
+
+Una allowlist HTTP en la aplicación y un firewall IP son controles distintos:
+TLS impide filtrar métodos con reglas IP. La red, DNS, direcciones y límites
+requieren verificación del host y autorización posterior; un nombre de red no
+prueba aislamiento. Mantener el proceso bloqueado hasta disponer de esas pruebas,
+permisos de fuentes y runner revisado. No crear infraestructura desde esta fase.
+Véase [runbook y límites](../runbooks/shadow-observation-preparation.md).
