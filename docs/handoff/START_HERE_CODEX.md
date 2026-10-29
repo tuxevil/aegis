@@ -1,5 +1,15 @@
 # AEGIS Multiamenaza — START HERE (entrega de planificación a Codex)
 
+## Ensayo autorizado en desarrollo — en ejecución desde29/10/2026
+
+El propietario autorizó siete días sintéticos **en esta máquina**, sin Proxmox.
+Se inició Docker detached con red none y volumen exclusivo; deadline original
+2026-11-05T23:22:04.474Z. [Identidad, supervisión y limitaciones](../verification/integration/seven-day-development.md).
+No recrear contenedor/imagen ni resetear plazo. Siete días siguen pendientes.
+No se preparan/envían correos INAMHI: el borrador viejo es solo antecedente opcional;
+una consulta pública puntual se evalúa con base pública, separada de automatización
+y redistribución. Su ejecución todavía requiere aprobación específica del propietario.
+
 ## Prioridad vigente: validación operacional y observación en sombra (29/10/2026)
 
 Se mantienen suspendidas nuevas funciones de producto. Revisar críticamente el

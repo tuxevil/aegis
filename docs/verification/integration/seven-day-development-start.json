@@ -1,0 +1,88 @@
+{
+  "observedAt": "2026-10-29T23:23:01.450Z",
+  "containerId": "d9d88193bbdee0218b1d65eba96b0a79798e9d90e1492b5ae2bc2e789a15a457",
+  "name": "aegis-seven-day-20261029-aegis-1",
+  "imageId": "sha256:8fe4a905dc1b2c4bbe58e93f23b023ed91e5a039258a68b9808041b5ea091d4d",
+  "imageTag": "aegis-supervised-staging:soak-da7db65-20261029",
+  "revision": "da7db65a40ab7a5cd04be1c2dc526c096996e7e4",
+  "state": {
+    "running": true,
+    "startedAt": "2026-10-29T23:22:03.091017499Z",
+    "health": "healthy",
+    "oomKilled": false,
+    "restartCount": 0
+  },
+  "limits": {
+    "nanocpus": 500000000,
+    "memory": 402653184,
+    "pids": 96,
+    "readOnly": true,
+    "user": "1000:1000",
+    "network": "none",
+    "ports": {},
+    "capDrop": [
+      "ALL"
+    ],
+    "securityOpt": [
+      "no-new-privileges:true"
+    ],
+    "restartPolicy": {
+      "Name": "on-failure",
+      "MaximumRetryCount": 3
+    },
+    "logs": {
+      "Type": "local",
+      "Config": {
+        "max-file": "3",
+        "max-size": "2m"
+      }
+    }
+  },
+  "volumes": [
+    {
+      "name": "aegis-seven-day-20261029_shadow-lab-data",
+      "destination": "/data",
+      "readWrite": true
+    }
+  ],
+  "credentialEnvironmentKeys": [],
+  "sevenDaysCompleted": false,
+  "powerWatts": null,
+  "energyWh": null,
+  "originalStartedAt": "2026-10-29T23:22:04.474Z",
+  "originalDeadline": "2026-11-05T23:22:04.474Z",
+  "afterControlledBackup": {
+    "observedAt": "2026-10-29T23:27:18.266Z",
+    "segments": [
+      {
+        "startedAt": 1793316124474,
+        "endedAt": 1793316398556,
+        "reason": "signal"
+      },
+      {
+        "startedAt": 1793316401216,
+        "endedAt": null,
+        "reason": null
+      }
+    ],
+    "totals": {
+      "attempts": 1,
+      "bytes": 932,
+      "unknownByteAttempts": 0,
+      "successes": 1,
+      "failures": 0
+    },
+    "cooldownsPreserved": true,
+    "backupVerified": true,
+    "restoredRootVerified": true,
+    "interruptionMilliseconds": 2660
+  },
+  "environment": {
+    "dockerDaemonActive": true,
+    "endpoint": "unix:///var/run/docker.sock",
+    "liveRestoreEnabled": false,
+    "availableMemoryMiBAtPreflight": 4124,
+    "freeDiskGiBAtPreflight": 59,
+    "hostSurvivalAcrossResetGuaranteed": false
+  }
+}
