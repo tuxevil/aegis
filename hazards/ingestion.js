@@ -18,7 +18,7 @@ export class IngestionService {
     Object.assign(this,{store,registry,now,networkEnabled,allowPendingLicense,adapterOverrides});
     this.http=http||new SourceHttp({registry,now});
   }
-  async ingest(sourceId,request) {
+  async ingest(sourceId,request,{signal}={}) {
     const source=request===undefined?this.registry.get(sourceId):this.registry.forecastSource(sourceId,request);
     if(source.type==="forecast"&&Date.parse(new URL(source.url).searchParams.get("run")+"Z")>this.now().getTime())throw new Error("future_model_run");
     if(source.internal) throw new Error("specialized_connector_required");
@@ -40,7 +40,7 @@ export class IngestionService {
         catch {return false;}
       }) || captures.some(r=>r.sourceId===sourceId && r.operation!=="reprocess" && Date.parse(r.retrievedAt)+source.cooldownMs>this.now().getTime());
       if(paused) return {...safeMode,sourceId,status:"unknown",errorCode:"source_cooldown"};
-      try { return await this.capture(source,await this.http.get(sourceId,request)); }
+      try { return await this.capture(source,await this.http.get(sourceId,request,{signal})); }
       catch(error) {
         const code=errorCodes.has(error.message)||/^http_\d{3}$/.test(error.message)?error.message:"ingestion_failed";
         await this.store.failure({sourceId,at:this.now().toISOString(),code,

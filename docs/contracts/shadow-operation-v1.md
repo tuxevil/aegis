@@ -94,3 +94,13 @@ reinicios, fallos, hashes y exclusiones. `--live`, URLs, aprobaciones por argume
 y flags de publicación se rechazan. La CLI no tiene camino de ingesta real.
 Conectar un transporte real requiere otra revisión y aprobación explícita, permisos
 y red de salida verificadas. Este límite es un NO-GO real, no una fase completada.
+
+## Extensión manual INAMHI (preparada, no autorizada)
+
+Un callback capturado está tipado recordOrigin=captured_source y no se admite en
+el laboratorio sintético. El constructor real requiere una autorización validada
+de consulta única, solo INAMHI, presupuesto1 y origen separado. La CLI específica
+inamhi-manual.mjs no hace red por defecto; la propuesta actual no puede ejecutarse.
+Ledger durable y presupuesto vitalicio sobreviven al reinicio, aun tras fallo;
+no se renuevan al día siguiente. Sin modo periódico real. Esquema y gates en
+[informe de primera fuente](../verification/integration/inamhi-first-source.md).
