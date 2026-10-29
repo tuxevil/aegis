@@ -10,7 +10,7 @@ Las latencias empíricas nuevas quedan null; las sondas históricas están en
 
 | Fuente | Decisión para observación nueva | Bloqueo principal |
 | --- | --- | --- |
-| INAMHI | Desactivada | Permisos concretos de archivo continuo/reutilización y cadencia; no inferirlos de acceso público |
+| INAMHI | Manual privada preparada, ejecución pendiente | Base pública revisada sin correo institucional; separar polling y redistribución aún pendientes |
 | SNGR | Desactivada, contexto estático | Licencia por capa/actualización; susceptibilidad no es pronóstico ni incidente |
 | Open-Meteo/ECMWF | Condicional, aún desactivada | Acceso Free no comercial, financiación, corrida disponible verificada, aprobación/red |
 | CELEC/CENACE | Preservar Grid; sin puente nuevo | Permisos/cuotas y riesgo heredado de TLS sin verificación |

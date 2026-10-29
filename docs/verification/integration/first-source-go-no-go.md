@@ -2,22 +2,22 @@
 
 29/10/2026. Evidencia: [ensayo real123s](offline-soak-2026-10-29.md),
 [INAMHI](inamhi-first-source.md), [red efectiva de laboratorio](../../runbooks/inamhi-network-lab.md),
-[TLS energético](grid-tls-investigation.md). No se inició un ensayo de siete días.
+[TLS energético](grid-tls-investigation.md). Actualización: el ensayo de siete días
+está iniciado en desarrollo; no hay resultado de siete días completados.
 
 | Ámbito | Decisión | Motivo y siguiente decisión |
 | --- | --- | --- |
-|Ensayo offline7 días| GO técnico limitado, no ejecutado | Comandos detached, deadline persistente, cuotas/guards/export preparados. Elegir host autorizado y responsables; Proxmox requiere permiso aparte |
-|Una consulta manual INAMHI| NO-GO actual | Aclaración/base de uso privado y atribución, aprobación de UN intento, IP/DNS/TLS/red reales verificados y archivo de autorización revisado |
+|Ensayo offline7 días| INICIADO en desarrollo, autorizado | Ver seven-day-development.md; persistente y supervisable. No son siete días completados |
+|Una consulta manual INAMHI| Preparada para aprobación independiente | Base pública documentada sin correo; política de namespace preparada, ownerApproval pendiente. Ningún GET real ejecutado |
 |Ingesta periódica INAMHI| NO-GO | El puente actual solo permite un intento vitalicio; faltan derechos/cadencia/cuota, tamaños reales nuevos y validación de recursos/red |
 |Staging Proxmox| NO-GO | Sin autorización; no SSH, instalación, puertos o firewall modificados |
 |Validación predictiva| NO demostrada | Sin corpus compatible suficiente/negativos verificados; tasas y probabilidades desconocidas |
 |Alertas públicas| NO-GO | Publicación false/DRY_RUN; ninguna autorización ni certificación de evaluación |
 
-Decisiones concretas del propietario: (1) autorizar envío del borrador INAMHI o
-aportar respuesta/base revisada sobre archivo privado; (2) elegir y autorizar el
-host para siete días offline, incluyendo permiso de instalación si es Proxmox;
-(3) después de cerrar derechos/red, aprobar separadamente una consulta manual
-acotada. Ninguna implica operación continua, datos públicos o merge a main.
+El propietario ya autorizó esta máquina de desarrollo para siete días offline.
+No se requiere correo al INAMHI. La decisión pendiente es aprobar por separado
+el comando de consulta única y sus destinos/DNS/archivo privado. Esa aprobación
+no implica polling, redistribución, Proxmox, alertas o merge a main.
 
 El nuevo sondeo documental histórico buscó Pallatanga octubre2026 en SNGR, ECU911
 y GAD. Aparecieron índices de informes/mapas y una pista periodística sobre20/10,
