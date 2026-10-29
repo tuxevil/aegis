@@ -1,0 +1,8 @@
+table inet aegis_fixture_egress {
+ chain output {
+  type filter hook output priority 0; policy drop;
+  ip saddr 192.0.2.10 tcp sport 443 ct state established counter accept
+  ip daddr 192.0.2.10 tcp dport 443 counter accept
+  counter drop
+ }
+}

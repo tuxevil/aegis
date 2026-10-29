@@ -24,6 +24,10 @@ por proceso. Siete días siguen sin ejecutar; run.json preserva el plazo entre r
 INAMHI es el primer piloto: [puente manual y condiciones pendientes](../verification/integration/inamhi-first-source.md).
 Default sin red; propuesta inválida para ejecutar. Una autorización permite un solo
 intento privado, nunca polling continuo. No se descargó ahora el PDF de INAMHI.
+La [prueba de red por kernel](../runbooks/inamhi-network-lab.md) solo es de fixtures
+aislados. [GO/NO-GO separados](../verification/integration/first-source-go-no-go.md):
+no autoriza red real, Proxmox, consulta manual o publicación. El riesgo TLS Grid
+se investigó por handshake; código/config productivos conservados.
 
 ## Prioridad vigente: consolidación y preparación supervisada (28/10/2026)
 

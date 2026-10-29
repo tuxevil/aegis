@@ -46,6 +46,9 @@ of management credentials is performed. Production data is never a test fixture.
   (`rejectUnauthorized: false`) due to non-standard chains on those hosts.
   This exposes those fetches to MITM; re-enable verification if the sources
   publish valid certificates.
+  A read-only TLS investigation on 2026-10-29 verified CELEC ports443/8443 but
+  CENACE still failed issuer-chain validation; no HTTP payload refresh or runtime
+  change was performed. See docs/verification/integration/grid-tls-investigation.md.
 - Chart.js is served from the locked local package; the interface does not load external executable scripts. Google Fonts is optional and falls back to system fonts.
 - DATA_DIR includes observation history plus private multihazard source archives and
   editorial journals. Never serve or publish the directory wholesale. Mount
