@@ -1,0 +1,26 @@
+# DESIGN ONLY. Never loaded by the laboratory command or enabled in this stage.
+# The external network must be provisioned and its deny-by-default host policy
+# independently verified AFTER owner approval. A network name is not that proof.
+services:
+  aegis:
+    network_mode: !reset null
+    networks: [shadow-approved-egress]
+    restart: "no"
+    command: [node, scripts/shadow-egress-preflight.mjs]
+    healthcheck: {disable: true}
+    labels: {org.aegis.stage: shadow-candidate-inactive}
+    environment:
+      PUBLIC_API_V1: "false"
+      SQLITE_STORAGE: "false"
+      BLACKOUT_MAP: "false"
+      OFFICIAL_SCHEDULES: "false"
+      TIME_MACHINE: "false"
+      EXPLORER_3D: "false"
+      HAZARDS_ENABLED: "false"
+      PUSH_ALERTS: "false"
+      PUSH_DELIVERY: "false"
+      ALERTS_PUBLISH_ENABLED: "false"
+networks:
+  shadow-approved-egress:
+    external: true
+    name: ${AEGIS_APPROVED_SHADOW_NETWORK:?Owner-approved egress network is not configured; do not use bridge or host}

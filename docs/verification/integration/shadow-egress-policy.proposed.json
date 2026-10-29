@@ -1,0 +1,57 @@
+{
+  "policyVersion": "shadow-egress-proposal-1",
+  "activationStatus": "not_authorized",
+  "approvalReference": null,
+  "continuousRunnerReady": false,
+  "hostFirewallVerified": false,
+  "observationStartedAt": null,
+  "maxConcurrentRequests": 1,
+  "methods": ["GET"],
+  "schemes": ["https:"],
+  "ports": [443],
+  "redirects": "deny",
+  "dnsPolicy": {
+    "approvedResolver": null,
+    "resolvedAddressAllowlist": [],
+    "denyPrivateLoopbackLinkLocalReservedAndMetadata": true,
+    "addressRotation": "stop_and_review_never_expand_to_internet"
+  },
+  "sources": [
+    {
+      "sourceId": "inamhi.warning.pdf",
+      "host": "www.inamhi.gob.ec",
+      "path": "/pronostico/advertencia.pdf",
+      "querySelection": "none",
+      "proposedMinIntervalSeconds": 1800,
+      "proposedMaxRequestsIn24h": 48,
+      "maxResponseBytes": 2000000,
+      "continuousUsePermission": "pending",
+      "approvalReference": null
+    },
+    {
+      "sourceId": "openmeteo.singlerun.ecmwf",
+      "host": "single-runs-api.open-meteo.com",
+      "path": "/v1/forecast",
+      "querySelection": "SourceRegistry_manual_run_and_pilot_only",
+      "pilotAreas": ["guayaquil", "pallatanga"],
+      "proposedMinIntervalPerPilotSeconds": 1800,
+      "proposedHostMinIntervalSeconds": 300,
+      "proposedMaxRequestsPerPilotIn24h": 48,
+      "proposedMaxRequestsIn24h": 96,
+      "maxResponseBytes": 400000,
+      "continuousUsePermission": "noncommercial_terms_and_financing_review_pending",
+      "approvalReference": null
+    }
+  ],
+  "failurePolicy": {
+    "attemptsPerCycle": 1,
+    "allAttemptsConsumeBudget": true,
+    "pause403and429": true,
+    "respectRetryAfter": true,
+    "reuseExistingDurableCooldownsAndHostLease": true,
+    "unavailableOrStale": "unknown_not_safe",
+    "fallbackToOtherHostOrProxy": false
+  },
+  "excluded": ["WAHA", "WebPush", "HomeAssistant", "AmbientWeatherCredentials", "AmaruQuota", "SNGRBulkLayers", "PaidServices"],
+  "notifications": "unconditionally_DRY_RUN"
+}

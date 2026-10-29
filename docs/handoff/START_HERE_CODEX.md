@@ -9,6 +9,9 @@ El laboratorio network:none sigue intacto; diseñar salida controlada por separa
 sin activarla, modificar protecciones GitHub, acceder a Proxmox o publicar avisos.
 No afirmar estabilidad de días sin tiempo real observado y fuentes autorizadas.
 La propuesta de ruleset es un archivo revisable, no una regla aplicada.
+La [preparación de salida controlada](../runbooks/shadow-observation-preparation.md)
+es una propuesta inactiva: sin runner continuo, firewall verificado ni autorización.
+El preflight solo comprueba el plan y rechaza activación por argumentos o entorno.
 
 ## Prioridad vigente: consolidación y preparación supervisada (28/10/2026)
 
