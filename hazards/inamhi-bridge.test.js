@@ -6,6 +6,7 @@ import path from 'node:path';
 import {PassThrough} from 'node:stream';
 import {EventEmitter} from 'node:events';
 import https from 'node:https';
+import {spawnSync} from 'node:child_process';
 import {pinnedInamhiFetch,publicIPv4} from './inamhi-transport.js';
 import {createManualInamhiRunner,createInamhiBridge} from './inamhi-bridge.js';
 import {ShadowRunner} from './shadow-runner.js';
@@ -47,6 +48,9 @@ test('bridge connects scheduler to ingestion with isolated captured origin, boun
   }finally{await runner.close();}
   const records=await store.records();assert.equal(records.length,1);assert.equal(records[0].envelope.recordOrigin,'captured_source');
   assert.notEqual(records[0].envelope.licensing.status,'verified');await store.verify();
+  const file=path.join(root,'test-approval.json');await fs.writeFile(file,JSON.stringify(opts.authorization),{mode:0o600});
+  const repeated=spawnSync(process.execPath,['scripts/inamhi-manual.mjs','--execute-manual','--authorization-file='+file,'--root='+root],{encoding:'utf8'});
+  assert.equal(repeated.status,1);assert.equal(repeated.stdout,'');
   await assert.rejects(()=>createInamhiBridge(opts).poll({sourceId:'inamhi.warning.pdf'}),e=>e.code==='EEXIST');
 });
 test('403/429/redirect/invalid data remain failures; no redirect follow and retry date persists',async t=>{
