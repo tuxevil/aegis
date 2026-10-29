@@ -116,3 +116,17 @@ observación antes de cualquier tráfico continuo. No hay Web Push/WAHA o avisos
 Resultado local tras correcciones: **426/426** Node en host y contenedor
 reconstruido sin red, **6/6** contratos Python, npm ci sin vulnerabilidades y
 check correcto. No se cambió deploy/staging/compose.yaml respecto al PR #34.
+
+### Dependencias de main frente a la integración
+
+Durante el push GitHub informó cinco alertas abiertas en la rama por defecto.
+Se verificaron por API de solo lectura: #53 Fastify (low) y #54–#57 fast-uri
+(dos medium y dos low). El lock de main contiene Fastify5.12.5 y una copia
+anidada de fast-uri4.2.1; las versiones corregidas indicadas son5.12.6 y4.2.3.
+Son hallazgos del árbol de main; no se trasladan sin comprobar a esta rama.
+
+La integración ya contiene Fastify5.12.7, fast-uri4.2.3 y copias3.1.9 fuera del
+rango afectado por esas alertas. Un npm audit nuevo devolvió total0. No se afirma
+ausencia de vulnerabilidades desconocidas ni se cierran alertas de main por ello.
+No se modificó main/producción: su actualización sigue requiriendo revisión y
+autorización de merge. Las alertas no prueban explotación ni exposición efectiva.
