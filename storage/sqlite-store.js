@@ -29,6 +29,13 @@ export async function openStore({
   let busy = false, closed = false, writing = false, writeFailure = null;
   try {
     const applied = inspectDatabase(db, migrations);
+    const assertExistingMode=()=>{
+      const mode=db.prepare("SELECT value FROM settings WHERE key='synthetic'").get();
+      if(!mode)throw new Error("Base sin marca demo/live; requiere revisión");
+      if(mode.value!==String(synthetic))throw new Error("No mezclar base demo y live");
+    };
+    // A rejected opening must not change schema or create migration snapshots.
+    if(applied.length)assertExistingMode();
     const pending = applied.length < migrations.length;
     if (pending && !allowMigrations) throw new Error("Migración pendiente; ejecutar init explícitamente antes de operar");
     const pageSize = db.prepare("PRAGMA page_size").get().page_size;
@@ -42,6 +49,7 @@ export async function openStore({
       db.exec("BEGIN IMMEDIATE");
       try {
         if (inspectDatabase(db, migrations).length !== applied.length) throw new Error("Esquema cambió durante apertura; reintentar");
+        if(applied.length)assertExistingMode();
         if (applied.length && file !== ":memory:") {
           const reader = new DatabaseSync(file, { readOnly: true });
           try {
@@ -54,9 +62,7 @@ export async function openStore({
         throw error;
       }
     }
-    const mode = db.prepare("SELECT value FROM settings WHERE key='synthetic'").get();
-    if (!mode && applied.length) throw new Error("Base sin marca demo/live; requiere revisión");
-    if (mode && mode.value !== String(synthetic)) throw new Error("No mezclar base demo y live");
+    if(applied.length)assertExistingMode();
     db.prepare("INSERT INTO settings(key,value) VALUES('synthetic',?) ON CONFLICT(key) DO NOTHING").run(String(synthetic));
     const journal = db.prepare("PRAGMA journal_mode=WAL").get().journal_mode;
     if (file !== ":memory:" && journal !== "wal") throw new Error("SQLite WAL no disponible");

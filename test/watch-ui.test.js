@@ -17,7 +17,7 @@ const wait = async (predicate) => {
   }
   throw Error("UI condition timeout");
 };
-async function page(t, { push = false, lost = false, link = false, select = true } = {}) {
+async function page(t, { push = false, lost = false, link = false, select = true, claimedDelivery = false } = {}) {
   const ctx = await setupPush(t),
     { store, config, now } = ctx;
   const app = await createApp({
@@ -91,7 +91,7 @@ async function page(t, { push = false, lost = false, link = false, select = true
     return {
       ok: response.statusCode < 400,
       status: response.statusCode,
-      json: async () => response.json(),
+      json: async () => url==="/api/v1/push/public-key"&&claimedDelivery?{...response.json(),delivery_enabled:true}:response.json(),
     };
   };
   window.eval(code);
@@ -146,7 +146,7 @@ test("web fallback creates, reloads and deletes via private code without Storage
 });
 
 test("integration blocks browser Push activation even with explicit click and consent; web preferences remain usable", async (t) => {
-  const { $, subscribeCalls, window } = await page(t, { push: true });
+  const { $, subscribeCalls, window } = await page(t, { push: true, claimedDelivery: true });
   assert.equal(subscribeCalls(), 0);
   $("consent").checked = true;
   $("push-consent").checked = true;

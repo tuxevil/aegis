@@ -509,7 +509,7 @@
       config = await request("/api/v1/push/public-key");
       $("policy").textContent = config.policy;
       $("availability").textContent =
-        `${config.synthetic ? "Datos sintéticos · " : ""}${config.delivery_enabled ? "Avisos sujetos a revisión de fuente y zona." : "Piloto: el envío Push está desactivado. La consulta web sigue disponible."}`;
+        `${config.synthetic ? "Datos sintéticos · " : ""}Preparación supervisada: el envío Push está desactivado y la activación bloqueada (DRY_RUN). La consulta web sigue disponible.`;
       const ios =
           /iPad|iPhone|iPod/.test(navigator.userAgent) ||
           (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1),

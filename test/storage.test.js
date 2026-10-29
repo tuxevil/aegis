@@ -29,6 +29,24 @@ async function memory(t, options = {}) {
 const latest = MIGRATIONS.length;
 const migration = sql => ({ version: latest + 1, sql, checksum: createHash("sha256").update(sql).digest("hex") });
 
+test("rejected demo/live or missing-mode startup cannot migrate, snapshot or rewrite an existing database",async t=>{
+  const parent=temporary(t);
+  for(const [initialMode,requestedMode,missing] of [[true,false,false],[false,true,false],[true,true,true]]) {
+    const directory=fs.mkdtempSync(path.join(parent,"mode-"));
+    const prior=await openStore({directory,synthetic:initialMode,now,migrations:MIGRATIONS.slice(0,1)});prior.close();
+    const file=path.join(directory,"aegis-v5.sqlite");
+    if(missing) {const db=new DatabaseSync(file);try {db.exec("DELETE FROM settings WHERE key='synthetic'");}finally {db.close();}}
+    const before=fs.readFileSync(file),inventory=fs.readdirSync(directory).sort();let snapshots=0;
+    await assert.rejects(openStore({directory,synthetic:requestedMode,now,takeSnapshot:async(...args)=>{snapshots++;return snapshot(...args);}}),missing?/sin marca demo\/live/:/No mezclar base demo y live/);
+    assert.equal(snapshots,0,"A rejected mode must not begin migration backup");
+    assert.deepEqual(fs.readFileSync(file),before,"Rejected startup must preserve all database bytes");
+    assert.deepEqual(fs.readdirSync(directory).sort(),inventory,"No durable files from rejected startup");
+    const reader=new DatabaseSync(file,{readOnly:true});
+    try {assert.equal(reader.prepare("PRAGMA user_version").get().user_version,1);}
+    finally {reader.close();}
+  }
+});
+
 test("SQLite WAL survives a new process and repeated migrations; v4 JSON untouched", async t => {
   const directory = temporary(t);
   const legacy = path.join(directory, "observations.json");
