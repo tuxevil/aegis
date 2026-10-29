@@ -10,16 +10,17 @@
       "provider": "INAMHI",
       "url": "https://www.inamhi.gob.ec/pronostico/advertencia.pdf",
       "kind": "official_warning",
-      "permissions": "pending_continuous_archive_and_reuse",
+      "permissions": "public_basis_for_single_private_query; periodic_and_public_redistribution_separate",
       "coverage": "Ecuador; alcance textual de cada boletin",
       "resolution": "Provincia/canton solo si explicitos; mapa no certificado",
       "periodicity": "Variable; no frecuencia de publicacion garantizada",
       "timestamps": "issuedAt, validFrom, validTo si parseables; retrievedAt y processedAt propios; primera subida historica desconocida",
       "quota": "No cuota confirmada; propuesta 48/dia, no aprobada",
       "degradation": "unknown/stale; conservar ultimo artefacto sin extender vigencia",
-      "verification": "M0 historico; hoy solo lectura documental, no nuevo probe de datos",
+      "verification": "Public conditions and LOTAIP reviewed; no institutional email gate; owner execution approval still pending",
       "evidence": [
-        "https://www.inamhi.gob.ec/info-liberada/"
+        "https://www.inamhi.gob.ec/info-liberada/",
+        "https://www.gob.ec/sites/default/files/regulations/2024-04/lotaip1%202023.pdf"
       ],
       "activation": "disabled_for_new_shadow_observer",
       "operatorApproval": false,

@@ -7,7 +7,7 @@
   "scope": "private_research_archive",
   "expiresAt": null,
   "ownerApprovalReference": null,
-  "dataRightsReference": null,
+  "dataRightsReference": "docs/verification/integration/inamhi-public-use-review.md",
   "networkVerificationReference": null,
   "approvedAddresses": []
 }

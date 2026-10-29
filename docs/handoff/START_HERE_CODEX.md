@@ -9,6 +9,11 @@ No recrear contenedor/imagen ni resetear plazo. Siete días siguen pendientes.
 No se preparan/envían correos INAMHI: el borrador viejo es solo antecedente opcional;
 una consulta pública puntual se evalúa con base pública, separada de automatización
 y redistribución. Su ejecución todavía requiere aprobación específica del propietario.
+Ver [base pública acotada](../verification/integration/inamhi-public-use-review.md)
+y [comando/política de una consulta](../runbooks/inamhi-single-query-proposal.md).
+El puente existente se conserva; una corrección hace que repetir una aprobación
+consumida salga con error y no recicle el éxito anterior. No actualizar la imagen
+del ensayo en marcha al incorporar cambios de la consulta manual.
 
 ## Prioridad vigente: validación operacional y observación en sombra (29/10/2026)
 

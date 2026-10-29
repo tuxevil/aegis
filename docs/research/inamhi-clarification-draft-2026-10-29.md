@@ -1,5 +1,9 @@
 # Borrador INAMHI — no enviado
 
+**Antecedente opcional, fuera del flujo vigente.** El propietario indicó no
+preparar ni enviar correos y no exigir respuesta institucional para una consulta
+pública puntual. Este borrador no es un gate. Ver revisión de uso público vigente.
+
 Destinatario institucional: datos@inamhi.gob.ec, publicado en la nota de acceso
 público del1/4/2025. No usar contactos personales ni WhatsApp para este trámite.
 

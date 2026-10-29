@@ -1,5 +1,10 @@
 # Preparación operacional — GO/NO-GO (29/10/2026)
 
+Snapshot de la etapa anterior. El estado posterior autorizado es
+[ensayo en ejecución](seven-day-development.md) y
+[uso público acotado INAMHI](inamhi-public-use-review.md). Sus conclusiones
+actualizadas prevalecen; no se convierte el diagnóstico previo en un resultado de días.
+
 ## Corte y seguridad
 
 Se reconsultó GitHub: #32=24c41e3, #33=fb64ced, #34=3fc1bb3,

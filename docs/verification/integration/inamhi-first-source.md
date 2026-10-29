@@ -101,9 +101,11 @@ cuerpo, parser, RSS y crecimiento. Esa cadencia no está aprobada ni se activó.
 
 ## Propuesta de primera consulta manual
 
-**NO-GO actual.** Requisitos para cambiar solo esta decisión:
-1. Aclaración suficiente del archivo privado/uso y atribución, o base documentada
-   revisada por responsable; no inferirla del HTTP200 o del consentimiento técnico.
+**Criterio vigente: GO para solicitar aprobación de una consulta privada**, no para
+ejecutarla. La [revisión pública acotada](inamhi-public-use-review.md) sustituye
+la exigencia institucional anterior. No se prepara/envía correo ni se espera una carta.
+1. Usar la base pública documentada para este GET/copia privada, sin elevarla a
+   licencia universal de automatización/redistribución o a respaldo institucional.
 2. Autorización explícita del propietario para **una** consulta y captura privada.
 3. Lista IP/DNS/TLS y control efectivo de red verificados en el entorno elegido;
    aprobación aparte si requiere Proxmox. DNS observado hoy no autoriza ninguna IP.
@@ -113,4 +115,5 @@ Solo entonces preparar un archivo0600 revisado y el comando:
 `node scripts/inamhi-manual.mjs --execute-manual --authorization-file=ARCHIVO
 --root=RAIZ_NUEVA`. No se ejecutó. Guardaría resultado/evaluaciones privadas y
 rechazaría un segundo intento. No autoriza ingesta periódica, usuarios o publicación.
-La solicitud de aclaración está preparada separadamente y **no enviada**.
+El borrador histórico queda solo como antecedente opcional, fuera de los criterios
+de avance. El procedimiento exacto de red/ejecución está en la propuesta manual vigente.

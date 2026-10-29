@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "status": "awaiting_owner_approval",
+  "endpoint": "https://www.inamhi.gob.ec/pronostico/advertencia.pdf",
+  "method": "GET",
+  "httpsPort": 443,
+  "maximumDocumentRequests": 1,
+  "timeoutMs": 12000,
+  "maxBodyBytes": 2000000,
+  "redirects": "deny",
+  "retries": 0,
+  "dnsResolver": "1.1.1.1",
+  "dnsPorts": [
+    "udp/53",
+    "tcp/53"
+  ],
+  "dnsObservedAt": "2026-10-29T23:37:29.754Z",
+  "candidateAddresses": [
+    {
+      "address": "186.47.233.146",
+      "family": 4
+    }
+  ],
+  "imageId": "sha256:5c8fbb052fd7ef7616840d023d5af46f9004a8866d638c1aa4aadb64d19c779d",
+  "authorizationFile": "/root/aegis-inamhi-once/query.json",
+  "privateVolume": "aegis-inamhi-once-data-20261029",
+  "containerName": "aegis-inamhi-once-20261029",
+  "dataRightsReference": "docs/verification/integration/inamhi-public-use-review.md",
+  "networkPolicy": "deploy/staging/manual-network/prepare.mjs",
+  "providerDocumentFetched": false,
+  "ownerApproval": null
+}

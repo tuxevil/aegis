@@ -12,7 +12,9 @@ else {
     const file=args.find(a=>a.startsWith('--authorization-file=')).slice(21),root=args.find(a=>a.startsWith('--root=')).slice(7);
     const stat=await fs.lstat(file);if(!root||!stat.isFile()||stat.isSymbolicLink()||stat.size>16000||(stat.mode&0o077))throw Error('private_approval_required');
     const authorization=JSON.parse(await fs.readFile(file,'utf8')),bridge=await createManualInamhiRunner({root,authorization});runner=bridge.runner;
-    await runner.open();const result=await runner.tick(),asOf=new Date().toISOString(),evaluations=[];
+    await runner.open();
+    if(runner.state.totals.attempts>=1)throw Error('manual_authorization_already_consumed');
+    const result=await runner.tick(),asOf=new Date().toISOString(),evaluations=[];
     if(result.totals.successes)for(const area of ['guayaquil','pallatanga'])evaluations.push(await assessArchive({store:bridge.store,area,asOf}));
     await writeCheckpoint(path.join(path.resolve(root),'manual-result.json'),{...result,asOf,evaluations,publicationBlocked:true});
     console.log(JSON.stringify({mode:result.mode,attempts:result.totals.attempts,successes:result.totals.successes,publicationBlocked:true,dispatchMode:'DRY_RUN'}));

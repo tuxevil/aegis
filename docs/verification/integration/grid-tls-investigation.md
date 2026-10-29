@@ -43,3 +43,11 @@ bypass silencioso de certificados. El riesgo MITM heredado permaneceP2 documenta
 handshakes fijos; no tiene loop/URL libre ni actualiza Grid. No ejecutarlo como
 polling. Esta investigación no bloquea INAMHI, cuyo transporte es independiente
 y jamás importa las excepciones energéticas.
+
+La etapa siguiente añadió una prueba real de HTTPS **local**:
+`node --test test/grid-tls-proposal.test.js`. Sin CA confiable el cliente rechaza;
+con CA sintética deliberadamente confiada solo en esa llamada, TLS y hostname
+correctos pasan; con hostname incorrecto vuelve a rechazar. Nunca se usa
+rejectUnauthorized:false, no se instala CA global ni se consulta el proveedor.
+Esto prepara la comprobación de una fullchain reparada o bundle legítimo revisado;
+no identifica/confía automáticamente en un emisor CENACE ni cambia Grid.
