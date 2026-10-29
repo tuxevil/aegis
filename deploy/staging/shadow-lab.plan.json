@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "mode": "synthetic_fixture",
+  "alertsPublishEnabled": false,
+  "dispatchMode": "DRY_RUN",
+  "maxDiskBytes": 134217728,
+  "maxEvents": 96,
+  "hostIntervalMs": 300000,
+  "providers": [{"key":"inamhi.lab","sourceId":"inamhi.warning.pdf","intervalMs":1800000,"dailyBudget":48,"timeoutMs":12000,"maxResponseBytes":2000000,"ttlMs":3600000}]
+}

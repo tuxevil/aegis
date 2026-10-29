@@ -1,8 +1,8 @@
 // Deliberately synthetic PDF generator; contains no provider bytes.
-export function syntheticBulletin({day="25",month="octubre",year="2026",number=83}={}) {
+export function syntheticBulletin({day="25",month="octubre",year="2026",number=83,validTo=null}={}) {
   const lines=["SYNTHETIC TEST - NOT AN OFFICIAL BULLETIN",`Boletin Meteorologico Nro. ${number}`,
     `Fecha y hora de emision: domingo, ${day} de ${month} de ${year}, 14:00 horas`,
-    `Vigencia: desde 16H00 del ${day} hasta las 23H00 del 28 de ${month} de ${year}`,
+    `Vigencia: desde 16H00 del ${day} hasta las 23H00 del ${validTo||`28 de ${month} de ${year}`}`,
     "NIVEL AMENAZA: MEDIO - MUY ALTO FENOMENO: LLUVIAS","ZONAS AFECTADAS: Guayas"];
   const stream="BT /F1 10 Tf 40 750 Td "+lines.map((s,i)=>(i?"0 -20 Td ":"")+`(${s}) Tj`).join("\n")+" ET";
   const objects=["<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids [3 0 R] /Count 1 >>",

@@ -115,3 +115,18 @@ requieren verificación del host y autorización posterior; un nombre de red no
 prueba aislamiento. Mantener el proceso bloqueado hasta disponer de esas pruebas,
 permisos de fuentes y runner revisado. No crear infraestructura desde esta fase.
 Véase [runbook y límites](../runbooks/shadow-observation-preparation.md).
+
+## Decisión operacional — runner separado y evidencia de reloj real
+
+Reutilizar archivo/evaluador y backup existentes, sin modificar backend/rutas ni
+añadir servicios/DB. Un lote serial con presupuesto reservado antes del callback
+es suficiente: estado JSON atómico privado, lock que no se roba, backoff/cuotas
+persistentes, pausa por archivo y señales. El scheduler carece de import de
+publicación y su CLI solo conecta proveedores sintéticos. El puente real queda
+bloqueado hasta permisos/red/revisión propios, no se autoriza con un flag de CI.
+
+Separar tiempo simulado de planificación y tiempo real de captura/procesamiento;
+mantener energía desconocida, discrepancias fuera de etiquetas y retrospectivas
+fuera de features. Un anillo acotado conserva métricas recientes, snapshots diarios
+dan seguimiento7–14 días, el archivo original conserva trazabilidad. Al llenarse
+la capacidad se detiene ingesta; no borrar evidencia automáticamente para continuar.

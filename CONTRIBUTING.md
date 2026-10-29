@@ -77,3 +77,14 @@ contiene controles **solo sintéticos**, con etiquetas separadas del motor. No s
 incidentes o negativos históricos verificados ni prueba de probabilidad de desastre.
 Conserva el baseline al proponer cambios; no reetiquetes para mejorar una cifra.
 Las pruebas deben seguir funcionando sin clave ni llamadas a proveedores.
+
+## Validación operacional sin credenciales
+
+Consulta el [contrato operacional](docs/contracts/shadow-operation-v1.md).
+`node --test hazards/shadow-runner.test.js test/shadow-lab.test.js` reproduce
+cuotas/reinicio, HTTP403/429 simulado, fuente ausente, evaluaciones privadas,
+backup/restore y rechazo de corrupción. Para un ensayo corto usa un directorio
+nuevo: `node scripts/shadow-lab.mjs --lab --root=/tmp/aegis-mi-lab --cycles=12`.
+Los PDFs son generados MIT y marcados SYNTHETIC TEST, no capturas institucionales.
+No se admiten secretos, URLs arbitrarias o modo live en esa CLI. Las discrepancias
+son notas privadas revisables, no etiquetas de ground truth o permisos de envío.

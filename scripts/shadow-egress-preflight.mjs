@@ -16,7 +16,7 @@ if(!args.length) {
     const registry=new SourceRegistry();
     for(const proposal of plan.sources) {
       const source=registry.get(proposal.sourceId),url=new URL(source.url);
-      if(url.hostname!==proposal.host||url.pathname!==proposal.path||source.maxBytes!==proposal.maxResponseBytes||proposal.approvalReference!==null)throw Error();
+      if(url.hostname!==proposal.host||url.pathname!==proposal.path||source.maxBytes!==proposal.maxResponseBytes||source.timeoutMs!==proposal.timeoutMs||proposal.approvalReference!==null)throw Error();
     }
     console.log(JSON.stringify({status:"inactive_plan_consistent_with_registry",externalRequestsStarted:false,containerNetworkState:"not_inspected",
       sourceProfiles:plan.sources.length,hostFirewallVerified:false,continuousRunnerReady:false,

@@ -3,8 +3,9 @@
 29/10/2026. Se conserva `deploy/staging/compose.yaml` byte a byte respecto al
 PR #34: red none, sin puertos, 0.5 CPU/384MiB, usuario no privilegiado, rootfs
 readOnly y DRY_RUN. No se accedió a Proxmox ni se inició captura continua.
-El mensaje recibido termina en «destinos, métodos, frecuencia»; este documento
-prepara esa parte explícita sin inventar instrucciones o autorización faltantes.
+El encargo completo posterior añade scheduler, métricas, discrepancias y protocolo
+7–14 días. Su [ejecución offline y gates](shadow-observation-7-14-days.md) amplían
+esta propuesta; el preflight de salida real continúa bloqueado.
 
 Artefactos separados:
 

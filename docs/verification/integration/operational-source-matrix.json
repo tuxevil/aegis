@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "reviewedOn": "2026-10-29",
+  "newDataApiProbesPerformed": false,
+  "documentationOnly": true,
+  "existingGridBehaviorChanged": false,
+  "sources": [
+    {
+      "id": "inamhi.warning.pdf",
+      "provider": "INAMHI",
+      "url": "https://www.inamhi.gob.ec/pronostico/advertencia.pdf",
+      "kind": "official_warning",
+      "permissions": "pending_continuous_archive_and_reuse",
+      "coverage": "Ecuador; alcance textual de cada boletin",
+      "resolution": "Provincia/canton solo si explicitos; mapa no certificado",
+      "periodicity": "Variable; no frecuencia de publicacion garantizada",
+      "timestamps": "issuedAt, validFrom, validTo si parseables; retrievedAt y processedAt propios; primera subida historica desconocida",
+      "quota": "No cuota confirmada; propuesta 48/dia, no aprobada",
+      "degradation": "unknown/stale; conservar ultimo artefacto sin extender vigencia",
+      "verification": "M0 historico; hoy solo lectura documental, no nuevo probe de datos",
+      "evidence": [
+        "https://www.inamhi.gob.ec/info-liberada/"
+      ],
+      "activation": "disabled_for_new_shadow_observer",
+      "operatorApproval": false,
+      "measuredLatencyMs": null
+    },
+    {
+      "id": "sngr.layers",
+      "provider": "SNGR",
+      "url": "https://sgrportal.gestionderiesgos.gob.ec/server/rest/services",
+      "kind": "static_susceptibility_context",
+      "permissions": "pending_selected_layer_license_and_automation",
+      "coverage": "Ecuador; filtrar DPA Guayaquil/Pallatanga, sin inferir barrio",
+      "resolution": "Geometria y escala por capa; EPSG:32717 en capas investigadas; no precision de prediccion",
+      "periodicity": "Actualizacion no confirmada; no polling periodico propuesto",
+      "timestamps": "Metadatos de servicio no equivalen a fecha de incidente",
+      "quota": "Historial: maxRecordCount 2000; capacidades de paginacion distintas por capa; no cuota institucional confirmada",
+      "degradation": "Contexto estatico incompleto, nunca deteccion dinamica ni all-clear",
+      "verification": "Conectores y pruebas existentes; licencia/actualizacion pendientes",
+      "evidence": [
+        "https://www.gestionderiesgos.gob.ec/informacion-de-gestion-de-riesgos-en-linea/"
+      ],
+      "activation": "disabled_for_new_shadow_observer",
+      "operatorApproval": false,
+      "measuredLatencyMs": null
+    },
+    {
+      "id": "openmeteo.singlerun.ecmwf",
+      "provider": "Open-Meteo / ECMWF",
+      "url": "https://single-runs-api.open-meteo.com/v1/forecast",
+      "kind": "forecast_run",
+      "permissions": "restricted_noncommercial_terms_financing_review_pending",
+      "coverage": "Dos puntos configurados Guayaquil/Pallatanga; no todo canton",
+      "resolution": "Punto de modelo/celda devuelta; no se certifica resolucion efectiva nueva",
+      "periodicity": "Run explicito; disponibilidad de nuevas corridas no automatizada",
+      "timestamps": "run, horas de pronostico, captura, procesamiento; disponibilidad comprobada separada de run",
+      "quota": "Free no comercial: 10000 llamadas/dia segun pagina oficial; presupuestos propuestos mucho menores no equivalen a permiso",
+      "degradation": "unknown si corrida/celda/cobertura o disponibilidad no verificadas; no usar run fijo historico como actual",
+      "verification": "Documentacion vigente revisada; acceso continuo no autorizado",
+      "evidence": [
+        "https://open-meteo.com/en/terms",
+        "https://open-meteo.com/en/pricing",
+        "https://open-meteo.com/en/docs/single-runs-api"
+      ],
+      "activation": "disabled_for_new_shadow_observer",
+      "operatorApproval": false,
+      "measuredLatencyMs": null
+    },
+    {
+      "id": "grid.celec",
+      "provider": "CELEC",
+      "url": "https://generacioncsr.celec.gob.ec/",
+      "kind": "energy_observation",
+      "permissions": "pending_continuous_reuse_terms",
+      "coverage": "Embalses/instalaciones configuradas; no prediccion territorial de apagones",
+      "resolution": "Punto/instalacion y serie publicada",
+      "periodicity": "No nueva medicion; cache y comportamiento Grid existentes conservados",
+      "timestamps": "Fecha de lectura publicada y captura; no asumir equivalencia",
+      "quota": "No cuota confirmada; no incorporado al scheduler nuevo",
+      "degradation": "Observacion faltante/antigua; mantener separacion altura-volumen-reserva",
+      "verification": "Riesgo heredado: fetch con TLS no verificado; causa actual del certificado no reprobada",
+      "evidence": [
+        "https://generacioncsr.celec.gob.ec/"
+      ],
+      "activation": "disabled_for_new_shadow_observer",
+      "operatorApproval": false,
+      "measuredLatencyMs": null
+    },
+    {
+      "id": "grid.cenace",
+      "provider": "CENACE",
+      "url": "https://www.cenace.gob.ec/info-operativa/InformacionOperativa.htm",
+      "kind": "energy_context_observation",
+      "permissions": "pending_continuous_reuse_terms",
+      "coverage": "Sistema electrico nacional; no suministro individual",
+      "resolution": "Agregado nacional/series disponibles",
+      "periodicity": "No nueva latencia/frecuencia medida",
+      "timestamps": "Fecha de reporte y captura; sin predecir interrupcion",
+      "quota": "No cuota confirmada; no incorporado al scheduler nuevo",
+      "degradation": "Datos parciales/antiguos no equivalen a restablecimiento",
+      "verification": "Riesgo heredado TLS no verificado; no habilitar puente nuevo asi",
+      "evidence": [
+        "https://www.cenace.gob.ec/info-operativa/InformacionOperativa.htm"
+      ],
+      "activation": "disabled_for_new_shadow_observer",
+      "operatorApproval": false,
+      "measuredLatencyMs": null
+    },
+    {
+      "id": "geoglows.candidate",
+      "provider": "GEOGLOWS",
+      "url": "https://geoglows.ecmwf.int/",
+      "kind": "river_model_forecast",
+      "permissions": "pending_selected_product_api_and_license",
+      "coverage": "Tramos fluviales; falta seleccionar/validar cuencas de los pilotos",
+      "resolution": "Reach/modelo, no calle; pendiente identificacion compatible",
+      "periodicity": "No medida en esta etapa",
+      "timestamps": "Corrida/validez/captura por verificar",
+      "quota": "No cuota de API confirmada; no descarga ni polling",
+      "degradation": "Fuente complementaria desactivada, no inferir nivel local observado",
+      "verification": "Portal documental revisado; no producto operativo certificado",
+      "evidence": [
+        "https://geoglows.ecmwf.int/"
+      ],
+      "activation": "disabled_for_new_shadow_observer",
+      "operatorApproval": false,
+      "measuredLatencyMs": null
+    },
+    {
+      "id": "google.flood.candidate",
+      "provider": "Google Flood",
+      "url": "https://support.google.com/flood-hub/answer/16364306?hl=en",
+      "kind": "external_flood_forecast",
+      "permissions": "pilot_access_requires_approval_no_credentials_authorized",
+      "coverage": "Cobertura efectiva de ambos pilotos no verificada",
+      "resolution": "Producto/ubicacion pendientes, no inferir cobertura por mapa global",
+      "periodicity": "No medida",
+      "timestamps": "Emision/validez/disponibilidad por verificar",
+      "quota": "API limitada a participantes aprobados segun soporte; no solicitud/costo iniciado",
+      "degradation": "Desactivada sin acceso legitimo; no bypass ni scraping alternativo",
+      "verification": "Soporte oficial revisado; sin acceso API",
+      "evidence": [
+        "https://support.google.com/flood-hub/answer/16364306?hl=en"
+      ],
+      "activation": "disabled_for_new_shadow_observer",
+      "operatorApproval": false,
+      "measuredLatencyMs": null
+    },
+    {
+      "id": "metnorway.candidate",
+      "provider": "MET Norway",
+      "url": "https://api.met.no/doc/TermsOfService",
+      "kind": "weather_forecast",
+      "permissions": "human_terms_acceptance_and_attribution_pending",
+      "coverage": "Producto/puntos Ecuador por verificar",
+      "resolution": "Modelo/punto, no sensor ni prediccion de inundacion",
+      "periodicity": "Segun expiracion/cache del producto; no medida local",
+      "timestamps": "Last-Modified/Expires y validez por comprobar",
+      "quota": "User-Agent identificable y caching requeridos; no eludir 403 ni imitar navegador",
+      "degradation": "Desactivada; respetar bloqueo y revisar cambios de condiciones",
+      "verification": "ToS/FAQ leidas; no aceptadas por el agente ni acceso de datos",
+      "evidence": [
+        "https://api.met.no/doc/TermsOfService",
+        "https://docs.api.met.no/doc/FAQ.html"
+      ],
+      "activation": "disabled_for_new_shadow_observer",
+      "operatorApproval": false,
+      "measuredLatencyMs": null
+    },
+    {
+      "id": "inocar.candidate",
+      "provider": "INOCAR",
+      "url": "https://www.inocar.mil.ec/mareas/form_mareas.php",
+      "kind": "predicted_tide_context",
+      "permissions": "pending_selected_product_archive_and_automation",
+      "coverage": "Puerto seleccionado; pertinencia de Guayaquil debe validarse",
+      "resolution": "Puerto/referencia vertical, no inundacion de barrio",
+      "periodicity": "Tabla/prediccion; no confundir con medicion de marea",
+      "timestamps": "Fecha/hora local y datum por verificar antes de normalizar",
+      "quota": "No cuota confirmada; sin consultas automatizadas",
+      "degradation": "Contexto desactivado; no sustituye sensor/caudal/lluvia",
+      "verification": "Pagina oficial localizada; sin verificacion de datos ni licencia",
+      "evidence": [
+        "https://www.inocar.mil.ec/mareas/form_mareas.php"
+      ],
+      "activation": "disabled_for_new_shadow_observer",
+      "operatorApproval": false,
+      "measuredLatencyMs": null
+    }
+  ],
+  "excluded": [
+    {
+      "provider": "Amaru",
+      "reason": "Optional reference, not ground truth; no key access or continuous quota use authorized"
+    }
+  ]
+}
