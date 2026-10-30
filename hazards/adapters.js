@@ -3,34 +3,35 @@ import {inspectPayload} from "../scripts/probe-aegis-sources.mjs";
 import {inspectWarningValidity} from "./warning-validity.js";
 import {extractPdfText} from "./pdf-text.js";
 
-const months=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+import {localTime,normalizeDateText,parseInamhiValidity} from "./inamhi-dates.js";
 const clean=value=>typeof value==="string"?value.slice(0,2000):null;
-function localTime(day,month,year,hour,minute="00") {
-  if(!months.includes(month.toLowerCase())) return null;
-  const local=`${year}-${String(months.indexOf(month.toLowerCase())+1).padStart(2,"0")}-${String(day).padStart(2,"0")}T${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}:00`;
-  const time=Date.parse(local+"Z");
-  if(!Number.isFinite(time) || new Date(time).toISOString().slice(0,19)!==local) return null;
-  return new Date(time+5*3600000).toISOString();
+const provinceNames=["Guayas","Chimborazo","Los Ríos","Esmeraldas","El Oro","Bolívar","Cotopaxi","Pichincha","Cañar","Azuay","Loja","Manabí","Santa Elena","Carchi","Imbabura","Sucumbíos","Orellana","Napo","Pastaza","Morona Santiago","Zamora Chinchipe"];
+function explicitProvinceList(text) {
+  // Only a complete, unqualified list on an explicit heading line. Region
+  // prose, maps, legends and partial-province qualifiers remain unverified.
+  const lines=[...text.matchAll(/^[ \t]*ZONAS AFECTADAS:[ \t]*([^\r\n]+)$/gimu)];
+  if(lines.length!==1)return [];
+  const following=text.slice(lines[0].index+lines[0][0].length).trim();
+  if(following&&!/^(?:NIVEL AMENAZA|FEN[ÓO]MENO|RECOMENDACIONES)\s*:/iu.test(following))return [];
+  const names=lines[0][1].trim().replace(/[.]$/,"").split(/[,;]|\s+y\s+/iu).map(n=>n.trim());
+  return names.length&&names.every(n=>provinceNames.includes(n))?[...new Set(names)]:[];
 }
-
 export function parseInamhiText(text) {
   if(typeof text!=="string" || text.length>100000) throw new Error("invalid_bulletin_text");
   const normalized=text.replace(/\s+/g," ");
   const number=normalized.match(/Bolet[ií]n Meteorol[oó]gico\s+(?:Nro\.?|N[.º°]+)\s*(\d+)/i);
-  const issue=normalized.match(/Fecha y hora de emisi[oó]n:\s*[a-záéíóú]+,?\s*(\d{1,2}) de ([a-z]+) de (\d{4}),?\s*(\d{1,2}):(\d{2})/i);
-  const validity=normalized.match(/Vigencia:\s*desde\s*(\d{1,2})H(\d{2}) del (\d{1,2}) hasta las (\d{1,2})H(\d{2}) del (\d{1,2}) de ([a-z]+) de (\d{4})/i);
+  const issue=normalizeDateText(text).match(/Fecha y hora de emisi[oó]n:\s*[a-záéíóú]+,?\s*(\d{1,2}) de ([a-z]+) de (\d{4}),?\s*(\d{1,2}):(\d{2})/i);
+  const validity=parseInamhiValidity(text);
   const sourceRiskLevel=normalized.match(/NIVEL AMENAZA:\s*(.*?)\s*FEN[ÓO]MENO:/i)?.[1]||null;
   return {
     bulletinNumber:number?Number(number[1]):null,
     issuedAt:issue?localTime(issue[1],issue[2],issue[3],issue[4],issue[5]):null,
-    validFrom:validity?localTime(validity[3],validity[7],validity[8],validity[1],validity[2]):null,
-    validTo:validity?localTime(validity[6],validity[7],validity[8],validity[4],validity[5]):null,
-    originalTimeText:[issue?.[0],validity?.[0]].filter(Boolean).join("; ").slice(0,400)||null,
+    ...validity,
+    originalTimeText:[issue?.[0],validity.originalValidityText].filter(Boolean).join("; ").slice(0,2000)||null,
     sourceRiskLevel:clean(sourceRiskLevel),
     phenomena:["LLUVIAS","TORMENTAS ELÉCTRICAS","RÁFAGAS DE VIENTO"].filter(p=>normalized.toUpperCase().includes(p)),
-    // Only an explicit province name; no inferred city or map intersection.
-    areaNames:["Guayas","Chimborazo","Los Ríos","Esmeraldas","El Oro","Bolívar","Cotopaxi","Pichincha","Cañar","Azuay","Loja","Manabí","Santa Elena","Carchi","Imbabura","Sucumbíos","Orellana","Napo","Pastaza","Morona Santiago","Zamora Chinchipe"]
-      .filter(name=>new RegExp(`(?<![\\p{L}])${name}(?![\\p{L}])`,"iu").test(normalized)),
+    areaNames:provinceNames.filter(name=>new RegExp(`(?<![\\p{L}])${name}(?![\\p{L}])`,"iu").test(normalized)),
+    coveredAreaNames:explicitProvinceList(text),
   };
 }
 
@@ -53,18 +54,23 @@ export class InamhiPdfAdapter {
     if(capture.mediaType!=="application/pdf") throw new Error("unexpected_media_type");
     const parsed=parseInamhiText(await this.extractText(bytes));
     const e=baseEnvelope(source,capture,raw);
+    e.quality.parserVersion="inamhi-pdf-1.1.0";
     Object.assign(e.time,{issuedAt:parsed.issuedAt,validFrom:parsed.validFrom,validTo:parsed.validTo,
       sourceTimeZone:"America/Guayaquil",originalTimeText:parsed.originalTimeText});
-    e.spatial.areaNames=parsed.areaNames;
-    e.spatial.precision=parsed.areaNames.length?"province":"unknown";
+    e.spatial.areaNames=parsed.coveredAreaNames.length?parsed.coveredAreaNames:parsed.areaNames;
+    // Mentions can occur in legends/descriptions or qualified partial zones.
+    // Only an unqualified explicit list establishes provincial scope.
+    e.spatial.precision=parsed.coveredAreaNames.length?"province":"unknown";
     const validity=inspectWarningValidity({...e.time,retrievedAt:capture.retrievedAt},new Date(capture.retrievedAt));
     e.quality.dataStatus=validity.dataStatus==="valid"?"partial":validity.dataStatus;
-    e.quality.blockers=[...validity.blockers,"map_not_reviewed"];
+    e.quality.blockers=[...validity.blockers,"map_not_reviewed",...(parsed.coveredAreaNames.length?[]:["territorial_coverage_unverified"])];
     if(parsed.bulletinNumber===null || !parsed.sourceRiskLevel || !parsed.phenomena.length) {
       e.quality.dataStatus="unknown";e.quality.blockers.push("incomplete_bulletin_text");
     }
     e.details={bulletinNumber:parsed.bulletinNumber,authority:"INAMHI",sourceRiskLevel:parsed.sourceRiskLevel,
-      phenomena:parsed.phenomena,areasMentioned:parsed.areaNames,mapReviewed:false};
+      phenomena:parsed.phenomena,areasMentioned:parsed.areaNames,mapReviewed:false,coveredAreaNames:parsed.coveredAreaNames,
+      temporalExtraction:{originalValidityText:parsed.originalValidityText,validityParseStatus:parsed.validityParseStatus,
+        timeInferenceRules:parsed.timeInferenceRules,sourceTimeZone:"America/Guayaquil",basis:"pdfjs_text",calendarRange:"2000-2099"}};
     return e;
   }
 }

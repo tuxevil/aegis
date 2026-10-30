@@ -22,7 +22,10 @@ const detailSchemas={
     rainDailyMm:{type:["number","null"],minimum:0},scope:{const:"single_station"},upstreamFailed:{type:"boolean"}}},
   official_warning:{type:"object",additionalProperties:false,required:["bulletinNumber","authority","sourceRiskLevel","phenomena","areasMentioned","mapReviewed"],properties:{
     bulletinNumber:{type:["integer","null"],minimum:1},authority:{const:"INAMHI"},sourceRiskLevel:nullableText,
-    phenomena:{type:"array",items:text,maxItems:20},areasMentioned:{type:"array",items:text,maxItems:100},mapReviewed:{const:false}}},
+    phenomena:{type:"array",items:text,maxItems:20},areasMentioned:{type:"array",items:text,maxItems:100},mapReviewed:{const:false},coveredAreaNames:{type:"array",items:text,maxItems:100},
+    temporalExtraction:{type:"object",additionalProperties:false,required:["originalValidityText","validityParseStatus","timeInferenceRules","sourceTimeZone","basis","calendarRange"],properties:{
+      originalValidityText:nullableText,validityParseStatus:{enum:["missing","ambiguous_or_invalid","parsed"]},
+      timeInferenceRules:{type:"array",items:text,maxItems:4},sourceTimeZone:{const:"America/Guayaquil"},basis:{const:"pdfjs_text"},calendarRange:{const:"2000-2099"}}}}},
   static_exposure:{type:"object",additionalProperties:false,required:["features","exceededTransferLimit","sourceCrs","geometryIncluded"],properties:{
     features:{type:"array",maxItems:2000,items:{type:"object",additionalProperties:false,required:["objectId","categoryRaw","cantonCode","cantonName","hazardRaw"],properties:{
       objectId:{type:["integer","null"]},categoryRaw:nullableText,cantonCode:nullableText,cantonName:nullableText,hazardRaw:nullableText,geometry}}},

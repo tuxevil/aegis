@@ -1,9 +1,9 @@
 // Deliberately synthetic PDF generator; contains no provider bytes.
-export function syntheticBulletin({day="25",month="octubre",year="2026",number=83,validTo=null}={}) {
+export function syntheticBulletin({day="25",month="octubre",year="2026",number=83,issueHour="14",validTo=null,validityText=null,areaText="ZONAS AFECTADAS: Guayas"}={}) {
   const lines=["SYNTHETIC TEST - NOT AN OFFICIAL BULLETIN",`Boletin Meteorologico Nro. ${number}`,
-    `Fecha y hora de emision: domingo, ${day} de ${month} de ${year}, 14:00 horas`,
-    `Vigencia: desde 16H00 del ${day} hasta las 23H00 del ${validTo||`28 de ${month} de ${year}`}`,
-    "NIVEL AMENAZA: MEDIO - MUY ALTO FENOMENO: LLUVIAS","ZONAS AFECTADAS: Guayas"];
+    `Fecha y hora de emision: domingo, ${day} de ${month} de ${year}, ${issueHour}:00 horas`,
+    `Vigencia: ${validityText||`desde 16H00 del ${day} hasta las 23H00 del ${validTo||`28 de ${month} de ${year}`}`}`,
+    "NIVEL AMENAZA: MEDIO - MUY ALTO FENOMENO: LLUVIAS",areaText];
   const stream="BT /F1 10 Tf 40 750 Td "+lines.map((s,i)=>(i?"0 -20 Td ":"")+`(${s}) Tj`).join("\n")+" ET";
   const objects=["<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
     "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 800 900] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",

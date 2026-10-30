@@ -68,6 +68,7 @@ export class IngestionService {
     return {...safeMode,sourceId:source.id,status:record.envelope.quality.dataStatus,captureId:record.id,revision:record.revision};
   }
   async reprocess(captureId) {
+    await this.store.verify();
     const original=(await this.store.records()).find(r=>r.id===captureId);
     if(!original) throw new Error("unknown_capture");
     const capture={bytes:await this.store.readRaw(original.sha256),retrievedAt:original.retrievedAt,
