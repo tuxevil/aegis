@@ -42,7 +42,8 @@ test('real PDF.js extraction of synthetic cross-month bulletin; offline revision
  for(const area of ['guayaquil','pallatanga']) {
    const result=await assessArchive({store,area,asOf:revision.processedAt});
    assert.equal(result.status,'unknown');assert.equal(result.candidates.length,0);
-   assert.ok(result.excluded.some(r=>r.reason==='territory_not_supported'));assert.equal(result.alertsPublishEnabled,false);
+   const expectedReason=Date.parse(revision.processedAt)-Date.parse(revision.retrievedAt)>service.registry.get(revision.sourceId).ttlMs?'capture_stale_at_cutoff':'territory_not_supported';
+   assert.ok(result.excluded.some(r=>r.reason===expectedReason));assert.equal(result.alertsPublishEnabled,false);
  }
  const snapshot=path.join(root,'snapshot'),restored=path.join(root,'restored');
  await createDataBackup({sourceDir:dir,snapshotDir:snapshot,quiesced:true});await verifyDataBackup({snapshotDir:snapshot});

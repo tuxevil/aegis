@@ -1,3 +1,4 @@
+import {territorialScope,validateTerritorialReviews,territorialPolicyVersion} from "./territorial-evidence.js";
 import {createHash} from "node:crypto";
 import {SourceRegistry,safeMode} from "./registry.js";
 import {pilotArea} from "./areas.js";
@@ -9,7 +10,6 @@ import {selectKnownCaptures} from "./knowledge-cutoff.js";
 const HOUR=3600000;
 export const shadowPolicy=Object.freeze({version:"rain-watch-1-experimental",stationRateMmHr:8,stationDailyMm:20,forecast24hMm:20});
 const hash=value=>createHash("sha256").update(JSON.stringify(value)).digest("hex");
-const same=(a,b)=>a.normalize("NFC").trim().toLocaleLowerCase("es")===b.normalize("NFC").trim().toLocaleLowerCase("es");
 function sourceMatches(source,e) {
   if(source.url===e.sourceUrl)return true;
   if(source.type!=="arcgis-layer")return false;
@@ -17,8 +17,6 @@ function sourceMatches(source,e) {
   catch{return false;}
 }
 function scopeFor(e,source,area) {
-  if(e.kind==="official_warning"&&e.spatial.precision==="province"&&e.spatial.areaNames.some(n=>same(n,area.province)))return {precision:"province",name:area.province,matching:"explicit_province_mention"};
-  if(e.kind==="official_warning"&&e.spatial.precision==="canton"&&e.spatial.areaNames.some(n=>same(n,area.name)))return {precision:"canton",name:area.name,matching:"explicit_canton_mention"};
   if(e.kind==="observation"&&source.id==="grid.pallatanga.weather"&&area.id==="pallatanga")return {precision:"station",name:"Una estación comunitaria de Pallatanga",matching:"configured_single_station"};
   if(e.kind==="forecast_run"&&e.spatial.precision==="point"&&source.areaIds.includes(area.id))return {precision:"point",name:`Punto de modelo aproximado de ${area.name}`,matching:"configured_model_point"};
   return null;
@@ -42,8 +40,9 @@ function forecastSignal(e,cutoff) {
 
 // Shadow-only proposals. No event confirmation, delivery, risk probability or
 // assumption of no risk when no candidate can be supported.
-export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_source",registry=new SourceRegistry()}={}) {
+export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_source",territorialReviews=[],registry=new SourceRegistry()}={}) {
   const area=pilotArea(areaId);if(!area)throw new Error("unknown_pilot_area");
+  validateTerritorialReviews(territorialReviews,records);
   const selection=selectKnownCaptures(records,asOf,{recordOrigin}),cutoff=utcMillis(asOf);
   const byId=new Map(records.filter(r=>r&&typeof r.id==="string").map(r=>[r.id,r])),latest=new Map(),ambiguous=new Set(),excluded=[...selection.excluded],contexts=[];
   for(const ref of selection.known) {
@@ -68,12 +67,13 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
         featureCount:matched.length,completeness:"unverified_for_assessment",notForPrediction:true,publicationBlocked:true});
       continue;
     }
-    if(cutoff-utcMillis(record.retrievedAt)>source.ttlMs){reject("capture_stale_at_cutoff");continue;}
-    const scope=scopeFor(e,source,area);
-    if(!scope){reject("territory_not_supported");continue;}
+    const territory=e.kind==="official_warning"?territorialScope({record,records,reviews:territorialReviews,area,asOf}):null;
+    if(cutoff-utcMillis(record.retrievedAt)>source.ttlMs){excluded.push({captureId:ref.captureId,reason:"capture_stale_at_cutoff",...(territory?{territorialEvidence:territory}:{})});continue;}
+    const scope=territory?territory.scope:scopeFor(e,source,area);
+    if(!scope){excluded.push({captureId:ref.captureId,reason:territory?.reason||"territory_not_supported",...(territory?{territorialEvidence:territory}:{})});continue;}
     const sourceRef={captureId:record.id,sourceId:e.sourceId,sha256:record.sha256,sourceUrl:e.sourceUrl,knownAt:ref.knownAt,
       issuedAt:e.time.issuedAt,retrievedAt:record.retrievedAt,processedAt:record.processedAt};
-    const limitations=[...e.quality.blockers,"Human editorial review required","Geography and data rights not certified for publication",
+    const limitations=[...e.quality.blockers,...(territory?.limitations||[]),"Human editorial review required","Geography and data rights not certified for publication",
       "No calibrated probability of damage or disaster",...(recordOrigin==="synthetic_fixture"?["SYNTHETIC TEST — never a real warning"]:[])];
     if(recordOrigin!=="synthetic_fixture"&&["unknown","invalid","stale"].includes(e.quality.dataStatus)){reject("source_quality_not_usable");continue;}
     let proposal;
@@ -129,11 +129,11 @@ export function assessHazard({records,asOf,area:areaId,recordOrigin="captured_so
   }
   candidates.sort((a,b)=>a.id.localeCompare(b.id,"en"));
   return {...safeMode,recordOrigin,asOf,areaId:area.id,status:candidates.length?"partial":"unknown",candidates,contexts,excluded,
-    policy:shadowPolicy,notice:"Missing or untriggered evidence never establishes low risk or all-clear",publicationBlocked:true};
+    policy:shadowPolicy,territorialPolicyVersion,notice:"Missing or untriggered evidence never establishes low risk or all-clear",publicationBlocked:true};
 }
 
 export async function assessArchive({store,asOf,area}={}) {
   if(!store||store.namespace!=="sources")throw new Error("source_store_required");
   await store.verify();
-  return assessHazard({records:await store.records(),asOf,area,recordOrigin:store.origin});
+  return assessHazard({records:await store.records(),territorialReviews:await store.territorialReviews?.()||[],asOf,area,recordOrigin:store.origin});
 }

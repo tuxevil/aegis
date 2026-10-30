@@ -1,5 +1,16 @@
 # AEGIS Multiamenaza — START HERE (entrega de planificación a Codex)
 
+## Actualización — evidencia territorial, 30/10/2026
+
+[Validación territorial del boletín84](../verification/integration/inamhi-territorial-validation.md)
+y [contrato privado v1](../contracts/territorial-evidence-v1.md): seis anotaciones
+inmutables en copia aislada, sin descargar ni alterar el PDF/interpretaciones.
+Chimborazo está rotulado gráficamente aunque no aparezca en PDF.js; no inferir
+exclusión desde ausencia textual. Sin validación humana independiente ni GIS
+verificado: ambos pilotos unknown, cero candidatos. Captura superó TTL1h;
+una anotación no rejuvenece datos. Restore/replay preservan cortes históricos.
+No se modifica ni reinicia el ensayo autorizado de siete días.
+
 ## Actualización — primera captura real y parser, 30/10/2026
 
 La única consulta INAMHI autorizada por el propietario ya se ejecutó y su permiso
