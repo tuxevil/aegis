@@ -143,3 +143,16 @@ no cambia si el PDF es idéntico. Una mención provincial no es cobertura:
 separar listas explícitas sin calificadores de mapas/prosa y mantener alcance
 unknown cuando no esté demostrado. No reinterpretar registros antiguos in situ.
 [Contrato, evidencia y límites](../verification/integration/inamhi-parser-reprocessing.md).
+
+
+## Decisión operacional — evidencia territorial separada, 30/10/2026
+
+Conservar notas territoriales append-only junto al archivo privado existente,
+ligadas a hash/captura/parser, con métodos y verificación diferenciados. La
+fecha de una nota no reemplaza captura ni disponibilidad. Una revisión solo
+rige desde su conocimiento; ramas incompatibles fallan a unknown. Menciones,
+sectores y etiquetas gráficas no equivalen a cobertura; no inferir GIS de una
+imagen. No introducir DB/editor/servicio ni afirmar revisión humana donde solo
+hubo inspección del agente. La política territorial nueva es explícita y los
+archivos/evaluaciones anteriores no se migran silenciosamente.
+[Contrato y límites](../contracts/territorial-evidence-v1.md).

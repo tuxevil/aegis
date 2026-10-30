@@ -11,7 +11,7 @@ export function captureRecord({id="capture-1",retrievedAt="2026-10-27T18:00:00.0
   if(kind==="official_warning") {
     Object.assign(e.time,{issuedAt:"2026-10-25T19:00:00Z",validFrom:"2026-10-25T21:00:00Z",validTo:"2026-10-29T04:00:00Z"});
     e.spatial.precision="province";e.spatial.areaNames=["Guayas"];
-    e.details={bulletinNumber:999,authority:"INAMHI",sourceRiskLevel:"SYNTHETIC TEST",phenomena:["synthetic rain"],areasMentioned:["Guayas"],mapReviewed:false};
+    e.details={bulletinNumber:999,authority:"INAMHI",sourceRiskLevel:"SYNTHETIC TEST",phenomena:["synthetic rain"],areasMentioned:["Guayas"],coveredAreaNames:["Guayas"],mapReviewed:false};
   } else if(kind==="forecast_run") {
     Object.assign(e.time,{runInitializedAt:"2026-10-25T00:00:00Z",availabilityVerifiedAt:origin==="captured_source"?retrievedAt:null});
     e.spatial.precision="point";e.spatial.areaNames=["Guayaquil · punto aproximado sintético"];

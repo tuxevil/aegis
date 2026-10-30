@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import {createHash,randomUUID} from "node:crypto";
+import {validateTerritorialInput,validateTerritorialReviews,territorialSafeMode} from "./territorial-evidence.js";
 import {utcMillis} from "./time.js";
 import {validateEnvelope} from "./envelope.js";
 import {createImmutableFile as atomicCreate} from "./immutable-file.js";
@@ -104,6 +105,33 @@ export class RawArtifactStore {
     if(hash(bytes)!==digest) throw new Error("artifact_corrupt");
     return bytes;
   }
+  async territorialReviews() {
+    const directory=path.join(this.root,"territorial-reviews");
+    try {const stat=await fs.lstat(directory);if(!stat.isDirectory()||stat.isSymbolicLink())throw new Error("invalid_territorial_directory");}
+    catch(error){if(error.code==="ENOENT")return [];throw error;}
+    const names=await fs.readdir(directory);
+    if(names.length>1000)throw new Error("territorial_capacity");
+    const reviews=[];
+    for(const name of names) {
+      if(!/^[a-f0-9-]{36}\.json$/.test(name))throw new Error("invalid_territorial_history");
+      const file=path.join(directory,name),stat=await fs.lstat(file);
+      if(!stat.isFile()||stat.isSymbolicLink()||stat.size>20000)throw new Error("invalid_territorial_history");
+      reviews.push(JSON.parse(await fs.readFile(file,"utf8")));
+    }
+    reviews.sort((a,b)=>a.sequence-b.sequence);
+    return validateTerritorialReviews(reviews,await this.records());
+  }
+  async appendTerritorialReview(input) {
+    return this.locked(async()=>{
+      await this.verify();
+      const records=await this.records(),previous=await this.territorialReviews(),value=validateTerritorialInput(input,records);
+      if(previous.length>=1000)throw new Error("territorial_capacity");
+      const record={version:1,id:randomUUID(),sequence:previous.length+1,recordedAt:new Date().toISOString(),...value,...territorialSafeMode};
+      validateTerritorialReviews([...previous,record],records);
+      const directory=path.join(this.root,"territorial-reviews");await fs.mkdir(directory,{recursive:true,mode:0o700});
+      await atomicCreate(path.join(directory,record.id+".json"),JSON.stringify(record));return record;
+    });
+  }
   async verify() {
     const records=await this.records();
     for(const record of records) {
@@ -111,6 +139,7 @@ export class RawArtifactStore {
       validateEnvelope(record.envelope);
       await this.readRaw(record.sha256);
     }
+    await this.territorialReviews();
     return {captures:records.length,artifacts:new Set(records.map(r=>r.sha256)).size};
   }
 }
