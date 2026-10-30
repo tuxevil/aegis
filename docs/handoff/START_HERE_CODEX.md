@@ -1,5 +1,17 @@
 # AEGIS Multiamenaza — START HERE (entrega de planificación a Codex)
 
+## Actualización — primera captura real y parser, 30/10/2026
+
+La única consulta INAMHI autorizada por el propietario ya se ejecutó y su permiso
+está **consumido**. No repetir GET ni regenerar autorizaciones. El PDF y sus
+interpretaciones permanecen privados. [Reprocesamiento offline y límites](../verification/integration/inamhi-parser-reprocessing.md):
+parser `inamhi-pdf-1.1.0`, fechas comprobadas contra bytes originales, historia
+conservada y restauración verificada. Calidad parcial no prueba cobertura:
+Guayaquil/Pallatanga siguen desconocidos, cero candidatos. Sin polling/publicación.
+El ensayo siete días continúa con su contenedor/imagen/deadline originales;
+no recrearlo para incorporar esta corrección. Las frases históricas siguientes
+sobre consulta pendiente describen etapas anteriores, no una autorización nueva.
+
 ## Ensayo autorizado en desarrollo — en ejecución desde29/10/2026
 
 El propietario autorizó siete días sintéticos **en esta máquina**, sin Proxmox.

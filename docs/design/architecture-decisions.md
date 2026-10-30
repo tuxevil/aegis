@@ -130,3 +130,16 @@ mantener energía desconocida, discrepancias fuera de etiquetas y retrospectivas
 fuera de features. Un anillo acotado conserva métricas recientes, snapshots diarios
 dan seguimiento7–14 días, el archivo original conserva trazabilidad. Al llenarse
 la capacidad se detiene ingesta; no borrar evidencia automáticamente para continuar.
+
+
+## Decisión operacional — interpretación INAMHI versionada, 30/10/2026
+
+Corregir fechas mediante una gramática temporal acotada con calendario/zona
+verificados; no inferir meses previos ni años actuales para salvar documentos.
+Guardar texto de vigencia y reglas de inferencia junto al parser versionado.
+Reprocesar por append sobre el mismo hash, conservando captura/interpretación
+original y disponibilidad efectiva de la corrección. La revisión de contenido
+no cambia si el PDF es idéntico. Una mención provincial no es cobertura:
+separar listas explícitas sin calificadores de mapas/prosa y mantener alcance
+unknown cuando no esté demostrado. No reinterpretar registros antiguos in situ.
+[Contrato, evidencia y límites](../verification/integration/inamhi-parser-reprocessing.md).
